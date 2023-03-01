@@ -29,8 +29,33 @@ const get_user_by_username_or_email = async (name) => {
 }
 
 const get_all_users = async () => {
-    const result =  await Model.user.find();
+    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
     return result;
+}
+
+const get_institute_members = async(institute_id) => {
+    const temp = await Model.institute.findById(institute_id);
+    const members = temp.members;
+    const admins = temp.admins;
+    const member_results = await Model.user.find({ "_id": {$in: members} }, {username: 1, _id: 1});
+    const admin_results = await Model.user.find({ "_id": {$in: admins} }, {username: 1, _id: 1});
+    const resource_results = await Model.resource.find({institute: institute_id}, {_id: 1, topic: 1})
+    return [member_results, admin_results, resource_results];
+}
+
+const get_task_members = async(author_id, collab_idx) => {
+    const author = await Model.user.findById(author_id, {username: 1, _id: 1});
+    const collab_results = await Model.user.find({ "_id": {$in: collab_idx} }, {username: 1, _id: 1});
+    
+    return [author, collab_results];
+}
+
+const get_resource_data = async(resource_id) => {
+    const resource = await Model.resource.findById(resource_id);
+    const user = await Model.user.findById(resource.author, {username: 1, _id: 1});
+    const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1});
+    
+    return [user, institute];
 }
 
 const edit_username = async(id, new_username) => {
@@ -203,5 +228,5 @@ module.exports = {
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
-    get_user_messages, broadcast_message
+    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data
 }

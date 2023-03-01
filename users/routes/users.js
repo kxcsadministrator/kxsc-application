@@ -127,6 +127,47 @@ router.get('/one/:id', async (req, res) => {
 
 /** 
  * @swagger
+ * /users/username/{name}:
+ *  get:
+ *      summary: Gets a user via the username or email
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/username/:name', async (req, res) => {
+    try {
+        const name = req.params.name
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({message: "Token not found"});
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const user = await repository.get_user_by_username_or_email(name);
+        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+
+        res.status(200).json({"id": user._id, "username": user.username});
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
  * /users/edit-username/{id}:
  *  patch:
  *      summary: Changes a user's username
@@ -974,6 +1015,126 @@ router.get('/admin-publish-requests', async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         res.status(400).json({message: error.message})
+    }
+})
+
+/** 
+ * @swagger
+ * /users/institute-data/{institute_id}:
+ *  get:
+ *      summary: Gets an institute's user data in readable format
+ *      description: |
+ *          Only the superadmin has access to get
+ * 
+ *          Requires a bearer token for authentication.
+ * responses:
+ *    '200':
+ *      description: Ok
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/institute-data/:id', async (req, res) => {
+    try {
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({message: "Token not found"});
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const id = req.params.id;
+
+        const [admins, members, resources] = await repository.get_institute_members(id);
+        result = {"admins": admins, "members": members, "resources": resources}
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/task-data:
+ *  get:
+ *      summary: Gets a task's user data in readable format
+ *      description: |
+ *          Only the superadmin has access to get
+ * 
+ *          Requires a bearer token for authentication.
+ *          
+ * responses:
+ *    '200':
+ *      description: Ok
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/task-data',
+    validator.check("author").notEmpty().withMessage("author field must not be empty"), 
+    validator.check("collabs").notEmpty().withMessage("collabs field must not be a non-empty list"),
+    async (req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+                return res.status(400).json({ errors: errors.array() });
+        }
+
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({message: "Token not found"});
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const author_id = req.body.author;
+        const collab_idx = req.body.collabs
+
+        const [author, collabs] = await repository.get_task_members(author_id, collab_idx)
+        result = {"author": author, "collaborators": collabs}
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/read/{id}:
+ *  get:
+ *      summary: Gets a user an id and returns only the username and id. For getting basic info.
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/resource-data/:id', async (req, res) => {
+    try {
+        const id = req.params.id
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) return res.status(401).json({message: "Token not found"});
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const [author, institute] = await repository.get_resource_data(id);
+
+        res.status(200).json({"author": author, "institute": institute});
+    } catch (error) {
+        res.status(400).json({message: error.message});
     }
 })
 

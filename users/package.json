@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --testTimeout=30000 --detectOpenHandles",
-    "start": "nodemon index.js"
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "Timothy Akoji",
   "license": "ISC",

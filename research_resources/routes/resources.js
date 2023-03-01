@@ -165,7 +165,7 @@ router.get('/one/:id', async (req, res) => {
         if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
         const user = validateUser.data;
 
-        const resource = await repository.get_resource_by_id(req.params.id);
+        const resource = await repository.get_resource_data(req.params.id, req.headers);
         if (!resource) return res.status(404).json({message: "Resource not found"});
 
         if (resource.visibility != "public"){
@@ -486,6 +486,7 @@ router.patch('/edit-topic/:id',
             res.status(400).json({message: error.message});
         }
 })
+
 
 /** 
  * @swagger

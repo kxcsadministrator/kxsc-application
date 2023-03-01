@@ -194,7 +194,7 @@ router.get('/all', async (req, res) => {
 router.get('/one/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        const result = await repository.get_task_by_id(id);
+        const result = await repository.get_task_data(id, req.headers);
 
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const isMember = await helpers.validateTaskMembers(req.headers, id);
@@ -204,6 +204,7 @@ router.get('/one/:id', async (req, res) => {
 
         res.status(200).json(result);
     } catch (error) {
+        console.log(error)
         res.status(400).json({message: error.message});   
     }
 });

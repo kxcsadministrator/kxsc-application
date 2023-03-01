@@ -6,7 +6,7 @@ const USERS_BASE_URL = process.env.USERS_SERVICE
 
 
 const validateUser = async (headers) => {
-    if (!headers.authorization) return {status: 401, message: "Token not found"};
+    if (!headers) return {status: 401, message: "Token not found"};
 
     const token = headers.authorization.split(' ')[1];
     if (!token) return {status: 401, message: "Token not found"};
@@ -95,10 +95,12 @@ const admin_publish_request = async (institute_id, resource_id, headers) => {
 
 const validateCollabs = async (collaborators, institute_id) => {
     const institute = await repository.get_institute_by_id(institute_id);
-    const members = institute.members;
+    const admins = institute.admins.toString();
+    const members = institute.members.toString();
+    const valid_colabs = members.concat(admins)
 
-    console.log(collaborators, '---', members)
-    return collaborators.every(val => members.includes(val));
+    console.log(collaborators, '---', valid_colabs)
+    return collaborators.every(val => valid_colabs.includes(val));
 }
 
 module.exports = {

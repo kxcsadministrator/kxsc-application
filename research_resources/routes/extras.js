@@ -76,7 +76,7 @@ router.post('/rate',
  * @swagger
  * /rating/{id}:
  *  get:
- *      summary: Gets all resources
+ *      summary: Gets all the average rating for a resource
  *      description: >
  *           Gets the rating for a resource given an id
  *           An average of 0 essentially means the resource hasn't been rated yet

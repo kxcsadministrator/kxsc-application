@@ -1,5 +1,8 @@
 const Model = require('./models');
 const fs = require('fs');
+const axios = require('axios');
+const USERS_BASE_URL = process.env.USERS_SERVICE
+
 /* 
 The functions in this file interact directly with the DB. These functions abstract away
 all business logic related to the database hence can be used directly in any routes file.
@@ -7,6 +10,45 @@ all business logic related to the database hence can be used directly in any rou
 The aim of this style of implementation is for the code in the routes to remain the same
 irrespective of the type of db being used.
 */
+
+//************************ Some helpers added here to prevent circular imports ***********************//
+const get_insitute_member_data = async(institute_id, headers) => {
+    const publish_res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/institute-data/${institute_id}`,
+        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+    })
+
+    return publish_res.data;
+}
+
+const get_task_member_data = async(author_id, collab_idx, headers) => {
+    const publish_res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/task-data`,
+        data: {"author": author_id, "collabs": collab_idx},
+        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+    })
+
+    return publish_res.data;
+}
+
+const get_task_readable = async (task, header) => {
+    const member_data = await get_task_member_data(task.author, task.collaborators, header);
+    const institute = await get_institute_by_id(task.institute)
+    const files = await Model.taskFile.find({ "_id": {$in: task.files} }, {_id: 1, original_name: 1, date_created: 1});
+    const comments = await Model.comment.find({ "_id": {$in: task.comments} }, {_id: 1, body: 1, date_created: 1});
+    
+    const result = {
+        "id": task._id, 
+        "institute": institute.name,
+        "author": member_data.author,
+        "collaborators": member_data.collaborators,
+        "files": files,
+        "comments": comments
+    }
+    return result;
+}
 
 /* ----------------------------------- Institutes ----------------------------------- */
 const create_new_institute = async(data) => {
@@ -19,13 +61,31 @@ const get_institute_by_name = async (name) => {
     return result;
 }
 
-const get_institute_by_id = async (id) => {
-    const result = await Model.institute.findById(id);
+const get_institute_by_id = async(id) => {
+    const institute = await Model.institute.findById(id);
+    return institute;
+}
+
+const get_institute_data = async (id, headers) => {
+    const institute = await Model.institute.findById(id);
+    if (!institute) return null;
+    const member_data = await get_insitute_member_data(id, headers);
+    const tasks = await Model.task.find({ "_id": {$in: institute.tasks} }, {_id: 1, name: 1})
+    const files = await Model.instituteFile.find({ "_id": {$in: institute.files} }, {_id: 1, original_name: 1, date_created: 1})
+
+    const result = {
+        "id": institute._id,
+        "members": member_data.members,
+        "admins": member_data.admins,
+        "resources": member_data.resources,
+        "tasks": tasks,
+        "files": files
+    }
     return result;
 }
 
 const get_all_institutes = async() => {
-    const result = await Model.institute.find().sort({"date_created": -1});
+    const result = await Model.institute.find({}, {_id: 1, name: 1}).sort({"date_created": -1});
     return result;
 }
 
@@ -166,18 +226,26 @@ const get_task_by_name = async (name, institute_id) => {
     return result;
 }
 
+
+const get_task_data = async(id, header) => {
+    const task = await Model.task.findById(id);
+    
+    const result = await get_task_readable(task, header)
+    return result;
+}
+
 const get_task_by_id = async (id) => {
-    const result = await Model.task.findById(id)
+    const result = await Model.task.findById(id);
     return result;
 }
 
 const get_all_institute_tasks = async(id) => {
-    const result = await Model.task.find({institute: id});
+    const result = await Model.task.find({institute: id}, {_id: 1, name: 1, author: 1});
     return result;
 }
 
 const get_all_tasks = async() => {
-    const result =  await Model.task.find().sort({"date_created": -1});
+    const result =  await Model.task.find({}, {_id: 1, name: 1, author: 1}).sort({"date_created": -1});
     return result;
 }
 
@@ -279,5 +347,5 @@ module.exports = {
     get_all_tasks, get_task_by_id, delete_task, add_collaborators, remove_collaborators, get_tasks_files, get_one_task_file,
     add_task_file, add_task_comment, get_task_comments, edit_task_comment, delete_task_comment, get_comment_by_id, edit_task_name,
     edit_institute_name, add_resources_to_institute, remove_resources_from_institute, request_to_publish, publish, find_request_by_resource,
-    get_institute_requests
+    get_institute_requests, get_institute_data, get_task_data
  };

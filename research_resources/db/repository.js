@@ -1,6 +1,9 @@
 const Model = require('./models');
 const Retrieval = require("retrieval");
 const fs = require('fs');
+const axios = require('axios')
+
+const USERS_BASE_URL = process.env.USERS_SERVICE
 
 /* 
 The functions in this file interact directly with the DB. These functions abstract away
@@ -9,6 +12,17 @@ all business logic related to the database hence can be used directly in any rou
 The aim of this style of implementation is for the code in the routes to remain the same
 irrespective of the type of db being used.
 */
+
+//************************ Some helpers added here to prevent circular imports ***********************//
+const get_resource_user_data = async(resource_id, headers) => {
+    const publish_res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/resource-data/${resource_id}`,
+        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+    })
+
+    return publish_res.data;
+}
 
 /*------------------------------ Resources Section ------------------------------------------ */
 const create_new_resource = async (data)=>{
@@ -19,6 +33,32 @@ const create_new_resource = async (data)=>{
 const get_resource_by_id = async (id)=>{
     const data = await Model.resource.findById(id);
     return data;
+}
+
+const get_resource_data = async(id, headers) => {
+    const resource = await Model.resource.findById(id);
+    if (!resource) return null;
+
+    const resource_data = await get_resource_user_data(id, headers);
+    const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
+    const rating = await get_rating(id);
+
+    const result = {
+        "id": id,
+        "author": resource_data.author,
+        "topic": resource.topic,
+        "description": resource.description,
+        "institute": resource_data.institute,
+        "category": resource.category,
+        "sub_categories": resource.sub_categories,
+        "visibility": resource.visibility,
+        "resource_type": resource.resource_type,
+        "citations": resource.citations,
+        "rating": rating,
+        "files": files,
+        "date_created": resource.date
+    }
+    return result
 }
 
 const get_resource_by_topic = async (name)=>{
@@ -37,16 +77,16 @@ const get_resource_by_topic_or_id = async (query)=>{
 
 const get_all_resources = async (category="None", sub_cat="None")=>{
     if (category === "None"){
-        const data = await Model.resource.find().sort({"date": -1});
+        const data = await Model.resource.find({}, {_id: 1, topic: 1}).sort({"date": -1});
         return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        const data = await Model.resource.find({"category": category}).sort({"date": -1});
+        const data = await Model.resource.find({"category": category}, {_id: 1, topic: 1}).sort({"date": -1});
         return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        const data = await Model.resource.find({"category": category, "sub_categories": sub_cat}).sort({"date": -1});
+        const data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1}).sort({"date": -1});
         return data;
     }
     
@@ -54,28 +94,29 @@ const get_all_resources = async (category="None", sub_cat="None")=>{
 
 const get_user_resources = async (author_id, institute_id = "None")=>{
     if (institute_id === "None"){
-        const data = await Model.resource.find({author: author_id}).sort({"date": -1});
+        const data = await Model.resource.find({author: author_id}, {_id: 1, topic: 1}).sort({"date": -1});
         return data;
     }
     else {
-        const data = await Model.resource.find({author: author_id, institute: institute_id}).sort({"date": -1});
+        const data = await Model.resource.find({author: author_id, institute: institute_id}, {_id: 1, topic: 1}).sort({"date": -1});
         return data;
     }
     
 }
 
 const get_public_resources = async (category="None", sub_cat="None")=>{
+    const projection = {_id: 1, topic: 1}
     if (category === "None"){
-        const data = await Model.resource.find({visibility: "public"}).sort({"date": -1});
+        const data = await Model.resource.find({visibility: "public"}, projection).sort({"date": -1});
         return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        const data = await Model.resource.find({category: category, visibility: "public"}).sort({"date": -1});
+        const data = await Model.resource.find({category: category, visibility: "public"}, projection).sort({"date": -1});
         return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        const data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}).sort({"date": -1});
+        const data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}, projection).sort({"date": -1});
         return data;
     }
     
@@ -187,13 +228,14 @@ const validateRate = async (user_id, resource_id) => {
 const get_rating = async (id) => {
     const ratings = []
     const data = await Model.rating.find({resource: id});
-    
+
     data.map(p => {
         ratings.push(p.score);
     })
 
+    if (!ratings.length) return {"average_rating": 0};
     let result = ratings.reduce((acc, c) => acc + c, 0) / ratings.length
-    return {"_id": id, "average": result};
+    return {"average_rating": result};
 }
 
 const get_monthly_stats =  async () => {
@@ -310,5 +352,6 @@ module.exports = {
     rate_resource, get_rating, search_resource, similarity, update_resource_category, get_resource_by_topic_or_id, 
     add_sub_categories, remove_sub_categories, get_resource_by_topic, update_resource_topic, update_resource_description, 
     update_visibility, update_resource_type, add_resource_sub_categories, remove_resource_sub_categories, add_resource_citations,
-    remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources
+    remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
+    get_resource_data
 }

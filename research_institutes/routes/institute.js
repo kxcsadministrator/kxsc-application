@@ -93,11 +93,12 @@ router.post('/new', validator.checkSchema(schemas.newInstituteSchema), async (re
 */
 router.get('/one/:id', async (req, res) => {
     try {
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+
         const id = req.params.id;
-        const data = await repository.get_institute_by_id(id);
+        const data = await repository.get_institute_data(id, req.headers);
         if (!data) return res.status(404).json({message: `insititute with id ${id} not found`});
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const isMember = await helpers.validateInstituteMembers(req.headers, id);
         if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a member of institute`})
         
