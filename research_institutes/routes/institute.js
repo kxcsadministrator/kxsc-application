@@ -148,7 +148,7 @@ router.get('/all', async (req, res) => {
  *         You can add multiple admins in one go.
  *         The usernames/emails provided will be validated. An error will be returned if there are no users with such data
  *         ## Schema:
- *         ### admins: {required: true, type: [ObjectId]}
+ *         ### admins: {required: true, type: [String]}
  *      parameters: 
  *          - in: path
  *            name: id
@@ -209,7 +209,7 @@ router.patch('/add-admins/:id',
  * 
  *         The usernames/emails provided will be validated. An error will be returned if there are no users with such data
  *         ## Schema:
- *         ### admins: {required: true, type: [ObjectId]}
+ *         ### admins: {required: true, type: [String]}
  *      parameters: 
  *          - in: path
  *            name: id
@@ -270,7 +270,7 @@ router.patch('/remove-admins/:id',
  *          
  *         The usernames/emails provided will be validated. An error will be returned if there are no users with such data
  *         ## Schema:
- *         ### members: {required: true, type: [ObjectId]}
+ *         ### members: {required: true, type: [String]}
  *      parameters: 
  *          - in: path
  *            name: id
@@ -328,7 +328,7 @@ router.patch('/add-members/:id',
  * 
  *         The usernames/emails provided will be validated. An error will be returned if there are no users with such data
  *         ## Schema:
- *         ### members: {required: true, type: [ObjectId]}
+ *         ### members: {required: true, type: [String]}
  *      parameters: 
  *          - in: path
  *            name: id
