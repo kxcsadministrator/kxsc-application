@@ -118,6 +118,11 @@ const remove_profile_photo = async (photo_id, user_id) => {
     return result;
 }
 
+const get_profile_photo = async(photo_id) => {
+    const photo = await Model.profilePic.findById(photo_id, {_id: 1, original_name: 1, path: 1});
+    return photo;
+}
+
 /* ---------------------------------------- Token ------------------------------- */
 const create_new_token = async(data) => {
     const result = await data.save();
@@ -228,5 +233,5 @@ module.exports = {
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
-    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data
+    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo
 }

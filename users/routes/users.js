@@ -119,6 +119,9 @@ router.get('/one/:id', async (req, res) => {
         if (!user) return res.status(404).json({message: `user with id ${id} not found`});
 
         if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to get'});
+        
+        const photo = await repository.get_profile_photo(user.profile_picture)
+        user.profile_picture = photo
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});
@@ -462,13 +465,14 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
             SECRET_KEY,
             { expiresIn: "7 days" }
         )
+        const photo = await repository.get_profile_photo(user.profile_picture)
         res.status(200).json({ // consider using a fieldMask for this endpoint
             username: user.username,
             id: user._id,
             email: user.email,
             jwt_token: token,
             superadmin: user.superadmin,
-            profile_picture: user.profile_picture,
+            profile_picture: photo,
             institutes: user.institutes,
             resources: user.resources,
             tasks: user.tasks
