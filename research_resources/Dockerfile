@@ -15,7 +15,9 @@ RUN npm install
 COPY . /node/
 
 # Run the node server with server.js file
-CMD ["npm", "run", "dev"]
+# CMD ["npm", "run", "dev"]
+
+CMD ["npm", "run", "start"]
 
 # Expose the service over PORT 3000
 EXPOSE 3000
