@@ -87,7 +87,7 @@ router.post('/rate',
  *            name: id
  *            schema:
  *              type: UUID/Object ID
- *            required: false
+ *            required: true
  *            description: id of the resource to get the average rating
  * responses:
  *    '200':
@@ -156,7 +156,7 @@ router.get('/search', async (req, res) => {
 })
 /** 
  * @swagger
- * /similar:
+ * /similar/{id}:
  *  get:
  *      summary: Performs similar document retrieval using BM25 for a given query
  *      description: > 
@@ -164,23 +164,29 @@ router.get('/search', async (req, res) => {
  *          Uses the description of the resources as corpus for the algorithm
  *          
  *      parameters: 
- *          - in: query
- *            name: query
+ *          - in: path
+ *            name: id
  *            schema:
- *              type: string
+ *              type: Object ID
  *            required: true
- *            description: The query you wish to perform similar document retrieval on
+ *            description: The id of the resource you wish to obtain similar resources for
  * responses:
  *    '200':
  *      description: Ok
  *    '400':
  *      description: Bad request
 */
-router.get('/similar', async (req, res) => {
+router.get('/similar/:id', async (req, res) => {
     try {
-        if (!req.query.query) return res.status(400).json({message: "query must be a non-empty string"});
-        const query = req.query.query
-        const result = await repository.similarity(query);
+        const id = req.params.id;
+        const resource = await repository.get_resource_by_id(id);
+        if (!resource) return res.status(404).json({message: "Resource not found"});
+
+        let query = resource.topic
+        if (resource.description) query = resource.description
+
+        console.log(query)
+        const result = await repository.similarity(query, id);
         res.status(200).json(result)
     } catch (error) {
         res.status(400).json({message: error.message});

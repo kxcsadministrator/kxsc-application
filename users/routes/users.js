@@ -115,13 +115,13 @@ router.get('/one/:id', async (req, res) => {
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        const user = await repository.get_user_by_id(id);
+        const user = await repository.clean_user_by_id(id);
         if (!user) return res.status(404).json({message: `user with id ${id} not found`});
 
         if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to get'});
         
-        const photo = await repository.get_profile_photo(user.profile_picture)
-        user.profile_picture = photo
+        // const photo = await repository.get_profile_photo(user.profile_picture)
+        // user.profile_picture = photo
         res.status(200).json(user);
     } catch (error) {
         res.status(400).json({message: error.message});

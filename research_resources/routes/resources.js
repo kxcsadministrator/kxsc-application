@@ -33,14 +33,14 @@ const INSTITUTE_BASE_URL = process.env.INSTITUTE_SERVICE
  * 
  *          The category and sub_categories are names while the institute is the institute ID where the resource will be published under.
  * 
- *          Requires a bearer token to be sent as part of authorization headers
+ *          Requires a bearer token for authentication
  * 
  *          ## Schema
  *          ### topic: {required: true, type: string}
  *          ### description: {required: true, type: string}
  *          ### category: {required: true, type: string} 
- *          ### sub_categories: {required: true, type: [string]} 
- *          ### visibility: {type: string, default: "private"} 
+ *          ### sub_categories: {required: true, type: [string]}
+ *          ### institute: {required: true, type: ObjectID}  
  *          ### resource_type: {required: true, type: string} 
  *          ### citations: {required: false, type: [string]} 
  *          ### date: {type: date, default: date-of-creation} 
@@ -110,22 +110,14 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
             sub_categories: Array.from(unique_subs),
             citations: citations,
             resource_type: req.body.resource_type,
-            institute: institute._id
+            institute: institute.id
         });
         
         
         const dataToSave = await repository.create_new_resource(data);
-        // await axios({
-        //     method: 'patch',
-        //     url:  `${INSTITUTE_BASE_URL}/add-resources/${req.body.institute}`,
-        //     data: {
-        //         'resources': [dataToSave._id]
-        //     },
-        //     headers: {'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`}
-        // })
-
         res.status(201).json(dataToSave);
     } catch (error) {
+        console.error(error)
         res.status(400).json({message: error.message});
     }
     
@@ -186,7 +178,8 @@ router.get('/one/:id', async (req, res) => {
  *      summary: Gets all resources for the user making the request
  *      description: >
  *           Returns the results from newest to oldest by default
- *           Offers options for filtering by institute
+ *           Offers options for filtering by institute. If no institute is passed as the query parameter, then all the resources will
+ *           be returned.
  * 
  *           Requires a bearer token for authentication
  *      parameters: 
@@ -392,11 +385,11 @@ router.post('/request-institute-publish/:id', async (req, res) => {
 
 /** 
  * @swagger
- * /resources/stats:
+ * /resources/monthly-stats:
  *  get:
  *      summary: Gets the monthly statistics for resources added
  *      description: >
- *           Returns the results from oldest to newest by default
+ *           Returns the number of resources created by month and year
  *           
  *           Only a superadmin can request for stats.
  * 
@@ -409,7 +402,7 @@ router.post('/request-institute-publish/:id', async (req, res) => {
  *    '401':
  *      description: Unauthorized
 */
-router.get('/stats', async (req, res) => {
+router.get('/monthly-stats', async (req, res) => {
     try {
         // Authorization and validation
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
@@ -428,11 +421,46 @@ router.get('/stats', async (req, res) => {
 
 /** 
  * @swagger
+ * /resources/group-stats:
+ *  get:
+ *      summary: Returns the total number of resources categorized by resource type (Private, Government, Education)
+ *      description: >
+ *           
+ *           Only a superadmin can request for stats.
+ * 
+ *           Requires a bearer token for authentication
+ * responses:
+ *    '200':
+ *      description: Ok
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.get('/group-stats', async (req, res) => {
+    try {
+        // Authorization and validation
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        const user = validateUser.data;
+
+        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        
+        const result = await repository.get_group_stats()
+        res.status(200).json(result);
+    } catch (error) {
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
  * /resources/edit-topic/{id}:
  *  patch:
  *      summary: updates a given resource topic
  *      description: |
- *          Only the superadmin or author can remove
+ *          Only the superadmin or author can edit
  * 
  *          Requires a bearer token for authentication
  *      parameters: 
@@ -441,7 +469,7 @@ router.get('/stats', async (req, res) => {
  *            schema:
  *              type: UUID/Object ID
  *            required: true
- *            description: id of the resource to update topic
+ *            description: id of the resource for which the topic is to be updated
  * responses:
  *    '200':
  *      description: updated
@@ -503,7 +531,7 @@ router.patch('/edit-topic/:id',
  *            schema:
  *              type: UUID/Object ID
  *            required: true
- *            description: id of the resource to update the description
+ *            description: id of the resource for which the description is to be updated
  * responses:
  *    '200':
  *      description: updated
@@ -549,7 +577,7 @@ router.patch('/edit-description/:id',
  *  patch:
  *      summary: updates a given resource category
  *      description: |
- *          Returns an authorization error if the user making the request is not the author or a superuser.
+ *          Returns an authorization error if the user making the request is not the author or the superadmin.
  *          The new category must exist in the database.
  * 
  *          Requires a bearer token for authentication
@@ -559,7 +587,7 @@ router.patch('/edit-description/:id',
  *            schema:
  *              type: UUID
  *            required: true
- *            description: id of the resource to update category
+ *            description: id of the resource for which the category is to be updated
  * responses:
  *    '200':
  *      description: updated
@@ -617,7 +645,7 @@ router.patch('/edit-category/:id',
  *            schema:
  *              type: UUID/Object ID
  *            required: true
- *            description: id of the resource to update the visibility
+ *            description: id of the resource to for which the visibility is to be updated
  * responses:
  *    '200':
  *      description: updated
@@ -675,7 +703,7 @@ router.patch('/edit-visibility/:id',
  *            schema:
  *              type: UUID/Object ID
  *            required: true
- *            description: id of the resource to update the type
+ *            description: id of the resource for which the type is to be updated
  * responses:
  *    '200':
  *      description: updated

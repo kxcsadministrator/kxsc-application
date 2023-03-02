@@ -24,21 +24,7 @@ const get_resource_user_data = async(resource_id, headers) => {
     return publish_res.data;
 }
 
-/*------------------------------ Resources Section ------------------------------------------ */
-const create_new_resource = async (data)=>{
-    const dataToSave = await data.save();
-    return dataToSave;
-}
-
-const get_resource_by_id = async (id)=>{
-    const data = await Model.resource.findById(id);
-    return data;
-}
-
-const get_resource_data = async(id, headers) => {
-    const resource = await Model.resource.findById(id);
-    if (!resource) return null;
-
+const clean_resource = async (resource, id, headers) => {
     const resource_data = await get_resource_user_data(id, headers);
     const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
     const rating = await get_rating(id);
@@ -58,6 +44,44 @@ const get_resource_data = async(id, headers) => {
         "files": files,
         "date_created": resource.date
     }
+    return result
+}
+
+/*------------------------------ Resources Section ------------------------------------------ */
+const create_new_resource = async (data)=>{
+    const dataToSave = await data.save();
+    return dataToSave;
+}
+
+const get_resource_by_id = async (id)=>{
+    const data = await Model.resource.findById(id, {_id: 1, topic: 1, sub_categories: 1});
+    return data;
+}
+
+const get_resource_data = async(id, headers) => {
+    const resource = await Model.resource.findById(id);
+    if (!resource) return null;
+
+    // const resource_data = await get_resource_user_data(id, headers);
+    // const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
+    // const rating = await get_rating(id);
+
+    // const result = {
+    //     "id": id,
+    //     "author": resource_data.author,
+    //     "topic": resource.topic,
+    //     "description": resource.description,
+    //     "institute": resource_data.institute,
+    //     "category": resource.category,
+    //     "sub_categories": resource.sub_categories,
+    //     "visibility": resource.visibility,
+    //     "resource_type": resource.resource_type,
+    //     "citations": resource.citations,
+    //     "rating": rating,
+    //     "files": files,
+    //     "date_created": resource.date
+    // }
+    const result = clean_resource(resource, id, headers)
     return result
 }
 
@@ -124,55 +148,55 @@ const get_public_resources = async (category="None", sub_cat="None")=>{
 
 const update_resource_topic = async (id, new_topic) => {
     const data = await Model.resource.findByIdAndUpdate(id, { topic: new_topic});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const update_resource_description = async (id, desc) => {
     const data = await Model.resource.findByIdAndUpdate(id, { description: desc});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const update_resource_category = async (id, new_category) => {
     const data = await Model.resource.findByIdAndUpdate(id, { category: new_category});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const update_visibility = async (id, new_visibility) => {
     const data = await Model.resource.findByIdAndUpdate(id, { visibility: new_visibility});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const update_resource_type = async (id, new_type) => {
     const data = await Model.resource.findByIdAndUpdate(id, { resource_type: new_type});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const add_resource_sub_categories =  async (id, subs) => {
     await Model.resource.findByIdAndUpdate(id, {$addToSet: {sub_categories: subs}});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const remove_resource_sub_categories = async (id, subs) => {
     await Model.resource.findByIdAndUpdate(id, {$pullAll: {sub_categories: subs}});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const add_resource_citations =  async (id, cites) => {
     await Model.resource.findByIdAndUpdate(id, {$addToSet: {citations: cites}});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
 const remove_resource_citations =  async (id, cites) => {
     await Model.resource.findByIdAndUpdate(id, {$pullAll: {citations: cites}});
-    const result = await Model.resource.findById(id);
+    const result = await Model.resource.findById(id, {_id: 1, topic: 1});
     return result;
 }
 
@@ -204,7 +228,7 @@ const rate_resource = async (resource_id, user_id, value) => {
     })
     const result = await data.save();
     let resource = await Model.resource.findByIdAndUpdate(resource_id, {$push: {ratings: [result._id]}});
-    resource = await Model.resource.findById(resource_id);
+    resource = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return resource;
 }
 
@@ -215,7 +239,7 @@ const add_resource_file = async (resource_id, data) => {
         idx.push(element._id);
     });
     let parent = await Model.resource.findByIdAndUpdate(resource_id, {$addToSet: {files: idx}});
-    parent = await Model.resource.findById(resource_id);
+    parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return parent;
 }
 
@@ -255,6 +279,19 @@ const get_monthly_stats =  async () => {
     return result;
 }
 
+const get_group_stats =  async () => {
+    const result = await Model.resource.aggregate([
+        {
+            $group: {
+               "_id": "$resource_type", 
+                count: { $sum: 1}
+            }
+        },
+        {$sort: {count:1}} 
+    ])
+    return result;
+}
+
 const search_resource = async (keyword) => {
     let result = await Model.resource.aggregate([
         {
@@ -270,6 +307,7 @@ const search_resource = async (keyword) => {
         },
         {
             "$project": {
+                "_id": 1,
                 "topic": 1,
                 "score": { "$meta": "searchScore"},
             }
@@ -328,12 +366,14 @@ const delete_category_by_id = async (req) => {
 }
 
 /*----------------------------------- BM25 Similarity Search -------------------------------*/
-const similarity = async (query) => {
-    let resources = await get_all_resources();
+const similarity = async (query, id) => {
+    let resources = await Model.resource.find({_id: {$ne: id}})
     let docs = [];
     
     resources.forEach(element => {
-        docs.push(element.description);
+        let data = element.topic
+        if (element.description) data = element.description
+        docs.push(data);
     });
     
     let rt = new Retrieval(K=1.6, B=0.75);
@@ -342,7 +382,7 @@ const similarity = async (query) => {
  
     // 3rd step: search. In other words, multiply the document-term matrix and the indicator vector representing the query.
     let data = rt.search(query, 10)
-    let results = await Model.resource.find({"description": data})
+    let results = await Model.resource.find({"description": data}, {_id: 1, topic: 1})
     return results;
 }
 
@@ -353,5 +393,5 @@ module.exports = {
     add_sub_categories, remove_sub_categories, get_resource_by_topic, update_resource_topic, update_resource_description, 
     update_visibility, update_resource_type, add_resource_sub_categories, remove_resource_sub_categories, add_resource_citations,
     remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
-    get_resource_data
+    get_resource_data, get_group_stats
 }

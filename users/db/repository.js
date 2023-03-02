@@ -7,9 +7,19 @@ const create_new_user = async(data) => {
     return dataToSave
 }
 
-const get_user_by_id =  async (id) => {
-    const result = await Model.user.findById(id);
+const clean_user_by_id =  async (id) => {
+    const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
+    let image = null;
+    if (result.profile_picture){
+        image = await get_profile_photo(result.profile_picture)
+    }
+    result.profile_picture = image
     return result;
+}
+
+const get_user_by_id =  async (id) => {
+    const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
+    return result
 }
 
 const get_user_by_email = async (user_email) => {
@@ -29,7 +39,7 @@ const get_user_by_username_or_email = async (name) => {
 }
 
 const get_all_users = async () => {
-    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
+    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, date_created: 1});
     return result;
 }
 
@@ -60,19 +70,19 @@ const get_resource_data = async(resource_id) => {
 
 const edit_username = async(id, new_username) => {
     await Model.user.findByIdAndUpdate(id, {username: new_username});
-    const result = await Model.user.findById(id)
+    const result = await clean_user_by_id(id)
     return result;
 }
 
 const update_password = async(id, new_password) => {
     await Model.user.findByIdAndUpdate(id, {password: new_password});
-    const result = await Model.user.findById(id);
+    const result = await clean_user_by_id(id);
     return result;
 }
 
 const make_super_admin = async (data) => {
     await data.updateOne({superadmin: true});
-    const result = await Model.user.findById(data._id);
+    const result = await clean_user_by_id(data._id);
     return result;
 }
 
@@ -96,7 +106,7 @@ const add_profile_photo =  async (id, data) => {
     
     const dataToSave = await data.save();
     await Model.user.findByIdAndUpdate(id, {profile_picture: dataToSave._id.toString()})
-    const result = await Model.user.findById(id);
+    const result = await clean_user_by_id(id);
     return result;
 }
 
@@ -114,7 +124,7 @@ const remove_profile_photo = async (photo_id, user_id) => {
     }
 
     await Model.user.findByIdAndUpdate(user_id, {profile_picture: null});
-    const result = await Model.user.findById(user_id);
+    const result = await clean_user_by_id(user_id);
     return result;
 }
 
@@ -233,5 +243,6 @@ module.exports = {
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
-    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo
+    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
+    clean_user_by_id
 }
