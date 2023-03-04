@@ -1329,7 +1329,7 @@ router.get('/institute-data/:id', async (req, res) => {
 
         const id = req.params.id;
 
-        const [admins, members, resources] = await repository.get_institute_members(id);
+        const [members, admins, resources] = await repository.get_institute_members(id);
         result = {"admins": admins, "members": members, "resources": resources}
 
         helpers.log_request_info(`GET users/institute-data/${id} - 200`)
@@ -1395,28 +1395,7 @@ router.get('/task-data',
     }
 })
 
-/** 
- * @swagger
- * /users/read/{id}:
- *  get:
- *      summary: Gets a user an id and returns only the username and id. For getting basic info.
- *      description: |
- *          Requires a bearer token for authentication.
- *      parameters: 
- *          - in: path
- *            name: id
- *            schema:
- *              type: UUID/Object ID
- *            required: true
- *            description: id of the user to get
- *  responses:
- *    '200':
- *      description: Ok
- *    '404':
- *      description: not found
- *    '400':
- *      description: Bad request
-*/
+
 router.get('/resource-data/:id', async (req, res) => {
     try {
         const id = req.params.id
