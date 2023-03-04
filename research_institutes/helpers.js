@@ -1,12 +1,14 @@
 const axios = require('axios');
 const repository = require('./db/repository');
-const model = require('./db/models')
 
+const LOG_BASE_URL = process.env.LOG_URL
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
 
 const validateUser = async (headers) => {
     if (!headers) return {status: 401, message: "Token not found"};
+
+    if (!headers.authorization) return {status: 401, message: "Token not found"};
 
     const token = headers.authorization.split(' ')[1];
     if (!token) return {status: 401, message: "Token not found"};
@@ -103,7 +105,25 @@ const validateCollabs = async (collaborators, institute_id) => {
     return collaborators.every(val => valid_colabs.includes(val));
 }
 
+const log_request_info = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/info`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+const log_request_error = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/error`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+}
+
 module.exports = {
     validateUser, validateInstituteAdmin, validateInstituteMembers, validateUserResource, validateUserdata, admin_publish_request,
-    validateTaskMembers, validateCollabs
+    validateTaskMembers, validateCollabs, log_request_error, log_request_info
 };

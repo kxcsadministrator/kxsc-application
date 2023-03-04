@@ -49,25 +49,41 @@ router.post('/rate',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error('POST resources/rate - 400: validation errors')
             return res.status(400).json({ errors: errors.array() });
         }
 
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error('POST resources/rate - 401: Token not found')
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200){ 
+            helpers.log_request_error(`POST resources/rate - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.body.id);
-        if (!resource) res.status(404).json({message: "Resource not found"}); 
+        if (!resource) {
+            helpers.log_request_error(`POST resources/rate - 404: Resource not found`)
+            res.status(404).json({message: "Resource not found"}); 
+        }
 
         const hasRated = await repository.validateRate(user._id.toString(), resource._id);
-        if (hasRated) return res.status(409).json({message: `User ${user._id} has already rated resource ${resource._id.toString()}`});
+        if (hasRated) {
+            helpers.log_request_error(`POST resources/rate - 409: User ${user._id} has already rated resource ${resource._id.toString()}`)
+            return res.status(409).json({message: `User ${user._id} has already rated resource ${resource._id.toString()}`});
+        }
 
         const data = await repository.rate_resource(req.body.id, user._id.toString(), req.body.value);
+
+        helpers.log_request_info(`POST resources/rate - 200`)
         res.status(200).json(data);
     }
     catch (error) {
+        helpers.log_request_error(`POST resources/rate - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -106,16 +122,28 @@ router.get('/rating/:id', async (req, res) => {
         }
 
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization){ 
+            helpers.log_request_error(`GET resources/rating/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET resources/rating/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (user._id.toString() == resource.author && user.superadmin == false) return res.status(404).json({message: "Resource not found"});
+        if (user._id.toString() == resource.author && user.superadmin == false) {
+            helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
+
+        helpers.log_request_info(`GET resources/rating/${req.params.id} - 200`)
 
         return res.status(200).json(data);
     }
     catch(error){
+        helpers.log_request_error(`GET resources/rating/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -146,10 +174,16 @@ router.get('/rating/:id', async (req, res) => {
 */
 router.get('/search', async (req, res) => {
     try {
-        if (!req.query.query) return res.status(400).json({message: "query must be a non-empty string"});
+        if (!req.query.query) {
+            helpers.log_request_error(`GET resources/search - 400: validation errors`)
+            return res.status(400).json({message: "query must be a non-empty string"});
+        }
         const data = await repository.search_resource(req.query.query)
+
+        helpers.log_request_info(`GET resources/search - 200`)
         res.status(200).json(data)
     } catch (error) {
+        helpers.log_request_error(`GET resources/search - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
     
@@ -180,15 +214,21 @@ router.get('/similar/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const resource = await repository.get_resource_by_id(id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`GET resources/similar/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
 
         let query = resource.topic
         if (resource.description) query = resource.description
 
         console.log(query)
         const result = await repository.similarity(query, id);
+
+        helpers.log_request_info(`GET resources/similar/${req.params.id} - 200`)
         res.status(200).json(result)
     } catch (error) {
+        helpers.log_request_error(`GET resources/similar/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
     
@@ -207,6 +247,13 @@ router.get('/similar/:id', async (req, res) => {
  *          Requires a bearer token for authentication
  *          ## Schema
  *          Accepts a form-data with the key "files"
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the resource you wish to upload files for
  * responses:
  *    '200':
  *      description: Successful
@@ -219,23 +266,41 @@ router.get('/similar/:id', async (req, res) => {
 */
 router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const files = req.files;
         const resource_id = req.params.id;
 
         // Guard clauses to make this op more readable
-        if (!resource_id) return res.status(400).json({message: "No resource provided"})
-        if (!files) return res.status(400).json({message: "No file selected"})
+        if (!resource_id) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No resource provided"})
+        }
+        if (!files) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No file selected"})
+        }
         
         // if both resources and files were provided
         const resource_data = await repository.get_resource_by_id(resource_id)
-        if (!resource_data) return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+        if (!resource_data) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+        }
         
-        if (user._id.toString() != resource_data.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+        if (user._id.toString() != resource_data.author && user.superadmin == false) {
+            helpers.log_request_error(`POST resources/upload-files/${req.params.id} - '401': Unauthorized access to upload`)
+            return res.status(401).json({message: 'Unauthorized access to upload'});
+        }
 
         // if everything checks out, proceed with the rest of the function
         let data = []
@@ -251,17 +316,19 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
         )
         const result = await repository.add_resource_file(resource_data._id, data);
 
+        helpers.log_request_info(`POST resources/upload-files/${req.params.id} - 200`)
         res.status(200).json(result); 
         
     } 
     catch (error) {
+        helpers.log_request_error(`POST resources/upload-files/${req.params.id} - '400': ${error.message}`)
         res.status(400).json({message: error.message})
     }
 });
 
 /** 
  * @swagger
- * /resources/download-files:
+ * /resources/{resource_id}download-file/{file_id}:
  *  get:
  *      summary: Downloads a file from the server.
  *      description: |
@@ -270,6 +337,77 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
  * 
  *        You have to be logged in to download files
  * 
+ *        Requires a bearer token for authentication  
+ *      parameters: 
+ *          - in: path
+ *            name: resource_id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the resource you wish to download the file from
+ *          - in: path
+ *            name: file_id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the file you wish to download
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.get("/:resource_id/download-file/:file_id", async (req, res) => {
+    const resource_id = req.params.resource_id
+    const file_id = req.params.file_id;
+    
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET resources/download-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET resources/download-files/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const resource = await repository.get_resource_by_id(resource_id);
+        if (!resource) {
+            helpers.log_request_error(`GET resources/download-files/${req.params.id} - 404: Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`});
+        }
+
+        const file = await repository.get_resource_file_by_id(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET resources/download-files/${req.params.id} - 404: file not found`)
+            return res.status(404).json({message: "file not found"});
+        }
+
+        if (resource.visibility != "public") {
+            helpers.log_request_error(`GET resources/download-files/${req.params.id} - 401: Only public resources files can be downloaded`)
+            return res.status(401).json({message: "Only public resources can be downloaded"});
+        }
+        
+        helpers.log_request_info(`GET resources/download-files/${req.params.id} - 200`)
+
+        return res.download(file.path, file.original_name);
+    } catch (error) {
+        helpers.log_request_error(`GET resources/download-files/${req.params.id} - 404: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+});
+
+/** 
+ * @swagger
+ * /resources/{resource_id}/delete-file/{file_id}:
+ *  delete:
+ *      summary: Deletes a resource file
+ *      description: |
  *        Requires a bearer token for authentication  
  * responses:
  *    '200':
@@ -281,26 +419,44 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
  *    '401':
  *      description: Unauthorized
 */
-router.get("/download-file/:id", async (req, res) => {
-    const resource_id = req.params.id;
-    const file_name = req.query.name;
+router.delete("/:resource_id/delete-file/:file_id", async (req, res) => {
+    const resource_id = req.params.resource_id
+    const file_id = req.params.file_id
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE resources/delete-file/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`DELETE resources/download-file/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const resource = await repository.get_resource_by_id(resource_id);
-        if (!resource) return res.status(400).json({message: `Resource with id: ${resource_id} not found`});
-        if (!file_name) return res.status(400).json({message: "no filename provided"});
-
-        if (resource.visibility != "public") return res.status(401).json({message: "Only public resources can be downloaded"});
-        
-        for (const i in resource.files){
-            let file_obj = resource.files[i];
-            if (file_obj.name === file_name) return res.download(file_obj.path, file_obj.original_name);
+        if (!resource) {
+            helpers.log_request_error(`GET resources/download-file/${req.params.id} - 404: Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`});
         }
-        res.status(404).json({message: `File ${file_name} not found`});
+
+        const user = validateUser.data
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`DELETE resources/delete-file/${req.params.id} - '401': Unauthorized access to delete`)
+            return res.status(401).json({message: 'Unauthorized access to delete'});
+        }
+
+        const file = await repository.get_resource_file_by_id(file_id, resource_id);
+        if (!file) {
+            helpers.log_request_error(`DELETE resources/delete-file/${req.params.id} - 404: file not found`)
+            return res.status(404).json({message: "file not found"});
+        }
+
+        const result = await repository.delete_resource_file(file_id)
+
+        res.status(204).json(result)
+       
     } catch (error) {
+        helpers.log_request_error(`DELETE resources/delete-file/${req.params.id} - 404: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });

@@ -59,17 +59,27 @@ router.post("/new/:id", validator.checkSchema(schemas.newTaskSchema), async (req
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST tasks/new/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         const institute_id = req.params.id;
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        if (!institute) {
+            helpers.log_request_error(`POST tasks/new/${req.params.id} - 404: institute not found`)
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST tasks/new/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can create tasks"});
+        if (!isAdmin) {
+            helpers.log_request_error(`POST tasks/new/${req.params.id} - 401: Only institute admins can create tasks`)
+            return res.status(401).json({message: "Only institute admins can create tasks"});
+        }
 
         const user = (await helpers.validateUser(req.headers)).data
 
@@ -80,11 +90,17 @@ router.post("/new/:id", validator.checkSchema(schemas.newTaskSchema), async (req
         })
 
         const dupe = await repository.get_task_by_name(req.body.name, institute_id);
-        if (dupe) return res.status(409).json({message: `task ${req.body.name} already exists`});
+        if (dupe) {
+            helpers.log_request_error(`POST tasks/new/${req.params.id} - 409: Duplicate task`)
+            return res.status(409).json({message: `task ${req.body.name} already exists`});
+        }
 
         const dataToSave = await repository.create_new_task(data);
+
+        helpers.log_request_info(`POST tasks/new/${req.params.id} - 201`)
         res.status(201).json(dataToSave);
     } catch (error) {
+        helpers.log_request_error(`POST tasks/new/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
@@ -119,16 +135,28 @@ router.get('/institute/:id/all', async (req, res) => {
     try {
         const institute_id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET tasks/institute/${req.params.id}/all - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can view"});
+        if (!isAdmin) {
+            helpers.log_request_error(`GET tasks/institute/${req.params.id}/all - 401: Only institute admins can view`)
+            return res.status(401).json({message: "Only institute admins can view"});
+        }
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        if (!institute) {
+            helpers.log_request_error(`GET tasks/institute/${req.params.id}/all - 404: Institute not found`)
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
 
         const result = await repository.get_all_institute_tasks(institute_id);
+
+        helpers.log_request_info(`GET tasks/institute/${req.params.id}/all - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET tasks/institute/${req.params.id}/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});   
     }
 });
@@ -153,14 +181,23 @@ router.get('/institute/:id/all', async (req, res) => {
 router.get('/all', async (req, res) => {
     try {
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET tasks/all - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmin can view'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET tasks/all - 401: Unauthorized access. Only superadmin can view`)
+            return res.status(401).json({message: 'Unauthorized access. Only superadmin can view'});
+        }
         
         const result = await repository.get_all_tasks()
+
+        helpers.log_request_info(`GET tasks/all - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET tasks/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});   
     }
 });
@@ -196,18 +233,92 @@ router.get('/one/:id', async (req, res) => {
         const id = req.params.id;
         const result = await repository.get_task_data(id, req.headers);
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET tasks/one/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isMember = await helpers.validateTaskMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        if (!isMember) {
+            helpers.log_request_error(`GET tasks/one/${req.params.id} - 401: Unauthorized access. User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        }
 
-        if (!result) return res.status(404).json({message: `task with id ${id} not found`});
+        if (!result) {
+            helpers.log_request_error(`GET tasks/one/${req.params.id} - 404: task with id ${id} not found`)
+            return res.status(404).json({message: `task with id ${id} not found`});
+        }
 
+        helpers.log_request_info(`GET tasks/one/${req.params.id} - 200`)
         res.status(200).json(result);
     } catch (error) {
-        console.log(error)
+        helpers.log_request_error(`GET tasks/one/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});   
     }
 });
+
+/** 
+ * @swagger
+ * /tasks/update/{id}:
+ *  patch:
+ *      summary: Updates a task
+ *      description: |
+ *          Use this endpoint to update several fields at one go. It's not recommend you use it for any add/remove operations
+ *          Only the institute admin can edit the name of a task
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the task to update
+ * responses:
+ *    '201':
+ *      description: updated
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.patch('/update/:id', async (req, res) => {
+        try {
+            const id = req.params.id;
+            const data = await repository.get_task_by_id(id);
+
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
+            const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
+            if (!isAdmin) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 401: Only institute admins can update`)
+                return res.status(401).json({message: "Only institute admins can update"});
+            }
+            
+            if (!data) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 404: Task not found`)
+                return res.status(404).json({message: `task with id: ${id} not found`});
+            }
+
+            const name = req.body.name;
+            const dup_name = await repository.get_task_by_name(name, data.institute._id.toString());
+            if (dup_name) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 409: Duplicate task name`)
+                return res.status(409).json({message: `task with name ${name} already exists`});
+            }
+
+            const result = await repository.update_task(id, req.body);
+
+            helpers.log_request_info(`PATCH tasks/update/${req.params.id} - 200`)
+            res.status(201).json(result);
+        } catch (error) {
+            helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 400: ${error.message}`)
+            res.status(400).json({message: error.message});
+        }
+})
 
 /** 
  * @swagger
@@ -243,25 +354,155 @@ router.patch('/rename/:id',
         try {
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH tasks/rename/${req.params.id} - 400: validation errors`)
                 return res.status(400).json({ errors: errors.array() });
             }
 
             const id = req.params.id;
             const data = await repository.get_task_by_id(id);
 
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
             const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
-            if (!isAdmin) return res.status(401).json({message: "Only institute admins can rename"});
+            if (!isAdmin) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 401: Only institute admins can rename`)
+                return res.status(401).json({message: "Only institute admins can rename"});
+            }
             
-            if (!data) return res.status(404).json({message: `task with id: ${id} not found`});
+            if (!data) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 404: Task not found`)
+                return res.status(404).json({message: `task with id: ${id} not found`});
+            }
 
             const name = req.body.name;
             const dup_name = await repository.get_task_by_name(name, data.institute._id.toString());
-            if (dup_name) return res.status(409).json({message: `task with name ${name} already exists`});
+            if (dup_name) {
+                helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 409: Duplicate task name`)
+                return res.status(409).json({message: `task with name ${name} already exists`});
+            }
 
             const result = await repository.edit_task_name(id, name);
+
+            helpers.log_request_info(`PATCH tasks/update/${req.params.id} - 200`)
             res.status(201).json(result);
         } catch (error) {
+            helpers.log_request_error(`PATCH tasks/update/${req.params.id} - 400: ${error.message}`)
+            res.status(400).json({message: error.message});
+        }
+})
+
+/** 
+ * @swagger
+ * /tasks/mark-complete/{id}:
+ *  patch:
+ *      summary: Marks a task as completed
+ *      description: |
+ *          Only the institute admin can mark a task as completed
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the task to mark
+ * responses:
+ *    '201':
+ *      description: updated
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.patch('/mark-complete/:id', 
+    async (req, res) => {
+        try {
+            const id = req.params.id;
+            const data = await repository.get_task_by_id(id);
+
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH tasks/mark-complete/${req.params.id} - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
+            const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
+            if (!isAdmin) {
+                helpers.log_request_error(`PATCH tasks/mark-complete/${req.params.id} - 401: Only institute admins can mark`)
+                return res.status(401).json({message: "Only institute admins can mark as complete"});
+            }
+            
+            if (!data) {
+                helpers.log_request_error(`PATCH tasks/mark-complete/${req.params.id} - 404: Task not found`)
+                return res.status(404).json({message: `task with id: ${id} not found`});
+            }
+            const result = await repository.mark_task_as_completed(id);
+
+            helpers.log_request_info(`PATCH tasks/mark-complete/${req.params.id} - 200`)
+            res.status(201).json(result);
+        } catch (error) {
+            helpers.log_request_error(`PATCH tasks/mark-complete/${req.params.id} - 400: ${error.message}`)
+            res.status(400).json({message: error.message});
+        }
+})
+
+/** 
+ * @swagger
+ * /tasks/mark-ongoing/{id}:
+ *  patch:
+ *      summary: Marks a task as ongoing. 
+ *      description: |
+ *          This is the default status for a task and this route should be used only for converting
+ *          a task marked as completed to back to ongoing
+ *          Only the institute admin can mark a task as ongoing
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the task to mark
+ * responses:
+ *    '201':
+ *      description: updated
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.patch('/mark-ongoing/:id', 
+    async (req, res) => {
+        try {
+            const id = req.params.id;
+            const data = await repository.get_task_by_id(id);
+
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH tasks/mark-ongoing/${req.params.id} - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
+            const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
+            if (!isAdmin) {
+                helpers.log_request_error(`PATCH tasks/mark-ongoing/${req.params.id} - 401: Only institute admins can mark`)
+                return res.status(401).json({message: "Only institute admins can mark as ongoing"});
+            }
+            
+            if (!data) {
+                helpers.log_request_error(`PATCH tasks/mark-ongoing/${req.params.id} - 404: Task not found`)
+                return res.status(404).json({message: `task with id: ${id} not found`});
+            }
+            const result = await repository.mark_task_as_pending(id);
+
+            helpers.log_request_info(`PATCH tasks/mark-ongoing/${req.params.id} - 200`)
+            res.status(201).json(result);
+        } catch (error) {
+            helpers.log_request_error(`PATCH tasks/mark-ongoing/${req.params.id} - 400: ${error.message}`)
             res.status(400).json({message: error.message});
         }
 })
@@ -305,28 +546,44 @@ router.patch('/add-collabs/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         const id = req.params.id;
         const data = await repository.get_task_by_id(id);
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can add collaborators"});
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 401: Only institute admins can add collaborators`)
+            return res.status(401).json({message: "Only institute admins can add collaborators"});
+        }
         
         const collab_set = new Set(req.body.collaborators);
 
         const collaborators = await helpers.validateUserdata(Array.from(collab_set)) 
        
-        if (!data) return res.status(404).json({message: `task with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 404: Task not found`)
+            return res.status(404).json({message: `task with id: ${id} not found`});
+        }
 
         const validMembers = await helpers.validateCollabs(collaborators.data, data.institute._id.toString());
-        if (!validMembers) return res.status(400).json({message: "Invalid institute member username(s) supplied"});
+        if (!validMembers) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 400: Invalid usernames`)
+            return res.status(400).json({message: "Invalid institute member username(s) supplied"});
+        }
 
         const result = await repository.add_collaborators(id, collaborators.data);
+
+        helpers.log_request_info(`PATCH tasks/add-collabs/${req.params.id} - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
@@ -370,27 +627,43 @@ router.patch('/remove-collabs/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH tasks/remove-collabs/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const data = await repository.get_task_by_id(id);
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization){ 
+            helpers.log_request_error(`PATCH tasks/remove-collabs/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can remove collaborators"});
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH tasks/remove-collabs/${req.params.id} - 401: Only institute admins can remove collaborators`)
+            return res.status(401).json({message: "Only institute admins can remove collaborators"});
+        }
         
         const collab_set = new Set(req.body.collaborators);
 
         const collaborators = await helpers.validateUserdata(Array.from(collab_set)) 
        
-        if (!data) return res.status(404).json({message: `task with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH tasks/add-collabs/${req.params.id} - 404: Task not found`)
+            return res.status(404).json({message: `task with id: ${id} not found`});
+        }
 
         const validMembers = await helpers.validateCollabs(collaborators.data, data.institute._id.toString());
-        if (!validMembers) return res.status(400).json({message: "Invalid institute member username(s) supplied"});
+        if (!validMembers) {
+            helpers.log_request_error(`PATCH tasks/remove-collabs/${req.params.id} - 400: Invalid usernames`)
+            return res.status(400).json({message: "Invalid institute member username(s) supplied"});
+        }
 
-        const result = await repository.remove_collaborators(id, collaborators.data)
+        const result = await repository.remove_collaborators(id, collaborators.data);
+
+        helpers.log_request_info(`PATCH tasks/remove-collabs/${req.params.id} - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH tasks/remove-collabs/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
@@ -426,14 +699,26 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
         const files = req.files;
         const id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST tasks/upload-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isMember = await helpers.validateTaskMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        if (!isMember) {
+            helpers.log_request_error(`POST tasks/upload-files/${req.params.id} - 401: User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        }
 
-        if (!files) return res.status(400).json({message: "No file selected"});
+        if (!files) {
+            helpers.log_request_error(`POST tasks/upload-files/${req.params.id} - 400: validation errors`)
+            return res.status(400).json({message: "No file selected"});
+        }
 
         const task = await repository.get_task_by_id(id);
-        if (!task) return res.status(404).json({message: `task ${id} not found`});
+        if (!task) {
+            helpers.log_request_error(`POST tasks/upload-files/${req.params.id} - 404: Task not found`)
+            return res.status(404).json({message: `task ${id} not found`});
+        }
 
        
         let data = []
@@ -447,31 +732,37 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
             })
         )
         const result =  await repository.add_task_file(id, data);
+
+        helpers.log_request_info(`POST tasks/upload-files/${req.params.id} - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`POST tasks/upload-files/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
 
 /** 
  * @swagger
- * /tasks/download-files/{id}:
+ * /tasks/{task_id}/download-file/{file_id}:
  *  get:
  *      summary: Downloads a file from the server.
  *      description: |
- *        The request should have a query parameter 'name'.
- *        This param should match the 'name' of a file object and not original_filename  
- * 
  *        Only admins and collaborators can download files.
  *        
  *        Requires a bearer token for authentication.
  *      parameters: 
  *          - in: path
- *            name: id
+ *            name: task_id
  *            schema:
  *              type: UUID/Object ID
  *            required: true
- *            description: id of the task to download the file from
+ *            description: id of the task to download a file from
+ *          - in: path
+ *            name: file_id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the file to download
  * responses:
  *    '200':
  *      description: Successful
@@ -482,25 +773,39 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
  *    '400':
  *      description: Bad request
 */
-router.get("/download-file/:id", async (req, res) => {
+router.get("/:task_id/download-file/:file_id", async (req, res) => {
     
     try {
-        const id = req.params.id;
-        const file_name = req.query.name;
+        const file_id = req.params.file_id;
+        const task_id = req.params.task_id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
-        const isMember = await helpers.validateTaskMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET tasks/download-file/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
-        const task = await repository.get_task_by_id(id);
-        if (!task) return res.status(400).json({message: `task with id: ${id} not found`});
-        if (!file_name) return res.status(400).json({message: "no filename provided"});
+        const file = await repository.get_one_task_file(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET tasks/download-file/${req.params.id} - 404: File not found`)
+            return res.status(404).json({message: `file ${file_name} not found`});
+        }
+
+        const task = await repository.get_task_by_id(task_id);
+        if (!task) {
+            helpers.log_request_error(`GET tasks/download-file/${req.params.id} - 404: Task not found`)
+            return res.status(400).json({message: `task with id: ${id} not found`});
+        }
+
+        const isMember = await helpers.validateTaskMembers(req.headers, task_id);
+        if (!isMember) {
+            helpers.log_request_error(`GET tasks/download-file/${req.params.id} - 401: User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        }
         
-        const result = await repository.get_one_task_file(file_name);
-        if (!result) return res.status(404).json({message: `file ${file_name} not found`});
-        
+        helpers.log_request_info(`GET tasks/download-file/${req.params.id} - 200`)
         res.download(result.path, result.original_name);
     } catch (error) {
+        helpers.log_request_error(`GET tasks/download-file/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
@@ -539,20 +844,33 @@ router.post("/:id/comments/new", validator.checkSchema(schemas.newCommentSchema)
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - 400: Validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isMember = await helpers.validateTaskMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a collaborator`});
+        if (!isMember) {
+            helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - 401: User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`});
+        }
 
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const task = await repository.get_task_by_id(id);
-        if (!task) return res.status(400).json({message: `task with id: ${id} not found`});
+        if (!task) {
+            helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - 400: Task not found`)
+            return res.status(400).json({message: `task with id: ${id} not found`});
+        }
 
         const data = new Model.comment({
             author: user._id.toString(),
@@ -560,9 +878,12 @@ router.post("/:id/comments/new", validator.checkSchema(schemas.newCommentSchema)
             task: id
         });
         const result = await repository.add_task_comment(data);
+
+        helpers.log_request_info(`POST tasks/${req.params.id}/comments/new - 200`)
         res.status(201).json(result);
 
     } catch (error) {
+        helpers.log_request_error(`POST tasks/${req.params.id}/comments/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -593,16 +914,28 @@ router.get("/:id/comments/all", async (req, res) => {
     try {
         const id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET tasks/${req.params.id}/comments/all - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isMember = await helpers.validateTaskMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        if (!isMember) {
+            helpers.log_request_error(`GET tasks/${req.params.id}/comments/all - 401: User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        }
 
         const task = await repository.get_task_by_id(id);
-        if (!task) return res.status(404).json({message: `task with id: ${id} not found`});
+        if (!task) {
+            helpers.log_request_error(`GET tasks/${req.params.id}/comments/all - 404: Task not found`)
+            return res.status(404).json({message: `task with id: ${id} not found`});
+        }
 
         const result = await repository.get_task_comments(id);
+
+        helpers.log_request_info(`GET tasks/${req.params.id}/comments/all - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET tasks/${req.params.id}/comments/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -639,23 +972,36 @@ router.patch("/comments/edit/:id",
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+            helpers.log_request_error(`PATCH tasks/comments/edit/${req.params.id} - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
         }
         const comment_id = req.params.id;
         const new_body = req.body.body;
 
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH tasks/comments/edit/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const comment = await repository.get_comment_by_id(comment_id);
-        if (!comment) return res.status(404).json({message: `comment with id ${comment_id} not found`});
+        if (!comment) {
+            helpers.log_request_error(`PATCH tasks/comments/edit/${req.params.id} - 401: Comment not found`)
+            return res.status(404).json({message: `comment with id ${comment_id} not found`});
+        }
 
-        if (comment.author != user._id.toString()) return res.status(401).json({message: 'Unauthorized access. Only author can edit'});
+        if (comment.author != user._id.toString()){
+            helpers.log_request_error(`PATCH tasks/comments/edit/${req.params.id} - 401: Only author can edit`) 
+            return res.status(401).json({message: 'Unauthorized access. Only author can edit'});
+        }
 
         const result = await repository.edit_task_comment(comment_id, new_body);
+
+        helpers.log_request_info(`PATCH tasks/comments/edit/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH tasks/comments/edit/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 })
@@ -688,17 +1034,29 @@ router.delete("/comments/delete/:id", async (req, res) => {
         const comment_id = req.params.id;
 
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`DELETE tasks/comments/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const comment = await repository.get_comment_by_id(comment_id);
-        if (!comment) return res.status(404).json({message: `comment with id ${comment_id} not found`});
+        if (!comment) {
+            helpers.log_request_error(`DELETE tasks/comments/delete/${req.params.id} - 401: Comment not found`)
+            return res.status(404).json({message: `comment with id ${comment_id} not found`});
+        }
 
-        if (comment.author != user._id.toString()) return res.status(401).json({message: 'Unauthorized access. Only author can delete'});
+        if (comment.author != user._id.toString()) {
+            helpers.log_request_error(`DELETE tasks/comments/delete/${req.params.id} - 401: Only author can delete`) 
+            return res.status(401).json({message: 'Unauthorized access. Only author can delete'});
+        }
 
         const result = await repository.delete_task_comment(comment_id);
+
+        helpers.log_request_info(`DELETE tasks/comments/delete/${req.params.id} - 200`) 
         res.status(204).json(result);
     } catch (error) {
+        helpers.log_request_error(`DELETE tasks/comments/delete/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 })
@@ -732,15 +1090,27 @@ router.delete('/delete/:id', async (req, res) => {
         const id = req.params.id;
         const data = await repository.get_task_by_id(id);
 
-        if (!data) return res.status(404).json({message: `task with id ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`DELETE tasks/delete/${req.params.id} - 404: Task not found`) 
+            return res.status(404).json({message: `task with id ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE tasks/delete/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, data.institute._id.toString());
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can delete tasks"});
+        if (!isAdmin) {
+            helpers.log_request_error(`DELETE tasks/delete/${req.params.id} - 401: Only institute admins can delete tasks`) 
+            return res.status(401).json({message: "Only institute admins can delete tasks"});
+        }
 
         const result = await repository.delete_task(id);
+
+        helpers.log_request_info(`DELETE tasks/delete/${req.params.id} - 204`) 
         res.status(204).json({message: `task with id: ${id} deleted successfully`});
     } catch (error) {
+        helpers.log_request_error(`DELETE tasks/delete/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 })

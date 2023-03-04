@@ -62,23 +62,37 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error('POST /resources/new - 400: validation errors')
             return res.status(400).json({ errors: errors.array() });
         }
 
         // Authorization
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error('POST /resources/new - 401: Token not found')
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST /resources/new - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const category = await repository.get_category_by_name(req.body.category);
-        if (!category) return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        if (!category) {
+            helpers.log_request_error(`POST /resources/new - 404: Category: ${req.body.category} not found`)
+            return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        }
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
-        if (unknown_cats.length !== 0) return res.status(404).json({
-            message: `sub_categories not part of ${category.name}`,
-            sub_categories: unknown_cats
-        })
+        if (unknown_cats.length !== 0) {
+            helpers.log_request_error(`POST /resources/new - 404: Unkown sub-categories`)
+
+            return res.status(404).json({
+                message: `sub_categories not part of ${category.name}`,
+                sub_categories: unknown_cats
+            })
+        }
         
         const institute_req = await axios({
             method: 'get',
@@ -89,8 +103,12 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
 
         const validateTopic = await helpers.validateTopicName(req.body.topic, req.body.institute,  user._id.toString());
         if (!validateTopic) {
+            helpers.log_request_error(`POST /resources/new - 409: Duplicate resouce`)
+
             return res.status(409).json(
-                {message: `Resource with topic ${req.body.topic}, authored by ${user._id.toString()} already exists under institute ${req.body.institute}`}
+                {
+                    message: `Resource with topic ${req.body.topic}, authored by ${user._id.toString()} already exists under institute ${req.body.institute}`
+                }
             )
         }
 
@@ -115,9 +133,11 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
         
         
         const dataToSave = await repository.create_new_resource(data);
+
+        helpers.log_request_info(`POST /resources/new - 201`)
         res.status(201).json(dataToSave);
     } catch (error) {
-        console.error(error)
+        helpers.log_request_error(`POST /resources/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
     
@@ -152,21 +172,35 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
 router.get('/one/:id', async (req, res) => {
     try{
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET /resources/one/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_data(req.params.id, req.headers);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`GET /resources/one/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
 
         if (resource.visibility != "public"){
-            if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to get'});
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Unauthorized access to get`)
+                return res.status(401).json({message: 'Unauthorized access to get'});
+            }
         }
         
+        helpers.log_request_info(`GET /resources/one/${req.params.id} - 200`)
         res.status(200).json(resource);
     }
     catch(error){
+        helpers.log_request_error(`GET /resources/one/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -200,9 +234,15 @@ router.get('/one/:id', async (req, res) => {
 router.get('/my-resources', async (req, res) => {
     try{
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET /resources/my-resources - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET /resources/my-resources - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         let institute_id = req.query.institute;
@@ -213,9 +253,13 @@ router.get('/my-resources', async (req, res) => {
         else {
             data =  await repository.get_user_resources(user._id.toString());
         }
+
+        helpers.log_request_info(`GET /resources/my-resources - 200`)
+
         res.status(200).json(data);
     }
     catch(error){
+        helpers.log_request_error(`GET /resources/my-resources - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -257,12 +301,25 @@ router.get('/my-resources', async (req, res) => {
 router.get('/all', async (req, res) => {
     try{
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET /resources/all- 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET /resources/all - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET /resources/all - 401: Unauthorized access. Only superadmin can get`)
+
+            return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        }
+
         let sub = req.query.sub;
         let category = req.query.category;
         let data = null;
@@ -273,9 +330,14 @@ router.get('/all', async (req, res) => {
             else data = await repository.get_all_resources(category=category)
         }
         else data = await repository.get_all_resources()
+
+        helpers.log_request_info(`GET /resources/all - 200`)
+
         res.status(200).json(data);
     }
     catch(error){
+        helpers.log_request_error(`GET /resources/all - 400: ${error.message}`)
+
         res.status(400).json({message: error.message});
     }
 })
@@ -324,8 +386,13 @@ router.get('/public', async (req, res) => {
             else data = await repository.get_public_resources(category=category)
         }
         else data = await repository.get_public_resources()
+
+        helpers.log_request_info(`GET /resources/public - 200`)
+
         res.status(200).json(data);
     } catch (error) {
+        helpers.log_request_error(`GET /resources/public - 400: ${error.message}`)
+
         res.status(400).json({message: error.message});
     }
 })
@@ -360,15 +427,34 @@ router.get('/public', async (req, res) => {
 router.post('/request-institute-publish/:id', async (req, res) => {
     try {
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(
+                `POST /resources/request-institute-publish/${req.params.id} - ${validateUser.status}: ${validateUser.message}`
+            )
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
 
-        if (user._id.toString() != resource.author) return res.status(401).json({message: 'Unauthorized access. Only the author can request a publish'});
+        if (user._id.toString() != resource.author) {
+            helpers.log_request_error(
+                `POST /resources/request-institute-publish/${req.params.id} - 401: nauthorized access. Only the author can request a publish`
+            )
+
+            return res.status(401).json({message: 'Unauthorized access. Only the author can request a publish'});
+        }
 
         const publish_res = await axios({
             method: 'post',
@@ -376,9 +462,13 @@ router.post('/request-institute-publish/:id', async (req, res) => {
             headers: {'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`}
         })
 
+        helpers.log_request_info(`POST /resources/request-institute-publish/${req.params.id} - 200`)
+
         res.status(200).json(publish_res.data);
     } catch (error) {
         if (error.response.data.message) error.message = error.response.data.message;
+        helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 400: ${error.message}`)
+
         res.status(400).json({message: error.message});
     }
 })
@@ -405,16 +495,35 @@ router.post('/request-institute-publish/:id', async (req, res) => {
 router.get('/monthly-stats', async (req, res) => {
     try {
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET /resources/monthly-stats - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(
+                `GET /resources/monthly-stats  - ${validateUser.status}: ${validateUser.message}`
+            )
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET /resources/monthly-stats - 401: Unauthorized access. Only superadmin can get`)
+
+            return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        }
         
-        const result = await repository.get_monthly_stats()
+        const result = await repository.get_monthly_stats();
+
+        helpers.log_request_info(`GET /resources/monthly-stats - 200`)
+
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET /resources/monthly-stats - 400: ${error.message}`)
+
         res.status(400).json({message: error.message});
     }
 })
@@ -440,18 +549,113 @@ router.get('/monthly-stats', async (req, res) => {
 router.get('/group-stats', async (req, res) => {
     try {
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET /resources/group-stats - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET /resources/group-stats - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET /resources/group-stats - 401: Unauthorized access. Only superadmin can get`)
+
+            return res.status(401).json({message: 'Unauthorized access. Only superadmin can get'});
+        }
         
-        const result = await repository.get_group_stats()
+        const result = await repository.get_group_stats();
+
+        helpers.log_request_info(`GET /resources/group-stats - 200`)
+
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET /resources/group-stats - 400: ${error.message}`)
+
         res.status(400).json({message: error.message});
     }
+})
+
+/** 
+ * @swagger
+ * /resources/update/{id}:
+ *  patch:
+ *      summary: updates a given resource
+ *      description: |
+ *          Multiple fields can be updated in one go. Not recommended for add/remove operations
+ *          Only the superadmin or author can update
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the resource to update
+ * responses:
+ *    '200':
+ *      description: updated
+ *    '404':
+ *      description: resource not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+ *    '409':
+ *      description: Duplicate
+*/
+router.patch('/update/:id',
+    async (req, res) => {
+        try {
+            // Authorization and validation
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
+            const validateUser = await helpers.validateUser(req.headers);
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
+            const user = validateUser.data;
+
+            const resource = await repository.get_resource_by_id(req.params.id);
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 404: Resource not found`)
+
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
+
+            const validateTopic = await helpers.validateTopicName(req.body.topic, resource.institute.toString());
+            if (!validateTopic) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 409: Topic exists`)
+
+                return res.status(409).json({message: `Resource with topic ${req.body.topic} already exists under institute ${resource.institute.toString()}`})
+            }
+            const result = await repository.update_resource_fields(id, req.body)
+
+            helpers.log_request_info(`PATCH /resources/update/${req.params.id} - 200`)
+
+            res.status(200).json(result);
+
+        } catch (error) {
+            helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 400: ${error.message}`)
+
+            res.status(400).json({message: error.message});
+        }
 })
 
 /** 
@@ -489,28 +693,53 @@ router.patch('/edit-topic/:id',
             //input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 400: validation errors`)
+
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // Authorization and validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
             const resource = await repository.get_resource_by_id(req.params.id);
-            if (!resource) return res.status(404).json({message: "Resource not found"});
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 404: Resource not found`)
 
-            if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
 
             const validateTopic = await helpers.validateTopicName(req.body.topic, resource.institute.toString());
             if (!validateTopic) {
+                helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 409: Topic exists`)
+
                 return res.status(409).json({message: `Resource with topic ${req.body.topic} already exists under institute ${resource.institute.toString()}`})
             }
             const result = await repository.update_resource_topic(req.params.id, req.body.topic);
+
+            helpers.log_request_info(`PATCH /resources/edit-topic/${req.params.id} - 200`)
+
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`PATCH /resources/edit-topic/${req.params.id} - 400: ${error.message}`)
+
             res.status(400).json({message: error.message});
         }
 })
@@ -549,24 +778,47 @@ router.patch('/edit-description/:id',
             //input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - 400: validation errors`)
+
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // Authorization and validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
             const resource = await repository.get_resource_by_id(req.params.id);
-            if (!resource) return res.status(404).json({message: "Resource not found"});
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - 404: Resource not found`)
 
-            if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
 
             const result = await repository.update_resource_description(req.params.id, req.body.description);
+
+            helpers.log_request_info(`PATCH /resources/edit-description/${req.params.id} - 200`)
+
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`PATCH /resources/edit-description/${req.params.id} - 400: ${error.message}`)
+
             res.status(400).json({message: error.message});
         }
 })
@@ -605,27 +857,51 @@ router.patch('/edit-category/:id',
             //input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH /resources/edit-category/${req.params.id} - 401: validation errors`)
+
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // Authorization and validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/edit-category/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(
+                    `PATCH /resources/edit-category/${req.params.id} - ${validateUser.status}: ${validateUser.message}`
+                )
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
             const resource = await repository.get_resource_by_id(req.params.id);
-            if (!resource) return res.status(404).json({message: "Resource not found"});
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/edit-category/${req.params.id} - 404: Resource not found`)
 
-            if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`PATCH /resources/edit-category/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
 
             const category = await repository.get_category_by_name(req.body.category);
             if (!category) return res.status(404).json({message: `Category: ${req.body.category} not found`});
 
             const result = await repository.update_resource_category(req.params.id, req.body.category);
+
+            helpers.log_request_info(`PATCH /resources/edit-category/${req.params.id} - 200`)
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`PATCH /resources/edit-category/${req.params.id} - 400: ${error.message}`)
+
             res.status(400).json({message: error.message});
         }
 })
@@ -666,24 +942,46 @@ router.patch('/edit-visibility/:id',
             //input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - 400: validation errors`)
+
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // Authorization and validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
             const resource = await repository.get_resource_by_id(req.params.id);
-            if (!resource) return res.status(404).json({message: "Resource not found"});
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - 404: Resource not found`)
 
-            if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access to edit'});
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (!user.superadmin) {
+                helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
 
             const result = await repository.update_visibility(req.params.id, req.body.visibility);
+
+            helpers.log_request_info(`PATCH /resources/visibility/${req.params.id} - 200`)
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`PATCH /resources/visibility/${req.params.id} - 400: ${error.message}`)
+
             res.status(400).json({message: error.message});
         }
 })
@@ -727,24 +1025,46 @@ router.patch('/edit-resource-type/:id',
             //input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - 400: validation errors`)
+
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // Authorization and validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - 401: Token not found`)
+
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
             const resource = await repository.get_resource_by_id(req.params.id);
-            if (!resource) return res.status(404).json({message: "Resource not found"});
+            if (!resource) {
+                helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - 404: Resource not found`)
 
-            if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+                return res.status(404).json({message: "Resource not found"});
+            }
+
+            if (user._id.toString() != resource.author && user.superadmin == false) {
+                helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - 401: Unauthorized access to edit`)
+
+                return res.status(401).json({message: 'Unauthorized access to edit'});
+            }
 
             const result = await repository.update_resource_type(req.params.id, req.body.resource_type);
+
+            helpers.log_request_info(`PATCH /resources/edit-resource-type/${req.params.id} - 200`)
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`PATCH /resources/edit-resource-type/${req.params.id} - 400: ${error.message}`)
+
             res.status(400).json({message: error.message});
         }
 })
@@ -790,33 +1110,64 @@ router.patch('/add-sub-categories/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 400: validation errors`)
+
             return res.status(400).json({ errors: errors.array() });
         }
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 404: Resource not found`)
 
-        if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+            return res.status(404).json({message: "Resource not found"});
+        }
+
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 401: Unauthorized access to edit`)
+
+            return res.status(401).json({message: 'Unauthorized access to edit'});
+        }
 
         const category = await repository.get_category_by_name(resource.category);
-        if (!category) return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        if (!category) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 404: Category: ${req.body.category} not found`)
+
+            return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        }
 
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
-        if (unknown_cats.length !== 0) return res.status(404).json({
-            message: `sub_categories not part of ${category.name}`,
-            sub_categories: unknown_cats
-        })
+        if (unknown_cats.length !== 0) {
+            helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 404: unknown sub-categories`)
+
+            return res.status(404).json({
+                message: `sub_categories not part of ${category.name}`,
+                sub_categories: unknown_cats
+            })
+        }
        
         const result = await repository.add_resource_sub_categories(req.params.id, req.body.sub_categories);
+
+        helpers.log_request_info(`PATCH /resources/add-sub-categories/${req.params.id} - 201`)
+
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH /resources/add-sub-categories/${req.params.id} - 400: ${error.message}`)
+
         res.status(400).json({ message: error.message })
     }
 })
@@ -862,33 +1213,64 @@ router.patch('/remove-sub-categories/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 400: validation errors`)
+
             return res.status(400).json({ errors: errors.array() });
         }
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 404: Resource not found`)
 
-        if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+            return res.status(404).json({message: "Resource not found"});
+        }
+
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 401: Unauthorized access to edit`)
+
+            return res.status(401).json({message: 'Unauthorized access to edit'});
+        }
 
         const category = await repository.get_category_by_name(resource.category);
-        if (!category) return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        if (!category) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 404: Category: ${req.body.category} not found`)
+
+
+            return res.status(404).json({message: `Category: ${req.body.category} not found`});
+        }
 
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
-        if (unknown_cats.length !== 0) return res.status(404).json({
-            message: `sub_categories not part of ${category.name}`,
-            sub_categories: unknown_cats
-        })
+        if (unknown_cats.length !== 0) {
+            helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 404: unknown sub-categories`)
+
+            return res.status(404).json({
+                message: `sub_categories not part of ${category.name}`,
+                sub_categories: unknown_cats
+            })
+        }
        
         const result = await repository.remove_resource_sub_categories(req.params.id, req.body.sub_categories);
+
+        helpers.log_request_info(`PATCH /resources/remove-sub-categories/${req.params.id} - 201`)
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH /resources/remove-sub-categories/${req.params.id} - 400: ${error.message}`)
+
         res.status(400).json({ message: error.message })
     }
 })
@@ -932,23 +1314,45 @@ router.patch('/add-citations/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - 400: validation errors`)
+
             return res.status(400).json({ errors: errors.array() });
         }
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - 404: Resource not found`)
 
-        if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+            return res.status(404).json({message: "Resource not found"});}
+
+
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - 401: Unauthorized access to edit`)
+
+            return res.status(401).json({message: 'Unauthorized access to edit'});
+        }
        
         const result = await repository.add_resource_citations(req.params.id, req.body.citations);
+
+        helpers.log_request_info(`PATCH /resources/add-citations/${req.params.id} - 200`)
+
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH /resources/add-citations/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -993,23 +1397,44 @@ router.patch('/remove-citations/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - 400: validation errors`)
+
             return res.status(400).json({ errors: errors.array() });
         }
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - 401: Token not found`)
+
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - 404: Resource not found`)
 
-        if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+            return res.status(404).json({message: "Resource not found"});
+        }
+
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - 401: Unauthorized access to edit`)
+
+            return res.status(401).json({message: 'Unauthorized access to edit'});
+        }
        
         const result = await repository.remove_resource_citations(req.params.id, req.body.citations);
+
+        helpers.log_request_info(`PATCH /resources/remove-citations/${req.params.id} - 200`)
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH /resources/remove-citations/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -1045,18 +1470,31 @@ router.delete('/delete/:id', async (req, res) => {
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         // Authorization and validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const resource = await repository.get_resource_by_id(req.params.id);
-        if (!resource) return res.status(404).json({message: "Resource not found"});
+        if (!resource) {
+            helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
 
-        if (user._id.toString() != resource.author && user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to delete'});
+        if (user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - 401: Unauthorized access to delete`)
+            return res.status(401).json({message: 'Unauthorized access to delete'});
+        }
         
         await axios({
             method: 'patch',
@@ -1068,9 +1506,12 @@ router.delete('/delete/:id', async (req, res) => {
         })
         
         const data = await repository.delete_resource_by_id(req);
+
+        helpers.log_request_info(`DELETE /resources/delete/${req.params.id} - 204`)
         res.status(204).json({message: `Document with topic name: ${data.topic} has been deleted..`});
     }
     catch (error) {
+        helpers.log_request_error(`DELETE /resources/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })

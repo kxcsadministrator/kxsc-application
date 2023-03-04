@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 
+const LOG_BASE_URL = process.env.LOG_URL
 const Model = require('../db/models');
 const repository = require('../db/repository');
 const schemas = require('../schemas/users-schema');
@@ -17,7 +18,7 @@ const BASE_URL = process.env.BASE_URL;
 const TEMPLATE_PATH = "./template/requestResetPassword.handlebars"
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
 
-const FILE_PATH = "uploads/"
+const FILE_PATH = "files/uploads/"
 const storage = multer.diskStorage({
     destination: FILE_PATH,
     filename: (req, file, callback) => {
@@ -58,14 +59,21 @@ router.post("/new",
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST /users/new - 400: validation error(s)`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         const dup_name = await repository.get_user_by_username(req.body.username);
-        if (dup_name) return res.status(409).json({message: `user with username ${req.body.username} already exists`});
+        if (dup_name) {
+            helpers.log_request_error(`POST /users/new - 409: user with username ${req.body.username} already exists`)
+            return res.status(409).json({message: `user with username ${req.body.username} already exists`});
+        }
 
         const dup_mail = await repository.get_user_by_email(req.body.email);
-        if (dup_mail) return res.status(409).json({message: `user with email ${req.body.email} already exists`});
+        if (dup_mail) {
+            helpers.log_request_error(`POST /users/new - 409: user with email ${req.body.email} already exists`)
+            return res.status(409).json({message: `user with email ${req.body.email} already exists`});
+        }
 
         const data = new Model.user({
             username: req.body.username,
@@ -74,8 +82,10 @@ router.post("/new",
         })
 
         const result = await repository.create_new_user(data);
+        helpers.log_request_info("POST /users/new - 200")
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`POST /users/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -110,20 +120,29 @@ router.get('/one/:id', async (req, res) => {
 
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/one/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.clean_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`GET users/one/${id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to get'});
+        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.log_request_error(`GET users/one/${id} - 401: Unauthorized access to get`)
+            return res.status(401).json({message: 'Unauthorized access to get'});
+        }
         
-        // const photo = await repository.get_profile_photo(user.profile_picture)
-        // user.profile_picture = photo
+        helpers.log_request_info(`GET users/one/${id} - 200`)
         res.status(200).json(user);
     } catch (error) {
+        helpers.log_request_error(`GET users/one/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -155,16 +174,24 @@ router.get('/username/:name', async (req, res) => {
         const name = req.params.name
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/username/${name} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.get_user_by_username_or_email(name);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`GET users/username/${name} - 404: user with name ${name} not found`)
+            return res.status(404).json({message: `user with name ${name} not found`});
+        }
 
+        helpers.log_request_info(`GET users/username/${name} - 200`)
         res.status(200).json({"id": user._id, "username": user.username});
     } catch (error) {
+        helpers.log_request_error(`GET users/username/${req.params.name} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -203,30 +230,49 @@ router.patch('/edit-username/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         const id = req.params.id;
         const new_username = req.body.new_username;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.get_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to edit'});
+        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 401: Unauthorized access to edit`)
+            return res.status(401).json({message: 'Unauthorized access to edit'});
+        }
 
         const dup_name = await repository.get_user_by_username(new_username);
-        if (dup_name) return res.status(409).json({message: `User with username ${new_username} already exists`});
+        if (dup_name) {
+            helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 409: User with username ${new_username} already exists`)
+            return res.status(409).json({message: `User with username ${new_username} already exists`});
+        }
 
         const result = await repository.edit_username(id, new_username);
+        helpers.log_request_info(`PATCH users/edit-username/${id} - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH users/edit-username/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -264,12 +310,19 @@ router.patch('/change-password',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH users/change-password - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH users/change-password - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH users/change-password - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
@@ -277,19 +330,28 @@ router.patch('/change-password',
 
         const id = auth_user._id.toString();
 
-        const user = await repository.get_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        // const user = await repository.get_user_by_id(id);
+        // if (!user) return res.status(404).json({message: `user with id ${id} not found`});
 
         const data = await repository.get_user_by_id(id);
-        if(!data) return res.status(404).json({message: `user with id ${id} not found`});
+        if(!data) {
+            helpers.log_request_error(`PATCH users/change-password - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
         const verify = await bcrypt.compare(req.body.old_password, data.password);
-        if (!verify) return res.status(401).json({message: `Incorrect password`});
+        if (!verify) {
+            helpers.log_request_error(`PATCH users/change-password - 401: Incorrect password`)
+            return res.status(401).json({message: `Incorrect password`});
+        }
 
         const new_hash = await bcrypt.hash(req.body.new_password, SALT_ROUNDS)
         const result = await repository.update_password(id, new_hash);
+
+        helpers.log_request_info(`PATCH users/change-password - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH users/change-password - 400: ${error.message}`)
         res.status(400).json({message: error.message});   
     }
 })
@@ -325,13 +387,17 @@ router.post('/reset-password-request',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/reset-password-request - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         const username = req.body.username
         
         const user = await repository.get_user_by_username_or_email(username);
-        if(!user) return res.status(404).json({message: `user with name/email ${username} not found`});
+        if(!user) {
+            helpers.log_request_error(`POST users/reset-password-request - 404: user with name/email ${username} not found`)
+            return res.status(404).json({message: `user with name/email ${username} not found`})
+        };
 
         const id = user._id.toString();
 
@@ -350,14 +416,17 @@ router.post('/reset-password-request',
         const link = `${BASE_URL}/password-reset?token=${reset_token}&id=${user._id}`;
         const email_result = await helpers.sendEmail(user.email,"Password Reset Request",{name: user.username,link: link,}, TEMPLATE_PATH);
         if (!email_result){
+            helpers.log_request_info(`POST users/reset-password-request - 200`)
             return res.status(200).json({
                 message: "reset link sent",
                 link: link
             });
         }
+        helpers.log_request_error(`POST users/reset-password-request - 500: email not sent, something went wrong`)
         res.status(500).json({message: `email not sent, something went wrong`});
 
     } catch (error) {
+        helpers.log_request_error(`POST users/reset-password-request - 400: ${error.message}`)
         res.status(400).json({message: error.message})
     }
 })
@@ -397,6 +466,7 @@ router.patch('/password-reset/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH users/password-reset - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
@@ -404,20 +474,32 @@ router.patch('/password-reset/:id',
         const token_str = req.body.token;
 
         const user = await repository.get_user_by_id(user_id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`PATCH users/password-reset - 404: user with id ${user_id} not found`)
+            return res.status(404).json({message: `user with id ${user_id} not found`});
+        }
 
         const token = await repository.find_existing_token(user_id);
-        if (!token) return res.status(404).json({message: `token not found`});
+        if (!token) {
+            helpers.log_request_error(`PATCH users/password-reset - 404: token not found`)
+            return res.status(404).json({message: `token not found`});
+        }
 
         const token_is_valid = await bcrypt.compare(token_str, token.token);
-        if (!token_is_valid) return res.status(401).json("Invalid password reset token");
+        if (!token_is_valid) {
+            helpers.log_request_error(`PATCH users/password-reset - 401: Invalid password reset token`)
+            return res.status(401).json("Invalid password reset token");
+        }
 
         const password_hash = await bcrypt.hash(req.body.new_password, SALT_ROUNDS);
         const result = await repository.update_password(user_id, password_hash);
         await repository.delete_token(token);
+
+        helpers.log_request_info(`PATCH users/password-reset - 200`)
         res.status(201).json(result);
 
     } catch (error) {
+        helpers.log_request_error(`PATCH users/password-reset - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -449,16 +531,23 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/login - 401: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         const username = req.body.username;
         const password = req.body.password;
 
         const user = await repository.get_user_by_username_or_email(username);
-        if (!user) return res.status(404).json({message: `user with username/email: ${username} not found`});
+        if (!user) {
+            helpers.log_request_error(`POST users/login - 404: user with username/email: ${username} not found`)
+            return res.status(404).json({message: `user with username/email: ${username} not found`});
+        }
 
         const verify = await bcrypt.compare(password, user.password);
-        if (!verify) return res.status(401).json({message: `Incorrect password`});
+        if (!verify) {
+            helpers.log_request_error(`POST users/login - 401: Incorrect password`)
+            return res.status(401).json({message: `Incorrect password`});
+        }
 
         const token = jwt.sign(
             { user_id: user._id, email: user.email },
@@ -466,6 +555,9 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
             { expiresIn: "7 days" }
         )
         const photo = await repository.get_profile_photo(user.profile_picture)
+
+        helpers.log_request_info(`POST users/login - 200`)
+
         res.status(200).json({ // consider using a fieldMask for this endpoint
             username: user.username,
             id: user._id,
@@ -478,6 +570,7 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
             tasks: user.tasks
         })
     } catch (error) {
+        helpers.log_request_error(`POST users/login - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -513,21 +606,39 @@ router.post('/new/super-admin', validator.checkSchema(schemas.newUserSchema), as
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/new/super-admin - 401: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/new/super-admin - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`POST users/new/super-admin - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const user = await repository.get_user_by_id(decodedToken.user_id);
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can create superadmins'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`POST users/new/super-admin - 401: Unauthorized access. Only a superadmin can create superadmins`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can create superadmins'});
+        }
 
         const dup_name = await repository.get_user_by_username(req.body.username);
-        if (dup_name) return res.status(409).json({message: `user with username ${req.body.username} already exists`});
+        if (dup_name) {
+            helpers.log_request_error(`POST users/new/super-admin - 409: user with username ${req.body.username} already exists`)
+            return res.status(409).json({message: `user with username ${req.body.username} already exists`});
+        }
+
         const dup_mail = await repository.get_user_by_email(req.body.email);
-        if (dup_mail) return res.status(409).json({message: `user with email ${req.body.email} already exists`});
+        if (dup_mail) {
+            helpers.log_request_error(`POST users/new/super-admin - 409: user with email ${req.body.email} already exists`)
+            return res.status(409).json({message: `user with email ${req.body.email} already exists`});
+        }
 
         const data = new Model.user({
             username: req.body.username,
@@ -536,9 +647,12 @@ router.post('/new/super-admin', validator.checkSchema(schemas.newUserSchema), as
             superadmin: true
         })
         const result = await repository.create_new_user(data);
+
+        helpers.log_request_info(`POST users/new/super-admin - 200`)
         res.status(201).json(result);
 
     } catch (error) {
+        helpers.log_request_error(`POST users/new/super-admin - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -577,21 +691,37 @@ router.patch('/make-super-admin/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const user = await repository.get_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`PATCH users/make-super-admin/${id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH users/make-super-admin/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH users/make-super-admin/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        if (!auth_user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can make superadmins'});
+        if (!auth_user.superadmin) {
+            helpers.log_request_error(`PATCH users/make-super-admin/${id} - 401: Unauthorized access. Only a superadmin can make superadmins`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can make superadmins'});
+        }
 
         const result =  await repository.make_super_admin(user);
+
+        helpers.log_request_info(`PATCH users/make-super-admin/${id} - 200`);
         res.status(201).json(result);
 
     } catch (error) {
+        helpers.log_request_error(`PATCH users/make-super-admin/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -615,18 +745,30 @@ router.patch('/make-super-admin/:id', async (req, res) => {
 */
 router.get('/all', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/all - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/all - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        if (!auth_user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view all users'});
+        if (!auth_user.superadmin) {
+            helpers.log_request_error(`GET users/all - 401: Unauthorized access. Only a superadmin can view all users`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view all users'});
+        }
 
         const result = await repository.get_all_users();
+
+        helpers.log_request_info(`GET users/all - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET users/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -662,22 +804,37 @@ router.get('/all', async (req, res) => {
 router.delete('/delete/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE users/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`DELETE users/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user_to_delete = await repository.get_user_by_id(id);
-        if (!user_to_delete) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user_to_delete) {
+            helpers.log_request_error(`DELETE users/delete/${req.params.id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access to delete'});
+        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.log_request_error(`DELETE users/delete/${req.params.id} - 401: Unauthorized access to delete`)
+            return res.status(401).json({message: 'Unauthorized access to delete'});
+        }
     
         const result = await repository.delete_user(user_to_delete);
+        helpers.log_request_info(`DELETE users/delete/${id} - 200`)
         res.status(204).json(result);
         // log user out upon delete and delete his token
     } catch (error) {
+        helpers.log_request_error(`DELETE users/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -716,26 +873,45 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         const file = req.file;
         const id = req.params.id;
 
-        if (!file) return res.status(400).json({message: "No file selected"});
+        if (!file) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: No file selected`)
+            return res.status(400).json({message: "No file selected"});
+        }
         
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: only .png, .jpg and .jpeg format allowed`)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
 
-        if (file.size > 2000000) return res.status(400).json({message: "File exceeded 2MB size limit"});
+        if (file.size > 2000000) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: File exceeded 2MB size limit`)
+            return res.status(400).json({message: "File exceeded 2MB size limit"});
+        }
 
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.get_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access'});
+        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Unauthorized access`)
+            return res.status(401).json({message: 'Unauthorized access'});
+        }
 
         const photo = new Model.profilePic({
             name: file.filename,
@@ -745,8 +921,11 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         })
         
         const result = await repository.add_profile_photo(id, photo);
+
+        helpers.log_request_info(`POST users/change-profile-photo/${id} - 200`)
         res.status(201).json(result);        
     } catch (error) {
+        helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -781,25 +960,40 @@ router.post('/remove-profile-photo/:id', async (req, res) => {
     try {
         const id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/remove-profile-photo/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`POST users/remove-profile-photo/${id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.get_user_by_id(id);
-        if (!user) return res.status(404).json({message: `user with id ${id} not found`});
+        if (!user) {
+            helpers.log_request_error(`POST users/remove-profile-photo/${id} - 404: user with id ${id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) return res.status(401).json({message: 'Unauthorized access'});
+        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.log_request_error(`POST users/remove-profile-photo/${id} - 401: Unauthorized access`)
+            return res.status(401).json({message: 'Unauthorized access'});
+        }
         
         if(!user.profile_picture) {
+            helpers.log_request_error(`POST users/remove-profile-photo/${id} - 404: No profile picture attached`)
             return res.status(404).json({message: "No profile picture attached"});
         }
 
         const result = await repository.remove_profile_photo(user.profile_picture, id);
+        helpers.log_request_info(`POST users/remove-profile-photo/${id} - 200`)
         res.status(200).json(result);        
     } catch (error) {
+        helpers.log_request_error(`POST users/remove-profile-photo/${id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -831,10 +1025,15 @@ router.post('/get-user-from-token',
 
             const user = await repository.get_user_by_id(decodedToken.user_id);
             
-            if (!user) return res.status(404).json({message: `user with id ${decodedToken.user_id} not found`});
+            if (!user) {
+                helpers.log_request_error(`POST users/get-user-from-token - 404: user with id ${decodedToken.user_id} not found`)
+                return res.status(404).json({message: `user with id ${decodedToken.user_id} not found`});
+            }
             
+            helpers.log_request_info(`POST users/get-user-from-token - 200`)
             res.status(200).json(user);
         } catch (error) {
+            helpers.log_request_error(`POST users/get-user-from-token - 400: ${error.message}`)
             res.status(400).json({message: error.message});
         }
 })
@@ -862,18 +1061,25 @@ router.post('/validate-user',
         try {
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`POST users/validate-user - 400: validation errors`)
                 return res.status(400).json({ errors: errors.array() });
             }
             const username = req.body.username;
 
             const user = await repository.get_user_by_username_or_email(username)
             
-            if (!user) return res.status(404).json({message: `user with username/email ${username} not found`});
+            if (!user) {
+                helpers.log_request_error(`POST users/validate-user - 404: user with username/email ${username} not found`)
+                return res.status(404).json({message: `user with username/email ${username} not found`});
+            }
 
             let user_data = {username: user.username, email: user.email, id: user._id}
+
+            helpers.log_request_info(`POST users/validate-user - 200`)
             
             res.status(200).json(user_data);
         } catch (error) {
+            helpers.log_request_error(`POST users/validate-user - 400: ${error.message}`)
             res.status(400).json({message: error.message});
         }
 })
@@ -917,30 +1123,69 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
         const institute_id = req.params.institute_id;
         const resource_id = req.params.resource_id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 401: Token not found`
+            )
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 
+                ${validateUser.status}: ${ validateUser.message}`
+            )
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can request to publish resources"})
+        if (!isAdmin) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 
+                401: Only institute admins can request to publish resources`
+            )
+            return res.status(401).json({message: "Only institute admins can request to publish resources"})
+        }
 
         const resource = await repository.get_resource_by_id(resource_id);
-        if (!resource) return res.status(404).json({message: `Resource ${resource_id} not found`});
+        if (!resource) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 
+                404: Resource ${resource_id} not found`
+            )
+            return res.status(404).json({message: `Resource ${resource_id} not found`});
+        }
 
         const pub_request = await repository.find_request_by_resource(resource_id)
-        if (pub_request) return res.status(409).json({message: `request for publishing already exists for resource ${resource_id}`})
+        if (pub_request) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 
+                409: request for publishing already exists for resource ${resource_id}`
+            )
+            return res.status(409).json({message: `request for publishing already exists for resource ${resource_id}`})
+        }
         
+        const isPublic = await helpers.validatePublicResource(resource_id);
+        if (isPublic) {
+            helpers.log_request_error(
+                `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 
+                409: resource ${resource_id} already published`
+            )
+            return res.status(409).json({message: `resource ${resource_id} already published`});
+        }
+
         const data = new Model.pubRequest({
             resource: resource_id,
             institute: institute_id
         });
+        const result = await repository.request_to_publish(data);
 
-        const isPublic = await helpers.validatePublicResource(resource_id);
-        if (isPublic) return res.status(409).json({message: `resource ${resource_id} already published`});
-
-        const result = await repository.request_to_publish(data)
+        helpers.log_request_info(`POST users/admin-publish-request/${institute_id}/${resource_id} - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(
+            `POST users/admin-publish-request/${req.params.institute_id}/${req.params.resource_id} - 400: ${error.message}`
+        )
         res.status(400).json({error: error.message})
     }
 })
@@ -974,17 +1219,33 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
 router.post('/admin-publish/:resource_id', async (req, res) => {
     try {
         const resource_id = req.params.resource_id;
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/admin-publish/${req.params.resource_id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(
+                `POST users/admin-publish/${req.params.resource_id} - ${validateUser.status}: ${validateUser.message}`
+            )
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can publish'});
+        if (!user.superadmin) {
+            helpers.log_request_error(
+                `POST users/admin-publish/${req.params.resource_id} - 401: Unauthorized access. Only a superadmin can publish`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can publish'});
+        }
 
         const result =  await repository.publish(resource_id);
+
+        helpers.log_request_info(`POST users/admin-publish/${resource_id} - 200`)
         res.status(200).json({result});
 
     } catch (error) {
+        helpers.log_request_error(`POST users/admin-publish/${req.params.resource_id} - 400: ${error.message}`)
         res.status(400).json({error: error.message})
     }
 })
@@ -1008,16 +1269,29 @@ router.post('/admin-publish/:resource_id', async (req, res) => {
 */
 router.get('/admin-publish-requests', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/admin-publish-requests - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET users/admin-publish-requests - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view requests'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET users/admin-publish-requests - 401: Unauthorized access. Only a superadmin can view requests`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view requests'});
+        }
 
         const result = await repository.get_all_requests();
+
+        helpers.log_request_info(`GET users/admin-publish-requests - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET users/admin-publish-requests - 400: ${error.message}`)
         res.status(400).json({message: error.message})
     }
 })
@@ -1041,9 +1315,15 @@ router.get('/admin-publish-requests', async (req, res) => {
 */
 router.get('/institute-data/:id', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/institute-data/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/institute-data/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
@@ -1051,8 +1331,11 @@ router.get('/institute-data/:id', async (req, res) => {
 
         const [admins, members, resources] = await repository.get_institute_members(id);
         result = {"admins": admins, "members": members, "resources": resources}
+
+        helpers.log_request_info(`GET users/institute-data/${id} - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET users/institute-data/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -1082,12 +1365,19 @@ router.get('/task-data',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
-                return res.status(400).json({ errors: errors.array() });
+            helpers.log_request_error(`GET users/task-data/ - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
         }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/task-data/ - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/task-data/ - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
@@ -1096,8 +1386,11 @@ router.get('/task-data',
 
         const [author, collabs] = await repository.get_task_members(author_id, collab_idx)
         result = {"author": author, "collaborators": collabs}
+
+        helpers.log_request_info(`GET users/task-data/ - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET users/task-data/ - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -1127,17 +1420,25 @@ router.get('/task-data',
 router.get('/resource-data/:id', async (req, res) => {
     try {
         const id = req.params.id
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const [author, institute] = await repository.get_resource_data(id);
 
+        helpers.log_request_info(`GET users/resource-data/${id} - 200`)
         res.status(200).json({"author": author, "institute": institute});
     } catch (error) {
+        helpers.log_request_error(`GET users/resource-data/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })

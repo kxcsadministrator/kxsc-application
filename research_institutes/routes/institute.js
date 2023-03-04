@@ -43,26 +43,42 @@ router.post('/new', validator.checkSchema(schemas.newInstituteSchema), async (re
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST institutes/new - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         // Authorization
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization){
+            helpers.log_request_error(`POST institutes/new - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST institutes/new -${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can create institutes'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`POST institutes/new - 401: Unauthorized access. Only superadmins can create institutes`) 
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can create institutes'});
+        }
 
         const data = new Model.institute({
             name: req.body.name
         });
         const org = await repository.get_institute_by_name(req.body.name);
-        if (org) return res.status(409).json({message: `institute ${req.body.name} already exists`});
+        if (org) {
+            helpers.log_request_error(`POST institutes/new - 409: Institute already exists`) 
+            return res.status(409).json({message: `institute ${req.body.name} already exists`});
+        }
         
         const dataToSave = await repository.create_new_institute(data);
+
+        helpers.log_request_info(`POST institutes/new - 201`) 
         res.status(201).json(dataToSave);
     } catch (error) {
+        helpers.log_request_error(`POST institutes/new - 400: ${error.message}`) 
         res.status(400).json({message: error.message})
     }
 });
@@ -93,17 +109,28 @@ router.post('/new', validator.checkSchema(schemas.newInstituteSchema), async (re
 */
 router.get('/one/:id', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/one/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const id = req.params.id;
         const data = await repository.get_institute_data(id, req.headers);
-        if (!data) return res.status(404).json({message: `insititute with id ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`GET institutes/one/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `insititute with id ${id} not found`});
+        }
 
         const isMember = await helpers.validateInstituteMembers(req.headers, id);
-        if (!isMember) return res.status(401).json({message: `Unauthorized access. User not a member of institute`})
+        if (!isMember) {
+            helpers.log_request_error(`GET institutes/one/${req.params.id} - 401: Unauthorized access. User not a member of institute`) 
+            return res.status(401).json({message: `Unauthorized access. User not a member of institute`})
+        }
         
+        helpers.log_request_info(`GET institutes/one/${req.params.id} - 200`) 
         res.status(200).json(data);
     } catch (error) {
+        helpers.log_request_error(`GET institutes/one/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message})
     }
 });
@@ -125,16 +152,28 @@ router.get('/one/:id', async (req, res) => {
 */
 router.get('/all', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/all - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/all - ${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can view all institutes'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET institutes/all - 401: Unauthorized access. Only superadmins can view all institutes`) 
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can view all institutes'});
+        }
 
         const data = await repository.get_all_institutes();
+
+        helpers.log_request_info(`GET institutes/all - 200`) 
         res.status(200).json(data);
     } catch (error) {
+        helpers.log_request_error(`GET institutes/all - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 })
@@ -175,26 +214,45 @@ router.patch('/add-admins/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - 400: validation errors`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const admin_data = req.body.admins;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - ${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can add admins'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - 401: Unauthorized access. Only superadmins can add admins`) 
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can add admins'});
+        }
         
         const valid_users_res = await helpers.validateUserdata(admin_data);
-        if (valid_users_res.status != 200) return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        if (valid_users_res.status != 200) {
+            helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - ${valid_users_res.status}: Invalid username(s) supplied`) 
+            return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        }
 
         const result = await repository.add_institute_admins(id, valid_users_res.data);
+
+        helpers.log_request_info(`PATCH institutes/add-admins/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/add-admins/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 });
@@ -236,26 +294,45 @@ router.patch('/remove-admins/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - 404: Institute not found`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const admin_data = req.body.admins;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - ${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can remove admins'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - 401: Unauthorized access. Only superadmins can remove admins`) 
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can remove admins'});
+        }
 
         const valid_users_res = await helpers.validateUserdata(admin_data);
-        if (valid_users_res.status != 200) return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        if (valid_users_res.status != 200) {
+            helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - ${valid_users_res.status}: Invalid username(s) supplied`) 
+            return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        }
 
         const result = await repository.remove_institue_admins(id, valid_users_res.data);
+
+        helpers.log_request_info(`PATCH institutes/remove-admins/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/remove-admins/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 });
@@ -297,23 +374,39 @@ router.patch('/add-members/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - 400: validation errors`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const member_data = req.body.members;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can add members"});
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - 401: Unauthorized access. Only institute admin can add members`) 
+            return res.status(401).json({message: "Only institute admins can add members"});
+        }
 
         const valid_users_res = await helpers.validateUserdata(member_data);
-        if (valid_users_res.status != 200) return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        if (valid_users_res.status != 200) {
+            helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - ${valid_users_res.status}: Invalid username(s) supplied`) 
+            return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        }
 
         const result = await repository.add_institute_members(id, valid_users_res.data);
+
+        helpers.log_request_info(`PATCH institutes/add-members/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/add-members/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 });
@@ -355,23 +448,39 @@ router.patch('/remove-members/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - 400: validation errors`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const member_data = req.body.members;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can remove members"})
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - 401: Unauthorized access. Only institute admins can remove members`) 
+            return res.status(401).json({message: "Only institute admins can remove members"})
+        }
 
         const valid_users_res = await helpers.validateUserdata(member_data);
-        if (valid_users_res.status != 200) return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        if (valid_users_res.status != 200) {
+            helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - ${valid_users_res.status}: Invalid username(s) supplied`) 
+            return res.status(valid_users_res.status).json({message: "Invalid username(s) supplied"});
+        }
 
         const result = await repository.remove_institute_members(id, valid_users_res.data);
+
+        helpers.log_request_info(`PATCH institutes/remove-members/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/remove-members/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 });
@@ -386,20 +495,33 @@ router.patch('/add-resources/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 400: validation errors`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const resources_data = req.body.resources;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can add resources"})
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can add resources`) 
+            return res.status(401).json({message: "Only institute admins can add resources"})
+        }
 
         const result = await repository.add_resources_to_institute(id, resources_data);
+
+        helpers.log_request_info(`PATCH institutes/add-resources/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 });
@@ -441,22 +563,103 @@ router.patch('/remove-resources/:id',
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 400: validation errors`) 
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         const resources_data = req.body.resources;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can add resources"})
+        if (!isAdmin) {
+            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can remove resources`) 
+            return res.status(401).json({message: "Only institute admins can add resources"})
+        }
 
         const result = await repository.remove_resources_from_institute(id, resources_data);
+
+        helpers.log_request_info(`PATCH institutes/remove-resources/${req.params.id} - 201`) 
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
+});
+
+/** 
+ * @swagger
+ * /institutes/update/{id}:
+ *  patch:
+ *      summary: Updates an institute
+ *      description: |
+ *          Updates many fields at one go. Not recommended to be used for add/remove operations
+ *          Only institute and super admins can update an institute
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the institute to update
+ * responses:
+ *    '201':
+ *      description: updated
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.patch('/update/:id', async (req, res) => {
+        try {
+            const id = req.params.id;
+            const data = await repository.get_institute_by_id(id);
+            if (!data) {
+                helpers.log_request_error(`PATCH institutes/update/${req.params.id} - 404: institute not found`) 
+                return res.status(404).json({message: `institute with id: ${id} not found`});
+            }
+
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH institutes/update/${req.params.id} - 401: Token not found`) 
+                return res.status(401).json({message: "Token not found"});
+            }
+            const validateUser = await helpers.validateUser(req.headers);
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH institutes/update/${req.params.id} - ${validateUser.status}: ${validateUser.message}`) 
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
+            const user = validateUser.data;
+
+            if (!user.superadmin) {
+                helpers.log_request_error(`PATCH institutes/update/${req.params.id} - 401: Only superadmins can update institutes`) 
+                return res.status(401).json({message: 'Unauthorized access. Only superadmins can update institutes'});
+            }
+
+            const name = req.body.name;
+            const dup_name = await repository.get_institute_by_name(req.body.name);
+            if (dup_name){
+                helpers.log_request_error(`PATCH institutes/update/${req.params.id} - 409: Duplicate name`)
+                return res.status(409).json({message: `An institute with ${name} already exists`})
+            }
+            const result = await repository.update_institute(id, req.body);
+
+            helpers.log_request_info(`PATCH institutes/update/${req.params.id} - 201`) 
+            res.status(200).json(result);
+        } catch (error) {
+            helpers.log_request_error(`PATCH institutes/update/${req.params.id} - 400: ${error.message}`) 
+            res.status(400).json({message: error.message});
+        }
 });
 
 /** 
@@ -493,23 +696,39 @@ router.patch('/rename/:id',
         try {
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - 400: validation errors`) 
                 return res.status(400).json({ errors: errors.array() });
             }
             const id = req.params.id;
             const data = await repository.get_institute_by_id(id);
-            if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+            if (!data) {
+                helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - 404: institute not found`) 
+                return res.status(404).json({message: `institute with id: ${id} not found`});
+            }
 
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - 401: Token not found`) 
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - ${validateUser.status}: ${validateUser.message}`) 
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
             const user = validateUser.data;
 
-            if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can rename institutes'});
+            if (!user.superadmin) {
+                helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - 401: Unauthorized access. Only superadmins can rename institutes`) 
+                return res.status(401).json({message: 'Unauthorized access. Only superadmins can rename institutes'});
+            }
 
             const name = req.body.name;
             const result = await repository.edit_institute_name(id, name);
+
+            helpers.log_request_info(`PATCH institutes/rename/${req.params.id} - 201`) 
             res.status(201).json(result);
         } catch (error) {
+            helpers.log_request_error(`PATCH institutes/rename/${req.params.id} - 400: ${error.message}`) 
             res.status(400).json({message: error.message});
         }
 });
@@ -550,36 +769,71 @@ router.patch('/rename/:id',
 */
 router.post('/institute-publish-request/:id/:resource_id', async(req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 401: Token not found`
+            ) 
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - ${validateUser.status}: ${validateUser.message}`
+            )
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
         const institute_id = req.params.id;
         const resource_id = req.params.resource_id;
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        if (!institute) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 404: institute not found`
+            )
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
 
         const pub_request = await repository.find_request_by_resource(resource_id)
-        if (pub_request) return res.status(409).json({message: `request for publishing already exists for resource ${resource_id}`})
+        if (pub_request) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 409: duplicate request`
+            )
+            return res.status(409).json({message: `request for publishing already exists for resource ${resource_id}`})
+        }
 
         const ins = await  repository.get_institute_by_id(institute_id)
-        if (ins.resources.includes(resource_id)) return res.status(409).json(
-            { message:`resource ${resource_id} already published under institute ${institute_id}` }
-        )
+        if (ins.resources.includes(resource_id)) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 409: already published`
+            )
+            return res.status(409).json(
+                { message:`resource ${resource_id} already published under institute ${institute_id}` }
+            )
+        }
 
         const isOwner = helpers.validateUserResource(user, resource_id);
-        if (!isOwner) return res.status(401).json({message: `User ${user._id} is not the owner of resource ${resource_id}`});
+        if (!isOwner) {
+            helpers.log_request_error(
+                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 401: unauthorized owner`
+            )
+            return res.status(401).json({message: `User ${user._id} is not the owner of resource ${resource_id}`});
+        }
 
         const data = new Model.pubRequest({
             resource: resource_id,
             institute: institute_id
         });
-        const result = await repository.request_to_publish(data)
+        const result = await repository.request_to_publish(data);
+
+        helpers.log_request_info(`POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 200`)
         res.status(200).json(result);
 
     } catch (error) {
+        helpers.log_request_error(
+            `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 400: ${error.message}`
+        )
         res.status(400).json({message: error.message})
     }
 })
@@ -624,16 +878,36 @@ router.post('/request-to-publish/:id/:resource_id',
         const resource_id = req.params.resource_id;
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        if (!institute) {
+            helpers.log_request_error(
+                `POST institutes/request-to-publish/${req.params.id}/${req.params.resource_id} - 404: Institute not found`
+            ) 
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(
+                `POST institutes/request-to-publish/${req.params.id}/${req.params.resource_id} - 401: Token not found`
+            )
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can request to publish resources"})
+        if (!isAdmin) {
+            helpers.log_request_error(
+                `POST institutes/request-to-publish/${req.params.id}/${req.params.resource_id} - 401: Only institute admins can request`
+            ) 
+            return res.status(401).json({message: "Only institute admins can request to publish resources"})
+        }
 
         const data = await helpers.admin_publish_request(institute_id, resource_id, req.headers);
+
+        helpers.log_request_info(`POST institutes/request-to-publish/${req.params.id}/${req.params.resource_id} - 200`) 
         res.status(200).json(data);
 
     } catch (error) {
+        helpers.log_request_error(
+            `POST institutes/request-to-publish/${req.params.id}/${req.params.resource_id} - 400: ${error.message}`
+        )
         if (error.response.data.message) error.message = error.response.data.message;
         res.status(400).json({message: error.message})
     }
@@ -678,16 +952,36 @@ router.post('/publish-to-institute/:id/:resource_id',
         const resource_id = req.params.resource_id;
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        if (!institute) {
+            helpers.log_request_error(
+                `POST institutes/publish-to-institute/${req.params.id}/${req.params.resource_id} - 404: Institute not found`
+            ) 
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(
+                `POST institutes/publish-to-institute/${req.params.id}/${req.params.resource_id} - 401: Token not found`
+            )
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can publish resources"})
+        if (!isAdmin) {
+            helpers.log_request_error(
+                `POST institutes/publish-to-institute/${req.params.id}/${req.params.resource_id} - 401: Only institute admins can publish`
+            )
+            return res.status(401).json({message: "Only institute admins can publish resources"})
+        }
 
         const result = await repository.publish(institute_id, resource_id);
+
+        helpers.log_request_info(`POST institutes/publish-to-institute/${req.params.id}/${req.params.resource_id} - 200`)
         res.status(200).json(result);
 
     } catch (error) {
+        helpers.log_request_error(
+            `POST institutes/publish-to-institute/${req.params.id}/${req.params.resource_id} - 400: ${error.message}`
+        )
         res.status(400).json({message: error.message})
     }
 })
@@ -723,15 +1017,26 @@ router.get('/publish-requests/:id', async (req, res) => {
         const institute_id = req.params.id;
 
         const institute = await repository.get_institute_by_id(institute_id);
-        if (!institute) return res.status(404).json({message: `institute with id ${institute_id} not found`});
-
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!institute) {
+            helpers.log_request_error(`GET institutes/publish-requests/${req.params.id} - 404: Institute not found`)
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/publish-requests/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can view requests"});
+        if (!isAdmin) {
+            helpers.log_request_error(`GET institutes/publish-requests/${req.params.id} - 401: Only institute admins can view`)
+            return res.status(401).json({message: "Only institute admins can view requests"});
+        }
 
         const result = await repository.get_institute_requests(institute_id);
+
+        helpers.log_request_info(`GET institutes/publish-requests/${req.params.id} - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET institutes/publish-requests/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message})
     }
 })
@@ -766,19 +1071,34 @@ router.delete("/delete/:id", async (req, res) => {
     try {
         const id = req.params.id;
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE institutes/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`DELETE institutes/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can delete institutes'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`DELETE institutes/delete/${req.params.id} - 401: Only superadmins can delete institutes`)
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can delete institutes'});
+        }
 
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`DELETE institutes/delete/${req.params.id} - 404: Institute not found`)
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
         const result = await repository.delete_institute(id);
+
+        helpers.log_request_info(`DELETE institutes/delete/${req.params.id} - 204`)
         res.status(204).json({message: `institute with id: ${id} deleted successfully`});
     } catch (error) {
+        helpers.log_request_error(`DELETE institutes/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -804,15 +1124,27 @@ router.get('/:id/files', async (req, res) => {
     try {
         const id = req.params.id;
         const data = await repository.get_institute_by_id(id);
-        if (!data) return res.status(404).json({message: `institute with id: ${id} not found`});
+        if (!data) {
+            helpers.log_request_error(`GET institutes/${req.params.id}/files - 404: Institute not found`)
+            return res.status(404).json({message: `institute with id: ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/${req.params.id}/files - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/${req.params.id}/files - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const result = await repository.get_institute_files(id);
+
+        helpers.log_request_info(`GET institutes/${req.params.id}/files - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET institutes/${req.params.id}/files - 400: ${error.message}`)
         res.status(400).json({message: error.message})
     }
 })
@@ -832,16 +1164,28 @@ router.get('/:id/files', async (req, res) => {
 */
 router.get('/count', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/count - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/count - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
         const user = validateUser.data;
 
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can get metrics'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET institutes/count - 401: Only superadmins can get metrics`)
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can get metrics'});
+        }
 
         const result = await repository.get_institute_count();
+
+        helpers.log_request_info(`GET institutes/count - 200`)
         res.status(200).json({count: result})
     } catch (error) {
+        helpers.log_request_error(`GET institutes/count - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -879,14 +1223,26 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
         const files = req.files;
         const id = req.params.id;
 
-        if (!files) return res.status(400).json({message: "No file selected"});
+        if (!files) {
+            helpers.log_request_error(`POST institutes/upload-files/${req.params.id} - 400: validation errors`)
+            return res.status(400).json({message: "No file selected"});
+        }
 
         const institute = await repository.get_institute_by_id(id);
-        if (!institute) return res.status(404).json({message: `institute ${id} not found`});
+        if (!institute) {
+            helpers.log_request_error(`POST institutes/upload-files/${req.params.id} - 404: Institute not found`)
+            return res.status(404).json({message: `institute ${id} not found`});
+        }
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST institutes/upload-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) return res.status(401).json({message: "Only institute admins can upload files"})
+        if (!isAdmin) {
+            helpers.log_request_error(`POST institutes/upload-files/${req.params.id} - 401: Only institute admins can upload files`)
+            return res.status(401).json({message: "Only institute admins can upload files"})
+        }
 
         let data = []
         
@@ -899,23 +1255,29 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
             })
         )
         const result =  await repository.add_institute_file(id, data);
+
+        helpers.log_request_info(`POST institutes/upload-files/${req.params.id} - 200`)
         res.status(201).json(result);
     } catch (error) {
+        helpers.log_request_error(`POST institutes/upload-files/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
 
 /** 
  * @swagger
- * /institutes/download-files:
+ * /institutes/download-file/{id}:
  *  get:
  *      summary: Downloads a file from the server.
  *      description: |
- *        The request should have a query parameter 'name'.
- *        
- *        This param should match the 'name' of a file object and not original_filename.
- * 
  *        Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the file to be downloaded
  * responses:
  *    '200':
  *      description: Successful
@@ -927,22 +1289,90 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
 router.get("/download-file/:id", async (req, res) => {
     
     try {
-        const id = req.params.id;
-        const file_name = req.query.name;
+        const file_id = req.params.id;
+        
 
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/download-files/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
-        const institute = await repository.get_institute_by_id(id);
-        if (!institute) return res.status(400).json({message: `institute with id: ${id} not found`});
-        if (!file_name) return res.status(400).json({message: "no filename provided"});
-        
-        const result = await repository.get_one_institute_file(file_name);
-        if (!result) return res.status(404).json({message: `file ${file_name} not found`});
-        
-        res.download(result.path, result.original_name);
+        const file = await repository.get_one_institute_file(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 404: file not found`)
+            return res.status(404).json({message: "file not found"});
+        }
+
+        const isMember = await helpers.validateInstituteMembers(req.headers, file.parent.id.toString())
+        if (!isMember) {
+            helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 401: Only institute members can download files`)
+            return res.status(401).json({message: "Only institute members can download files"})
+        }
+    
+        helpers.log_request_info(`GET institutes/download-files/${req.params.id} - 200`)
+        res.download(file.path, file.original_name);
     } catch (error) {
+        helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+});
+
+/** 
+ * @swagger
+ * /institutes/delete-file/{id}:
+ *  delete:
+ *      summary: Deletes an instutute fike by it's id.
+ *      description: |
+ *        Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the file to be deleted
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+*/
+router.delete("/delete-file/:id", async (req, res) => {
+    
+    try {
+        const id = req.params.id;
+        
+        const file = await repository.get_institute_file_by_id(id)
+        if (!file){
+            helpers.log_request_error(`DELETE institutes/delete-files/${req.params.id} - 404: File not found`)
+            return res.status(404).json(`File ${id} not found`)
+        }
+
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/delete-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        
+        const isAdmin = await helpers.validateInstituteAdmin(req.headers, file.parent.id.toString());
+        if (!isAdmin) {
+            helpers.log_request_error(`DELETE institutes/delete-files/${req.params.id} - 401: Only institute admins can delete files`)
+            return res.status(401).json({message: "Only institute admins can delete files"})
+        }
+        
+
+        helpers.log_request_info(`DELETE institutes/delete-files/${req.params.id} - 204`)
+        const result = await repository.delete_institute_file(id);
+        res.status(204).json({result})
+    } catch (error) {
+        console.error(error)
+        helpers.log_request_error(`DELETE institutes/delete-files/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });

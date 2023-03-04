@@ -47,6 +47,15 @@ const clean_resource = async (resource, id, headers) => {
     return result
 }
 
+const log_request_error = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/error`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
 /*------------------------------ Resources Section ------------------------------------------ */
 const create_new_resource = async (data)=>{
     const dataToSave = await data.save();
@@ -146,6 +155,12 @@ const get_public_resources = async (category="None", sub_cat="None")=>{
     
 }
 
+const update_resource_fields = async(id, updateObj) => {
+    const _ = await Model.resource.findByIdAndUpdate(id, updateObj);
+    const data = await Model.resource.findById(id, {_id: 1, topic: 1})
+    return data
+}
+
 const update_resource_topic = async (id, new_topic) => {
     const data = await Model.resource.findByIdAndUpdate(id, { topic: new_topic});
     const result = await Model.resource.findById(id, {_id: 1, topic: 1});
@@ -241,6 +256,27 @@ const add_resource_file = async (resource_id, data) => {
     let parent = await Model.resource.findByIdAndUpdate(resource_id, {$addToSet: {files: idx}});
     parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return parent;
+}
+
+const delete_resource_file = async (file_id) => {
+    const file = await Model.resourceFile.findById(file_id);
+    const parent_id = file.parent._id.toString()
+    const r = await Model.resource.findByIdAndUpdate(parent_id, {$pullAll: {files: [file_id]}});
+    fs.unlink(file.path, (err) => {
+        if (err) {
+        log_request_error(`file unlink: ${err}`)
+        return
+        }
+    }
+    )
+    await Model.resourceFile.findByIdAndDelete(file_id);
+    const resource =  await Model.resource.findById(parent_id, {_id: 1, topic: 1})
+    return resource
+}
+
+const get_resource_file_by_id = async(id, resource_id) => {
+    const res = await Model.resourceFile.findOne({_id: id, parent: resource_id})
+    return res;
 }
 
 const validateRate = async (user_id, resource_id) => {
@@ -393,5 +429,5 @@ module.exports = {
     add_sub_categories, remove_sub_categories, get_resource_by_topic, update_resource_topic, update_resource_description, 
     update_visibility, update_resource_type, add_resource_sub_categories, remove_resource_sub_categories, add_resource_citations,
     remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
-    get_resource_data, get_group_stats
+    get_resource_data, get_group_stats, update_resource_fields, delete_resource_file, get_resource_file_by_id
 }

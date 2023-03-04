@@ -4,7 +4,7 @@ const validator = require('express-validator');
 
 const Model = require('../db/models');
 const repository = require('../db/repository');
-const { json } = require('body-parser');
+const helpers = require('../helpers')
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
@@ -40,6 +40,7 @@ router.post('/new',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST categories/new - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
@@ -51,24 +52,42 @@ router.post('/new',
         });
 
          // user authentication
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST categories/new - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`POST categories/new - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
             token: token
         });
-        if (auth_user_res.status != 200) return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`POST categories/new - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
         const user = auth_user_res.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can create categories'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`POST categories/new - 401: Unauthorized access. Only superadmins can create categories`)
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can create categories'});
+        }
 
         const cat = await repository.get_category_by_name(req.body.name);
-        if (cat) return res.status(409).json({message: "Category already exists"});
+        if (cat) {
+            helpers.log_request_error(`POST categories/new - 409: Category already exists`)
+            return res.status(409).json({message: "Category already exists"});
+        }
 
         const dataToSave = await repository.create_new_category(data);
+
+        helpers.log_request_info('POST categories/new - 200')
         res.status(201).json(dataToSave);
     } catch (error) {
+        helpers.log_request_error(`POST categories/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
     
@@ -98,11 +117,16 @@ router.get('/category/:id', async (req, res) => {
     try{
         const category = await repository.get_category_by_id(req.params.id)
         if (category){
+            helpers.log_request_info(`GET category/${req.params.id} - 200`)
             res.status(200).json(category);
         }
-        else res.status(404).json({message: "Category not found"});
+        else {
+            helpers.log_request_error(`GET category/${req.params.id} - 404: Category not found`)
+            res.status(404).json({message: "Category not found"});
+        }
     }
     catch(error){
+        helpers.log_request_error(`GET category/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -133,11 +157,16 @@ router.get('/one', async (req, res) => {
         if (!req.query.name)return res.status(400).json({message: "A 'name' must be provided as a query parameter"});
         const category = await repository.get_category_by_name(req.query.name);
         if (category){
+            helpers.log_request_info(`GET categories/one?name=${req.query.name} - 200`)
             res.status(200).json(category);
         }
-        else res.status(404).json({message: "Category not found"});
+        else {
+            helpers.log_request_error(`GET categories/one?name=${req.query.name} - 404: Category not found`)
+            res.status(404).json({message: "Category not found"});
+        }
     }
     catch(error){
+        helpers.log_request_error(`GET category/one?name=${req.query.name} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -158,9 +187,11 @@ router.get('/one', async (req, res) => {
 router.get('/all', async (req, res) => {
     try{
         const data = await repository.get_all_categories()
+        helpers.log_request_info(`GET categories/all - 200`)
         res.status(200).json(data);
     }
     catch(error){
+        helpers.log_request_error(`GET categories/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -188,14 +219,22 @@ router.get('/all', async (req, res) => {
 */
 router.get('/subs', async (req, res) => {
     try{
-        if (!req.query.name)return res.status(400).json({message: "A 'name' must be provided as a query parameter"});
+        if (!req.query.name){
+            helpers.log_request_error(`GET categories/subs - 400: validation error`)
+            return res.status(400).json({message: "A 'name' must be provided as a query parameter"});
+        }
         const category = await repository.get_category_by_name(req.query.name);
         if (category){
+            helpers.log_request_info(`GET categories/subs - 200`)
             res.status(200).json(category.sub_categories);
         }
-        else res.status(404).json({message: "Category not found"});
+        else {
+            helpers.log_request_error(`GET categories/subs - 404: Category not found`)
+            res.status(404).json({message: "Category not found"});
+        }
     }
     catch(error){
+        helpers.log_request_error(`GET categories/subs - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -237,32 +276,56 @@ router.patch('/rename/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
 
         // user authentication
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
             token: token
         });
-        if (auth_user_res.status != 200) return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
         const user = auth_user_res.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can update category names'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`
+                PATCH categories/rename/${req.params.id} - 401: nauthorized access. Only superadmins can update category names`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can update category names'});
+        }
 
         const category = await repository.get_category_by_id(req.params.id)
-        if (!category) return res.status(404).json({message: "Category not found"});
+        if (!category) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 404: Category not found`)
+            return res.status(404).json({message: "Category not found"});
+        }
         
         const dup_cat = await repository.get_category_by_name(req.body.name);
-        if (dup_cat) return res.status(409).json({message: `Category ${req.body.name} already exists`})
+        if (dup_cat) {
+            helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 409: Category ${req.body.name} already exists`)
+            return res.status(409).json({message: `Category ${req.body.name} already exists`})
+        }
 
         const result = await repository.update_category_by_id(req.params.id, req.body.name);
+
+        helpers.log_request_info(`PATCH categories/rename/${req.params.id} - 201`)
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 400:${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -306,28 +369,49 @@ router.patch('/add-subcategories/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         // user authentication
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
             token: token
         });
-        if (auth_user_res.status != 200) return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
         const user = auth_user_res.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can add sub-categories'});
+        if (!user.superadmin) {
+            helpers.log_request_error(
+                `PATCH categories/add-subcategories/${req.params.id} - 401: Unauthorized access. Only superadmins can add sub-categories`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can add sub-categories'});
+        }
 
         const category = await repository.get_category_by_id(req.params.id)
-        if (!category) return res.status(404).json({message: "Category not found"});
+        if (!category) {
+            helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 404: Category not found`)
+            return res.status(404).json({message: "Category not found"});
+        }
         
         const result = await repository.add_sub_categories(req.params.id, req.body.sub_categories);
+
+        helpers.log_request_info(`PATCH categories/add-subcategories/${req.params.id} - 201`)
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -371,28 +455,49 @@ router.patch('/remove-subcategories/:id',
         //input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         // user authentication
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization){ 
+            helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const token = req.headers.authorization.split(' ')[1];
-        if (!token) return res.status(401).json({message: "Token not found"});
+        if (!token) {
+            helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
 
         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
             token: token
         });
-        if (auth_user_res.status != 200) return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
         const user = auth_user_res.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can remove sub-categories'});
+        if (!user.superadmin) {
+            helpers.log_request_error(
+                `PATCH categories/remove-subcategories/${req.params.id} - 401: Unauthorized access. Only superadmins can remove sub-categories`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can remove sub-categories'});
+        }
 
         const category = await repository.get_category_by_id(req.params.id)
-        if (!category) return res.status(404).json({message: "Category not found"});
+        if (!category){ 
+            helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 404: Category not found`)
+            return res.status(404).json({message: "Category not found"});
+        }
         
         const result = await repository.remove_sub_categories(req.params.id, req.body.sub_categories);
+
+        helpers.log_request_info(`PATCH categories/remove-subcategories/${req.params.id} - 201`)
         res.status(201).json(result);
     }
     catch (error) {
+        helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })
@@ -426,25 +531,45 @@ router.patch('/remove-subcategories/:id',
 router.delete('/delete/:id', async (req, res) => {
     try {
          // user authentication
-         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+         if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
          const token = req.headers.authorization.split(' ')[1];
-         if (!token) return res.status(401).json({message: "Token not found"});
+         if (!token){
+            helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
  
          const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
              token: token
          });
-         if (auth_user_res.status != 200) return res.status(401).json({message: "Unauthorized access. Invalid User"});
+         if (auth_user_res.status != 200) {
+            helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
          const user = auth_user_res.data
-         if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only superadmins can delete categories'});
+         if (!user.superadmin) {
+            helpers.log_request_error(
+                `DELETE categories/delete/${req.params.id} - 401: Unauthorized access. Only superadmins can delete categories`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can delete categories'});
+        }
 
         const category = await repository.get_category_by_id(req.params.id);
-        if (!category) return res.status(404).json({message: "Category not found"});
+        if (!category) {
+            helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 404: Category not found`)
+            return res.status(404).json({message: "Category not found"});
+        }
 
         const data = await repository.delete_category_by_id(req);
+
+        helpers.log_request_info(`DELETE categories/delete/${req.params.id} - 204`)
         res.status(204).json({message: `Category with name: ${data.name} has been deleted..`}) 
     }
     catch (error) {
+        helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
 })

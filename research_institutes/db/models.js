@@ -47,6 +47,10 @@ const taskSchema = new mongoose.Schema({
         type: [String],
         // validate: v => Array.isArray(v) && v.length > 0
     },
+    status: {
+        type: String,
+        default: "pending"
+    },
     date_created: {
         type: Date, 
         default: Date.now

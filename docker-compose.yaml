@@ -4,7 +4,7 @@ services:
     build: ./users
     volumes:
       - ./users:/node
-      - "uploads:/node/uploads"
+      - "uploads:/node/files"
     environment:
       - BASE_URL=www.knowledgexchange.com
       - SERVER_PORT=3000

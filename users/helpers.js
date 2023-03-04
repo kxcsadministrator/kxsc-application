@@ -5,11 +5,17 @@ const handlebars = require("handlebars");
 const fs = require("fs");
 const path = require("path");
 const jwt = require("jsonwebtoken");
+const axios = require('axios')
+const EXTENSION = '.log';
+
+const logger = require('./logger')
+
 
 const repository = require('./db/repository')
 
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests';
-const RESOURCES_URL = process.env.RESOURCES_SERVICE
+
+const LOG_BASE_URL = process.env.LOG_URL
 
 const sendEmail = async (email, subject, payload, template) => {
   try {
@@ -88,15 +94,6 @@ const validateInstituteAdmin = async (headers, institute_id) => {
 
 const validatePublicResource = async (resource_id) => {
   try {
-    // let resources_idx = []
-    // const resources = await repository.get_public_resources()
-
-    // resources.map(r => {
-    //   resources_idx.push(r._id)
-    // })
-    // if (resources_idx.includes(resource_id)) return true
-    
-    // return false
     const resource = await repository.get_resource_by_id(resource_id);
     if (resource.visibility === "public") return true;
     return false;
@@ -105,4 +102,41 @@ const validatePublicResource = async (resource_id) => {
   }
 }
 
-module.exports = {sendEmail, validateUser, validatePublicResource, validateInstituteAdmin};
+const log_request_info = async (message) => {
+  logger.info(message)
+}
+
+const log_request_error = async (message) => {
+  logger.error(message)
+}
+
+const get_all_logs = async () => {
+  try {
+    const res = await axios.get(`${LOG_BASE_URL}/all`);
+    return res
+  } catch (error) {
+    
+  }
+}
+
+const prepare_log_response = async (data) => {
+  let results = []
+  data.forEach(element => {
+    results.push({'name': element, 'link': `${LOG_BASE_URL}/download/${element}`})
+  });
+  return results
+}
+
+const get_log_files = () => {
+  const files = fs.readdirSync('./files/logs/');
+
+  const logFiles = files.filter(file => {
+    return path.extname(file).toLowerCase() === EXTENSION;
+  }); 
+  return logFiles;
+}
+
+module.exports = {
+  sendEmail, validateUser, validatePublicResource, validateInstituteAdmin, log_request_error, log_request_info, get_all_logs,
+  prepare_log_response, get_log_files
+};

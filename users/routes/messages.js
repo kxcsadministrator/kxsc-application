@@ -39,21 +39,37 @@ router.post('/new',
             // input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`POST messages/new - 400: validation errors`)
                 return res.status(400).json({ errors: errors.array() });
             }
 
             // user validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`POST messages/new - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`POST messages/new - ${validateUser.status}: ${validateUser.message}`)
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
 
             const user = validateUser.data
-            if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can send messages'});
+            if (!user.superadmin) {
+                helpers.log_request_error(`POST messages/new - 401: Unauthorized access. Only a superadmin can send messages`)
+                return res.status(401).json({message: 'Unauthorized access. Only a superadmin can send messages'});
+            }
 
             const recipient = await repository.get_user_by_username(req.body.recipient)
-            if (!recipient) return res.status(404).json({message: `User with username ${req.body.recipient} not found`})
+            if (!recipient) {
+                helpers.log_request_error(`POST messages/new - 404: Recipient with username ${req.body.recipient} not found`)
+                return res.status(404).json({message: `Recipient with username ${req.body.recipient} not found`})
+            }
 
-            if(recipient._id.toString() == user._id) return res.status(400).json({message: `You can't send a message to yourself`});
+            if(recipient._id.toString() == user._id) {
+                helpers.log_request_error(`POST messages/new - 400: You can't send a message to yourself`)
+                return res.status(400).json({message: `You can't send a message to yourself`});
+            }
 
             const data = new Model.message({
                 sender: user._id,
@@ -62,9 +78,12 @@ router.post('/new',
             });
 
             const result = await repository.new_message(data);
+
+            helpers.log_request_info(`POST messages/new - 200`)
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`POST messages/new - 400: ${error.message}`)
             res.status(400).json({message: error.message});
         }
     }
@@ -98,20 +117,33 @@ router.post('/broadcast',
             // input validation
             const errors = validator.validationResult(req);
             if (!errors.isEmpty()) {
+                helpers.log_request_error(`POST messages/broadcast - 400: validation errors`)
                 return res.status(400).json({ errors: errors.array() });
             }
             // user validation
-            if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`POST messages/broadcast - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
             const validateUser = await helpers.validateUser(req.headers);
-            if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+            if (validateUser.status !== 200){ 
+                helpers.log_request_error(`POST messages/broadcast - ${validateUser.status}: ${validateUser.message}`)
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
 
             const user = validateUser.data
-            if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can broadcast messages'});
+            if (!user.superadmin) {
+                helpers.log_request_error(`POST messages/broadcast - 401: Unauthorized access. Only a superadmin can broadcast messages`)
+                return res.status(401).json({message: 'Unauthorized access. Only a superadmin can broadcast messages'});
+            }
 
             const result = await repository.broadcast_message(user._id, req.body.body);
+
+            helpers.log_request_info(`POST messages/broadcast - 200`)
             res.status(200).json(result);
 
         } catch (error) {
+            helpers.log_request_error(`POST messages/broadcast - 400: ${error.message}`)
             res.status(400).json({message: error.message});
         }
 })
@@ -153,23 +185,39 @@ router.patch('/edit/:id',
         // input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         // user validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can edit messages'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 401: Unauthorized access. Only a superadmin can edit messages`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can edit messages'});
+        }
 
         const msg = await repository.get_message_by_id(id);
-        if (!msg) return res.status(404).json({message: `message ${id} not found`});
+        if (!msg) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 404: message ${id} not found`)
+            return res.status(404).json({message: `message ${id} not found`});
+        }
 
         const result = await repository.edit_message(id, req.body.body);
+
+        helpers.log_request_info(`PATCH messages/edit/${id} - 200`)
         res.status(201).json({result})
     } catch (error) {
+        helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -208,23 +256,36 @@ router.delete('/delete/:id',
         // input validation
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
         const id = req.params.id;
         // user validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin can delete messages'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 401: Unauthorized access. Only a superadmin can delete messages`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can delete messages'});
+        }
 
         const msg = await repository.get_message_by_id(id);
         if (!msg) return res.status(404).json({message: `message ${id} not found`});
 
         const result = await repository.delete_message(id);
+
+        helpers.log_request_info(`PATCH messages/delete/${id} - 200`)
         res.status(204).json({result})
     } catch (error) {
+        helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -250,16 +311,28 @@ router.delete('/delete/:id',
 router.get('/all', async (req, res) => {
     try {
         // user validation
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET messages/all - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET messages/all - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
-        if (!user.superadmin) return res.status(401).json({message: 'Unauthorized access. Only a superadmin view all messages'});
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET messages/all - 401: Unauthorized access. Only a superadmin view all messages`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin view all messages'})
+        };
 
         const result = await repository.all_messages();
+
+        helpers.log_request_info(`GET messages/all - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET messages/all - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -281,15 +354,24 @@ router.get('/all', async (req, res) => {
 */
 router.get('/my-messages', async (req, res) => {
     try {
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET messages/my-messages - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
         const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) return res.status(validateUser.status).json({message: validateUser.message});
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET messages/my-messages - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
 
         const user = validateUser.data
 
         const result = await repository.get_user_messages(user._id);
+
+        helpers.log_request_info(`GET messages/my-messages - 200`)
         res.status(200).json(result);
     } catch (error) {
+        helpers.log_request_error(`GET messages/my-messages - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })

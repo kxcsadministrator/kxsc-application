@@ -50,6 +50,15 @@ const get_task_readable = async (task, header) => {
     return result;
 }
 
+const log_request_error = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/error`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+}
+
 /* ----------------------------------- Institutes ----------------------------------- */
 const create_new_institute = async(data) => {
     const dataToSave = await data.save();
@@ -91,25 +100,25 @@ const get_all_institutes = async() => {
 
 const add_institute_admins =  async (id, admin_idx) => {
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {admins: admin_idx}});
-    const result = await Model.institute.findById(id);
+    const result = await Model.institute.findById(id,  {_id: 1, name: 1});
     return result;
 }
 
 const remove_institue_admins = async (id, admin_idx) => {
     await Model.institute.findByIdAndUpdate(id, {$pullAll: {admins: admin_idx}});
-    const result = await Model.institute.findById(id);
+    const result = await Model.institute.findById(id,  {_id: 1, name: 1});
     return result;
 }
 
 const add_institute_members =  async (id, members_idx) => {
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {members: members_idx}});
-    const result = await Model.institute.findById(id);
+    const result = await Model.institute.findById(id, {_id: 1, name: 1});
     return result;
 }
 
 const remove_institute_members = async (id, members_idx) => {
     await Model.institute.findByIdAndUpdate(id, {$pullAll: {members: members_idx}});
-    const result = await Model.institute.findById(id);
+    const result = await Model.institute.findById(id, {_id: 1, name: 1});
     return result;
 }
 
@@ -120,19 +129,42 @@ const add_institute_file = async (institute_id, data) => {
         idx.push(element._id);
     });
     let parent = await Model.institute.findByIdAndUpdate(institute_id, {$addToSet: {files: idx}});
-    parent = await Model.institute.findById(institute_id);
+    parent = await Model.institute.findById(institute_id, {_id: 1, name: 1});
     return parent;
+}
+
+const get_institute_file_by_id = async(file_id) => {
+    const res = await Model.instituteFile.findById(file_id)
+    return res;
+}
+
+const delete_institute_file = async(file_id) => {
+    const file = await Model.instituteFile.findById(file_id)
+    const parent_id = file.parent.toString();
+
+    let institute = await Model.institute.findByIdAndUpdate(parent_id, {$pullAll: {files: [file_id]}});
+
+    fs.unlink(file.path, (err) => {
+            if (err) {
+            log_request_error(`file unlink: ${err}`)
+            return
+            }
+        }
+    )
+    Model.instituteFile.findByIdAndDelete(file_id)
+    institute = await Model.institute.findById(parent_id, {_id: 1, name: 1})
+    return institute;
 }
 
 const add_resources_to_institute = async(institute_id, resources_idx) => {
     await Model.institute.findByIdAndUpdate(institute_id, {$addToSet: {resources: resources_idx}});
-    const result = await Model.institute.findById(institute_id);
+    const result = await Model.institute.findById(institute_id, {_id: 1, name: 1});
     return result;
 }
 
 const remove_resources_from_institute = async (institute_id, resources_idx) => {
     await Model.institute.findByIdAndUpdate(institute_id, {$pullAll: {resources: resources_idx}});
-    const result = await Model.institute.findById(institute_id);
+    const result = await Model.institute.findById(institute_id, {_id: 1, name: 1});
     return result;
 }
 
@@ -142,8 +174,8 @@ const get_institute_files = async (id) => {
     return result;
 }
 
-const get_one_institute_file = async (file_name) => {
-    const result = Model.instituteFile.findOne({name: file_name});
+const get_one_institute_file = async (id) => {
+    const result = Model.instituteFile.findById(id)
     return result;
 }
 
@@ -154,8 +186,14 @@ const get_institute_count = async () => {
 
 const edit_institute_name = async (id, new_name) => {
     let result = await Model.institute.findByIdAndUpdate(id, {name: new_name});
-    result = await Model.institute.findById(id);
+    result = await Model.institute.findById(id, {_id: 1, name: 1});
     return result;
+}
+
+const update_institute = async(id, updateObj) => {
+    const data = await Model.institute.findByIdAndUpdate(id, updateObj)
+    const res = await Model.institute.findById(id, {_id: 1, name: 1});
+    return res
 }
 
 const delete_institute = async (id) => {
@@ -240,13 +278,19 @@ const get_task_by_id = async (id) => {
 }
 
 const get_all_institute_tasks = async(id) => {
-    const result = await Model.task.find({institute: id}, {_id: 1, name: 1, author: 1});
+    const result = await Model.task.find({institute: id}, {_id: 1, name: 1, author: 1, status: 1});
     return result;
 }
 
 const get_all_tasks = async() => {
-    const result =  await Model.task.find({}, {_id: 1, name: 1, author: 1}).sort({"date_created": -1});
+    const result =  await Model.task.find({}, {_id: 1, name: 1, author: 1, status: 1}).sort({"date_created": -1});
     return result;
+}
+
+const update_task = async(id, updateObj) => {
+    const data = await Model.task.findByIdAndUpdate(id, updateObj);
+    const result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1})
+    return result
 }
 
 const delete_task = async (id) => {
@@ -272,15 +316,27 @@ const delete_task = async (id) => {
     return result;
 }
 
+const mark_task_as_completed = async (id) => {
+    const task = await Model.task.findByIdAndUpdate(id, {status: "completed"})
+    const result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1});
+    return result;
+}
+
+const mark_task_as_pending = async (id) => {
+    const task = await Model.task.findByIdAndUpdate(id, {status: "ongoing"})
+    const result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1});
+    return result;
+}
+
 const add_collaborators =  async (id, collab_idx) => {
     await Model.task.findByIdAndUpdate(id, {$addToSet: {collaborators: collab_idx}});
-    const result = await Model.task.findById(id);
+    const result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1});
     return result;
 }
 
 const remove_collaborators =  async (id, collab_idx) => {
     await Model.task.findByIdAndUpdate(id, {$pullAll: {collaborators: collab_idx}});
-    const result = await Model.task.findById(id);
+    const result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1});
     return result;
 }
 
@@ -291,7 +347,7 @@ const add_task_file = async (task_id, data) => {
         idx.push(element._id);
     });
     let parent = await Model.task.findByIdAndUpdate(task_id, {$addToSet: {files: idx}});
-    parent = await Model.task.findById(task_id);
+    parent = await Model.task.findById(task_id, {_id: 1, name: 1, author: 1, status: 1});
     return parent;
 }
 
@@ -300,14 +356,14 @@ const get_tasks_files = async (id) => {
     return result;
 }
 
-const get_one_task_file = async (file_name) => {
-    const result = Model.taskFile.findOne({name: file_name});
+const get_one_task_file = async (id) => {
+    const result = Model.taskFile.findById(id);
     return result;
 }
 
 const edit_task_name = async (id, new_name) => {
     let result = await Model.task.findByIdAndUpdate(id, {name: new_name});
-    result = await Model.task.findById(id);
+    result = await Model.task.findById(id, {_id: 1, name: 1, author: 1, status: 1});
     return result;
 }
 
@@ -347,5 +403,6 @@ module.exports = {
     get_all_tasks, get_task_by_id, delete_task, add_collaborators, remove_collaborators, get_tasks_files, get_one_task_file,
     add_task_file, add_task_comment, get_task_comments, edit_task_comment, delete_task_comment, get_comment_by_id, edit_task_name,
     edit_institute_name, add_resources_to_institute, remove_resources_from_institute, request_to_publish, publish, find_request_by_resource,
-    get_institute_requests, get_institute_data, get_task_data
+    get_institute_requests, get_institute_data, get_task_data, mark_task_as_completed, mark_task_as_pending, update_task, update_institute,
+    get_institute_file_by_id, delete_institute_file
  };

@@ -1,6 +1,5 @@
 const Model = require('./models');
 const fs = require('fs');
-const { model } = require('mongoose');
 /* ----------------------------------- Users ----------------------------------- */
 const create_new_user = async(data) => {
     const dataToSave = await data.save();

@@ -7,6 +7,7 @@ const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const user_router = require('./routes/users');
 const message_router = require('./routes/messages');
+const log_router = require('./routes/logs')
 
 
 const swaggerDefinition = {
@@ -56,11 +57,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-app.use("/uploads", express.static('uploads'));
+app.use("/uploads", express.static('files/uploads'));
 
 //routes
 app.use('/users', user_router);
 app.use('/messages', message_router);
+app.use('/logs', log_router)
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app

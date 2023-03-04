@@ -3,6 +3,8 @@ const repository = require('./db/repository');
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
+const LOG_BASE_URL = process.env.LOG_URL
+
 /** 
  * Checks array 1 for elements of array2 not in array1
  * Example:
@@ -44,4 +46,22 @@ const validateTopicName = async (topic_name, institute_id, author_id) => {
     return true;
 }
 
-module.exports = {validateArray, validateUser, validateTopicName};
+const log_request_info = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/info`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  
+  const log_request_error = async (message) => {
+    try {
+      const res = await axios.post(`${LOG_BASE_URL}/error`, {"message": message});
+      return res
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+module.exports = {validateArray, validateUser, validateTopicName, log_request_error, log_request_info};
