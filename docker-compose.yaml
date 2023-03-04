@@ -1,10 +1,10 @@
-version: '3.9'
 services:
   users:
     build: ./users
     volumes:
       - ./users:/node
       - "uploads:/node/files"
+      - /node/node_modules
     environment:
       - BASE_URL=www.knowledgexchange.com
       - SERVER_PORT=3000
@@ -21,6 +21,7 @@ services:
     volumes:
       - ./research_institutes:/node
       - "uploads:/node/uploads"
+      - /node/node_modules
     environment:
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
@@ -32,6 +33,7 @@ services:
     volumes:
       - ./research_resources:/node
       - "uploads:/node/uploads"
+      - /node/node_modules
     environment:
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - USERS_SERVICE=http://users:3000/users
