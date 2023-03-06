@@ -40,5 +40,12 @@ services:
       - INSTITUTE_SERVICE=http://institutes:3000/institutes
     ports:
       - "3002:3000"
+  frontend:
+    build: ./project
+    volumes:
+      - ./project:/app
+      - /app/node_modules
+    ports:
+      - "3003:3000"
 volumes:
   uploads:
