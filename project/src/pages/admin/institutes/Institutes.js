@@ -23,10 +23,9 @@ function Institutes() {
       setLoading(true);
       setError(false);
       try {
-        const res = await axios.get(
-          "http://35.181.43.119:3001/institutes/all",
-          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
-        );
+        const res = await axios.get("http://13.36.208.80:3001/institutes/all", {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setLoading(false);
         setAllInstitutes(res.data);
         console.log(res.data);

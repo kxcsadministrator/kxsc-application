@@ -12,7 +12,7 @@ function Resource() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `http://35.181.43.119:3002/resources/one/${id}`,
+          `http://13.36.208.80:3002/resources/one/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

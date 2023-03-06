@@ -33,7 +33,7 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `https://test-xcs-users.onrender.com/users/delete/${deleteUser.id}`,
+        `http://13.36.208.80:3000/users/delete/${deleteUser.id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

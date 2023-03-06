@@ -22,7 +22,7 @@ function Users() {
   useEffect(() => {
     const getUsers = async () => {
       try {
-        const res = await axios.get("http://35.181.43.119:3000/users/all", {
+        const res = await axios.get("http://13.36.208.80:3000/users/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setLoading(false);

@@ -19,21 +19,20 @@ function Panel() {
   useEffect(() => {
     const getAll = async () => {
       try {
-        const res = await axios.get("http://35.181.43.119:3000/users/all", {
+        const res = await axios.get("http://13.36.208.80:3000/users/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setUsers(res.data);
       } catch (err) {}
       try {
-        const res = await axios.get(
-          "http://35.181.43.119:3001/institutes/all",
-          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
-        );
+        const res = await axios.get("http://13.36.208.80:3001/institutes/all", {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setInstitutes(res.data);
       } catch (err) {}
 
       try {
-        const res = await axios.get("http://35.181.43.119:3002/resources/all", {
+        const res = await axios.get("http://13.36.208.80:3002/resources/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setResources(res.data);

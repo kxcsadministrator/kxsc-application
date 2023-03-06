@@ -27,7 +27,7 @@ function BarChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          "http://35.181.43.119:3002/resources/monthly-stats",
+          "http://13.36.208.80:3002/resources/monthly-stats",
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

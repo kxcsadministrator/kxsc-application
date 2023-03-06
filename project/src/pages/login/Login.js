@@ -13,7 +13,7 @@ function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post("http://35.181.43.119:3000/users/login", {
+      const res = await axios.post("http://13.36.208.80:3000/users/login", {
         username: userRef.current.value,
         password: passwordRef.current.value,
       });
@@ -55,7 +55,7 @@ function Login() {
           </div>
           <div className="flex separator items-center">
             <span></span>
-            <div class="or">OR</div>
+            <div className="or">OR</div>
             <span></span>
           </div>
           <p className="text-center text-sm">

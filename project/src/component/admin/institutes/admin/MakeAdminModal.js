@@ -32,7 +32,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.patch(
-        `http://35.181.43.119:3001/institutes/add-admins/${instituteId}`,
+        `http://13.36.208.80:3001/institutes/add-admins/${instituteId}`,
         { admins: [username] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

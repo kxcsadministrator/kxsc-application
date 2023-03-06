@@ -34,7 +34,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.patch(
-        `http://35.181.43.119:3001/institutes/add-members/${instituteId}`,
+        `http://13.36.208.80:3001/institutes/add-members/${instituteId}`,
         {
           members: [username],
         },

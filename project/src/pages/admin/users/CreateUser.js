@@ -23,7 +23,7 @@ function CreateUser() {
       setErr(false);
       try {
         const res = await axios.post(
-          "http://35.181.43.119:3000/users/new/super-admin",
+          "http://13.36.208.80:3000/users/new/super-admin",
           {
             username: username,
             email: email,

@@ -18,7 +18,7 @@ function Resources() {
       setLoading(true);
       setError(false);
       try {
-        const res = await axios.get("http://35.181.43.119:3002/resources/all", {
+        const res = await axios.get("http://13.36.208.80:3002/resources/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setLoading(false);
