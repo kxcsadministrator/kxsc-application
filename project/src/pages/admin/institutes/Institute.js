@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import Admin from "../../../component/admin/institutes/admin/Admin";
-import Files from "../../../component/admin/institutes/files/Files";
+import Files from "../../../component/admin/institutes/all_files/Files";
 import Members from "../../../component/admin/institutes/members/Members";
 import Resources from "../../../component/admin/institutes/Resources";
 import Tasks from "../../../component/admin/institutes/tasks/Tasks";
