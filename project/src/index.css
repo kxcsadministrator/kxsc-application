@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+table {
+  border: none;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  table-layout: fixed;
+  margin: 0 auto;
+}
+
+table caption {
+  font-size: 1.5em;
+  margin: 0.5em 0 0.75em;
+}
+
+table tr {
+  padding: 0.35em;
+  border-top: 1px solid #e5e7eb;
+}
+
+table th,
+table td {
+  padding: 0.625em;
+  text-align: center;
+}
+
+table thead tr {
+  border-top: none;
+}
+
+table th {
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.link {
+  text-decoration: none;
+}
+
+@layer components {
+  body {
+    @apply m-0;
+  }
+  .link {
+    @apply no-underline text-tgray hover:text-white;
+  }
+  .modal_container {
+    @apply fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(5,2,9,0.6)];
+  }
+  .modal_content {
+    @apply flex flex-col items-center py-2 gap-3 w-[35%] mx-auto h-fit pb-5 bg-white rounded-md shadow-md border-gray-500 border-2;
+  }
+
+  .modal_heading {
+    @apply font-bold text-[20px] border-b-2 border-gray-300 w-full text-center pb-2;
+  }
+}

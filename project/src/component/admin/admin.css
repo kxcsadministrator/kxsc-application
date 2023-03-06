@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu .dropdown_menu {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding-left: 30px;
+}
+
+.menu.active .dropdown_menu {
+  display: flex;
+}
+
+.sidebar_container::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+@layer components {
+  .sidebar_container {
+    @apply m-0 bg-black_bg flex flex-col gap-5 py-4 h-screen min-h-fit overflow-y-scroll relative pb-10;
+  }
+  .menu_content {
+    @apply flex justify-between items-center px-2 gap-3 cursor-pointer hover:text-white;
+  }
+
+  .toggleImg {
+    @apply transition-all duration-500;
+  }
+
+  .dropdown_menu {
+    @apply transition-all duration-500;
+  }
+
+  .dropdown_menu .link {
+    @apply transition-all duration-200  hover:text-white;
+  }
+
+  .menu.active .toggleImg {
+    @apply rotate-180;
+  }
+
+  .dash {
+    @apply h-[1.5px] w-full mx-auto rounded-lg  bg-[#242527];
+  }
+  .content {
+    @apply flex gap-3 items-center;
+  }
+  .content_1 {
+    @apply flex gap-3 items-center px-2 py-1;
+  }
+  .content h5 {
+    @apply text-base;
+  }
+  .content_1 h5 {
+    @apply text-base;
+  }
+}

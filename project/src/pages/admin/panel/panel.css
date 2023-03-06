@@ -1,0 +1,40 @@
+@tailwind components;
+
+@layer components {
+  .panel_container {
+    @apply max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg md:max-h-screen md:overflow-y-hidden;
+  }
+  .box_container {
+    @apply flex px-10 justify-between;
+  }
+
+  .box {
+    @apply w-[30%] max-w-[320px] min-h-[150px] h-fit bg-white rounded-md p-4 shadow-md;
+  }
+  .text_container {
+    @apply flex flex-col gap-2;
+  }
+
+  .text_container p {
+    @apply text-2xl font-bold;
+  }
+
+  .circle_3 {
+    @apply w-[35px] h-[35px] bg-[#ec3d3d] rounded-[40%];
+  }
+  .circle_2 {
+    @apply w-[35px] h-[35px] bg-[#3d80ec] rounded-[40%];
+  }
+  .circle_1 {
+    @apply w-[35px] h-[35px] bg-[#3dec9a] rounded-[40%];
+  }
+  .circle-0 {
+    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  }
+  .circle-1 {
+    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  }
+  .circle-2 {
+    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  }
+}
