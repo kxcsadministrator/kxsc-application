@@ -2,7 +2,7 @@ FROM node  as builder
 WORKDIR /app
 COPY package.json .
 RUN npm install
-COPY ..
+COPY . .
 RUN npm build
 
 FROM nginx:1.19.0
