@@ -46,6 +46,6 @@ services:
       - ./project:/app
       - /app/node_modules
     ports:
-      - "3003:3000"
+      - "3003:80"
 volumes:
   uploads:
