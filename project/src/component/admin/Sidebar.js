@@ -10,9 +10,12 @@ import { FiUsers } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import Dark from "../Dark";
 import { CgChevronDown } from "react-icons/cg";
+import { useContext } from "react";
+import { Context } from "../../context/Context";
 import "./admin.css";
 
 function Sidebar() {
+  const { user } = useContext(Context);
   const [msgMenu, setMsgMenu] = useState(false);
   const [catMenu, setCatMenu] = useState(false);
   const [resourceMenu, setResourceMenu] = useState(false);
@@ -31,13 +34,15 @@ function Sidebar() {
       {/* nav Section*/}
       <div className="grid gap-4 w-[80%] mx-auto text-tgray">
         {/* dashboard Link*/}
-        <Link
-          className="flex gap-3 items-center px-1 py-1 no-underline link text-tgray"
-          to="/admin"
-        >
-          <BsBarChart />
-          <h5 className="text-base">Dashboard</h5>
-        </Link>
+        {user.superadmin && (
+          <Link
+            className="flex gap-3 items-center px-1 py-1 no-underline link text-tgray"
+            to="/admin"
+          >
+            <BsBarChart />
+            <h5 className="text-base">Dashboard</h5>
+          </Link>
+        )}
         {/* Message Section - text and Menu*/}
         <div className={"menu  " + (msgMenu && "active")}>
           <div className="menu_content" onClick={() => setMsgMenu(!msgMenu)}>
@@ -107,7 +112,7 @@ function Sidebar() {
           </div>
           {/* Resource Menu*/}
           <div className="dropdown_menu">
-            <Link className="link" to="/">
+            <Link className="link" to="/admin/create-resource">
               <p>Add Resource Items</p>
             </Link>
             <Link className="link" to="/admin/resources">
@@ -166,31 +171,35 @@ function Sidebar() {
           </div>
           <div className="dash" />
         </div>
-        {/* Manage Research Institutes Section - text and Menu*/}
-        <div className={"menu " + (usersMenu && "active")}>
-          <div
-            className="menu_content"
-            onClick={() => setUsersMenu(!usersMenu)}
-          >
-            <div className="content">
-              <FiUsers />
-              <h5>Manage Users</h5>
+        {/* Manage User Section - text and Menu*/}
+        {user.superadmin && (
+          <div className={"menu " + (usersMenu && "active")}>
+            <div
+              className="menu_content"
+              onClick={() => setUsersMenu(!usersMenu)}
+            >
+              <div className="content">
+                <FiUsers />
+                <h5>Manage Users</h5>
+              </div>
+              <div className="toggleImg">
+                <CgChevronDown />
+              </div>
             </div>
-            <div className="toggleImg">
-              <CgChevronDown />
+
+            {/* User Menu*/}
+            <div className="dropdown_menu">
+              <Link className="link" to="/admin/create-user">
+                <p>Create Users</p>
+              </Link>
+              <Link className="link" to="/admin/users">
+                <p>All users</p>
+              </Link>
             </div>
+
+            <div className="dash" />
           </div>
-          {/* Resource Menu*/}
-          <div className="dropdown_menu">
-            <Link className="link" to="/admin/create-user">
-              <p>Create Users</p>
-            </Link>
-            <Link className="link" to="/admin/users">
-              <p>All users</p>
-            </Link>
-          </div>
-          <div className="dash" />
-        </div>
+        )}
         {/* Blog Items */}
         <Link to="/admin" className="content_1 link">
           <SiRoamresearch />
@@ -204,10 +213,9 @@ function Sidebar() {
         </Link>
       </div>
 
-      {/* Dark Section */}
-      <div className="w-[80%] mx-auto">
+      {/* Dark Section       <div className="w-[80%] mx-auto">
         <Dark />
-      </div>
+      </div> */}
     </div>
   );
 }

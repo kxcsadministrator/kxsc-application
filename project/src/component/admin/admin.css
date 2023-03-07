@@ -24,7 +24,7 @@
 }
 @layer components {
   .sidebar_container {
-    @apply m-0 bg-black_bg flex flex-col gap-5 py-4 h-screen min-h-fit overflow-y-scroll relative pb-10;
+    @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit overflow-y-scroll fixed pb-10 hidden w-[23%];
   }
   .menu_content {
     @apply flex justify-between items-center px-2 gap-3 cursor-pointer hover:text-white;

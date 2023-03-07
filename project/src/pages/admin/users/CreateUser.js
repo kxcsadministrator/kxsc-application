@@ -44,10 +44,11 @@ function CreateUser() {
       setLoading(true);
       setErr(false);
       try {
-        const res = await axios.post(
-          "https://test-xcs-users.onrender.com/users/new",
-          { username: username, email: email, password: password }
-        );
+        const res = await axios.post("http://13.36.208.80:3000/users/new", {
+          username: username,
+          email: email,
+          password: password,
+        });
         setLoading(false);
         console.log(res.data);
         navigate("/admin/users");
@@ -61,10 +62,10 @@ function CreateUser() {
   };
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
-      <div className="w-[24%]">
+      <div className="md:w-[24%]">
         <Sidebar />
       </div>
-      <div className="w-[82%]">
+      <div className="md:w-[82%]">
         <div>
           <Topbar />
         </div>

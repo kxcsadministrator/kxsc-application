@@ -7,7 +7,7 @@ import { Context } from "../../context/Context";
 function Topbar() {
   const { user } = useContext(Context);
   return (
-    <div className="flex justify-between items-center px-2 h-[70px] bg-white">
+    <div className="flex justify-between items-center px-4 h-[70px] bg-white">
       <div>
         <form className="flex items-center text-[#454545]">
           <input

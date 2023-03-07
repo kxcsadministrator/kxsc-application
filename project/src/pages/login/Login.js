@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useRef, useContext, useState } from "react";
+import { useRef, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./login.css";
@@ -21,14 +21,9 @@ function Login() {
       console.log(res.data);
       navigate("/admin");
     } catch (err) {
-      console.log(err.response.data);
       dispatch({
         type: "LOGIN_FAILURE",
-        payload:
-          userRef.current.value.length > 0 &&
-          passwordRef.current.value.length > 0
-            ? err.response.data.message
-            : err.response.data.errors[0].msg,
+        payload: err.response ? err.response.data.errors[0].msg : err.message,
       });
     }
   };
@@ -41,12 +36,7 @@ function Login() {
             <h5 className="text-white">KXC Inc.</h5>
           </div>
           <div className="input_container">
-            <input
-              placeholder="Username"
-              className=""
-              ref={userRef}
-              type="text"
-            />
+            <input placeholder="Username" ref={userRef} type="text" />
             <input placeholder="password" ref={passwordRef} type="password" />
             {error && <p>{error}</p>}
             <button type="submit" disabled={isFetching}>
@@ -67,8 +57,8 @@ function Login() {
       </div>
       <div className="sign_container">
         <p>Don't have an account? </p>
-        <Link to="/" className="link text-[#34c684]">
-          SignUp
+        <Link to="/sign_up" className="link text-[#34c684] hover:text-black">
+          Sign Up
         </Link>
       </div>
       <footer className="mt-[60px] text-center">

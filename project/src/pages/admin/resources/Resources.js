@@ -40,7 +40,7 @@ function Resources() {
   };
 
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-grey">
+    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="w-[24%]">
         <Sidebar />
       </div>

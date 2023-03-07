@@ -36,7 +36,7 @@ function CreateInstitues() {
   };
 
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-grey">
+    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="w-[24%]">
         <Sidebar />
       </div>
@@ -47,7 +47,7 @@ function CreateInstitues() {
         <div className="py-2 px-5">
           <form className="flex flex-col items-center gap-6 bg-white shadow-md w-[80%] mx-auto h-fit pb-5 rounded-md">
             <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
-              Create User
+              Create Institute
             </h1>
             <div className="flex flex-col justify-center gap-6">
               <div className="flex gap-3 items-center">
