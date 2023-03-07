@@ -63,6 +63,7 @@ const validateTaskMembers = async (headers, task_id) => {
     return false;
 }
 
+
 const validateUserResource = async (user, resource_id) => {
     if (user.resources.includes(resource_id)) return true;
     return false;
