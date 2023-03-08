@@ -467,7 +467,7 @@ router.post('/request-institute-publish/:id', async (req, res) => {
 
         res.status(200).json(publish_res.data);
     } catch (error) {
-        if (error.response.data.message) error.message = error.response.data.message;
+        if (error.response) error.message = error.response.data.message;
         helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 400: ${error.message}`)
 
         res.status(400).json({message: error.message});

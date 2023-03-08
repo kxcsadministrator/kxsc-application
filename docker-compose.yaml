@@ -26,6 +26,7 @@ services:
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - USERS_SERVICE=http://users:3000/users
+      - LOG_URL=http://users:3000/logs
     ports:
       - "3001:3000"
   resources:
@@ -38,6 +39,7 @@ services:
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - USERS_SERVICE=http://users:3000/users
       - INSTITUTE_SERVICE=http://institutes:3000/institutes
+      - LOG_URL=http://users:3000/logs
     ports:
       - "3002:3000"
   frontend:
