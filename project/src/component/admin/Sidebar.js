@@ -227,8 +227,11 @@ function Sidebar() {
             </div>
             {/* Resource Menu*/}
             <div className="dropdown_menu">
+              <Link className="link" to="/admin/public_resources">
+                <p>View public Resources</p>
+              </Link>
               <Link className="link" to="/admin/resources">
-                <p>View All Resource Items</p>
+                <p>My Resource Items</p>
               </Link>
             </div>
             <div className="dash" />

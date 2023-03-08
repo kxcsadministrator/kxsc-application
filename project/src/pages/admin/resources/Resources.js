@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
+import DeleteResources from "../../../component/admin/institutes/resources/DeleteResources";
 function Resources() {
   const { user } = useContext(Context);
   const navigate = useNavigate();
@@ -13,6 +14,9 @@ function Resources() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [deleteResourceModal, setDeleteResourceModal] = useState(false);
+  const [deleteResource, setdeleteResource] = useState(false);
+
   useEffect(() => {
     const getResources = async () => {
       setLoading(true);
@@ -61,6 +65,11 @@ function Resources() {
     navigate(`/admin/resources/${resource.topic}`);
   };
 
+  const deleteBtn = (resource) => {
+    setdeleteResource(resource);
+    setDeleteResourceModal(true);
+  };
+
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="w-[24%]">
@@ -105,7 +114,10 @@ function Resources() {
                             >
                               <FaEye size="1.2rem" />
                             </button>
-                            <button className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600">
+                            <button
+                              className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
+                              onClick={() => deleteBtn(resource)}
+                            >
                               <RiDeleteBinLine size="1.2rem" />
                             </button>
                           </div>
@@ -117,6 +129,14 @@ function Resources() {
               )}
             </>
           )}
+          <div className="relative w-full h-full">
+            {deleteResourceModal && (
+              <DeleteResources
+                setDeleteResourceModal={setDeleteResourceModal}
+                deleteResource={deleteResource}
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>

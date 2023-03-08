@@ -81,12 +81,14 @@ function Institute() {
             >
               tasks
             </button>
-            <button
-              className={`tab ${checkActive(6, "active")}`}
-              onClick={() => handleClick(6)}
-            >
-              requests
-            </button>
+            {(user.superadmin || admin) && (
+              <button
+                className={`tab ${checkActive(6, "active")}`}
+                onClick={() => handleClick(6)}
+              >
+                requests
+              </button>
+            )}
           </div>
           <div className="panels">
             <div className={`panel ${checkActive(1, "active")}`}>

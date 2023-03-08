@@ -3,6 +3,7 @@ import CreateResource from "./CreateResource";
 import { Context } from "../../../../context/Context";
 import axios from "axios";
 import RequestModal from "../requests.js/RequestModal";
+import { useNavigate } from "react-router-dom";
 
 function Resources({ resources, instituteId, admin }) {
   const { user } = useContext(Context);
@@ -12,6 +13,7 @@ function Resources({ resources, instituteId, admin }) {
   const [errMsg, setErrMsg] = useState("");
   const [requestModal, setRequestModal] = useState(false);
   const [success, setSuccess] = useState(false);
+  const navigate = useNavigate();
 
   const publish = async (id) => {
     setErr(false);
@@ -35,6 +37,11 @@ function Resources({ resources, instituteId, admin }) {
       setErr(true);
       setErrMsg(err.response.data);
     }
+  };
+
+  const viewResource = (resource) => {
+    sessionStorage.setItem("resourceId", resource._id);
+    navigate(`/admin/resources/${resource.topic}`);
   };
   return (
     <div>
@@ -61,12 +68,20 @@ function Resources({ resources, instituteId, admin }) {
                 <td>{resource.topic}</td>
                 {(user.superadmin || admin) && (
                   <td>
-                    <button
-                      className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-                      onClick={() => publish(resource._id)}
-                    >
-                      Publish
-                    </button>
+                    <div className="flex items-between gap-3">
+                      <button
+                        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                        onClick={() => viewResource(resource)}
+                      >
+                        view
+                      </button>
+                      <button
+                        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                        onClick={() => publish(resource._id)}
+                      >
+                        publish
+                      </button>
+                    </div>
                   </td>
                 )}
               </tr>

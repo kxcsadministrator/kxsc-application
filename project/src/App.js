@@ -14,6 +14,7 @@ import Institute from "./pages/admin/institutes/Institute";
 import Resource from "./pages/admin/resources/Resource";
 import SignUp from "./pages/sign_up/SignUp";
 import PendingResources from "./pages/admin/resources/PendingResources";
+import PublicResources from "./pages/admin/resources/PublicResources";
 
 function App() {
   const { user } = useContext(Context);
@@ -41,6 +42,7 @@ function App() {
             path="/admin/resources/pending"
             element={<PendingResources />}
           />
+          <Route path="/admin/public_resources" element={<PublicResources />} />
         </Routes>
       </div>
     </BrowserRouter>

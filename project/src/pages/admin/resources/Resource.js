@@ -129,12 +129,14 @@ function Resource() {
                       <p>Visibility:</p>
                       <p>{resource.visibility}</p>
                     </div>
-                    <button
-                      className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-                      onClick={() => publishRequest()}
-                    >
-                      Request to publish
-                    </button>
+                    {user.id === resource.author._id && (
+                      <button
+                        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                        onClick={() => publishRequest()}
+                      >
+                        Request to publish
+                      </button>
+                    )}
                   </>
                 ) : (
                   <div>
