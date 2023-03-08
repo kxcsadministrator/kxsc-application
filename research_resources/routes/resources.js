@@ -1499,7 +1499,7 @@ router.delete('/delete/:id', async (req, res) => {
         
         await axios({
             method: 'patch',
-            url:  `${INSTITUTE_BASE_URL}/remove-resources/${req.body.institute}`,
+            url:  `${INSTITUTE_BASE_URL}/remove-resources/${resource.institute}`,
             data: {
                 'resources': [req.params.id]
             },
