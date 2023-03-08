@@ -22,18 +22,40 @@ function Institutes() {
     const getInstitutes = async () => {
       setLoading(true);
       setError(false);
-      try {
-        const res = await axios.get("http://13.36.208.80:3001/institutes/all", {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
-        });
-        setLoading(false);
-        setAllInstitutes(res.data);
-        console.log(res.data);
-      } catch (err) {
-        setLoading(false);
-        setError(true);
+      if (user.superadmin) {
+        try {
+          const res = await axios.get(
+            "http://13.36.208.80:3001/institutes/all",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setLoading(false);
+          setAllInstitutes(res.data);
+          console.log(res.data);
+        } catch (err) {
+          setLoading(false);
+          setError(true);
 
-        console.log(err);
+          console.log(err);
+        }
+      } else {
+        try {
+          const res = await axios.get(
+            "http://13.36.208.80:3001/institutes/my-institutes",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setLoading(false);
+          setAllInstitutes(res.data);
+          console.log(res.data);
+        } catch (err) {
+          setLoading(false);
+          setError(true);
+
+          console.log(err);
+        }
       }
     };
     getInstitutes();
@@ -89,12 +111,14 @@ function Institutes() {
                             >
                               <FaEye size="1.2rem" />
                             </button>
-                            <button
-                              className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
-                              onClick={() => deleteBtn(institute)}
-                            >
-                              <RiDeleteBinLine size="1.2rem" />
-                            </button>
+                            {user.superadmin && (
+                              <button
+                                className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
+                                onClick={() => deleteBtn(institute)}
+                              >
+                                <RiDeleteBinLine size="1.2rem" />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

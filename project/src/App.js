@@ -13,7 +13,7 @@ import Resources from "./pages/admin/resources/Resources";
 import Institute from "./pages/admin/institutes/Institute";
 import Resource from "./pages/admin/resources/Resource";
 import SignUp from "./pages/sign_up/SignUp";
-import CreateResource from "./pages/admin/resources/CreateResource";
+import PendingResources from "./pages/admin/resources/PendingResources";
 
 function App() {
   const { user } = useContext(Context);
@@ -37,7 +37,10 @@ function App() {
           <Route path="/admin/institutes/:name" element={<Institute />} />
           <Route path="/admin/resources/:name" element={<Resource />} />
           <Route path="/admin/resources" element={<Resources />} />
-          <Route path="/admin/create-resource" element={<CreateResource />} />
+          <Route
+            path="/admin/resources/pending"
+            element={<PendingResources />}
+          />
         </Routes>
       </div>
     </BrowserRouter>

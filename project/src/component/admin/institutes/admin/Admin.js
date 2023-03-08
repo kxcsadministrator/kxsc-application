@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import DeleteAdminModal from "./DeleteAdminModal";
 import MakeAdminModal from "./MakeAdminModal";
+import { Context } from "../../../../context/Context";
 
 function Admin({ admins, instituteId }) {
+  const { user } = useContext(Context);
   const [adminModal, setAdminModal] = useState(false);
   const [deleteAdminModal, setDeleteAdminModal] = useState(false);
   const [admin, setAdmin] = useState([]);
@@ -14,12 +16,14 @@ function Admin({ admins, instituteId }) {
 
   return (
     <div>
-      <button
-        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-        onClick={() => setAdminModal(true)}
-      >
-        Add admin
-      </button>
+      {user.superadmin && (
+        <button
+          className="p-2 bg-[#52cb83] rounded-md w-44 text-white my-3"
+          onClick={() => setAdminModal(true)}
+        >
+          Add admin
+        </button>
+      )}
       {admins?.length ? (
         <table className="bg-white rounded-md shadow-md">
           <thead>
@@ -33,14 +37,16 @@ function Admin({ admins, instituteId }) {
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{admin.username}</td>
-                <td>
-                  <button
-                    className="bg-[#d14949] text-white p-2 rounded-md w-40"
-                    onClick={() => deleteBtn(admin)}
-                  >
-                    Delete
-                  </button>
-                </td>
+                {user.superadmin && (
+                  <td>
+                    <button
+                      className="bg-[#d14949] text-white p-2 rounded-md w-40"
+                      onClick={() => deleteBtn(admin)}
+                    >
+                      Remove
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

@@ -1,18 +1,16 @@
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../../../context/Context";
+import { Context } from "../../../../context/Context";
 import "./resources.css";
 
-function CreateResource() {
+function CreateResource({ setCreateResourceModal, instituteId }) {
   const { user } = useContext(Context);
-  const [institutes, setInstitutes] = useState([]);
-  const [institute, setInstitute] = useState({});
+  const [allCat, setAllCat] = useState([]);
   const [topic, setTopic] = useState("");
   const [category, setCategory] = useState("");
   const [subCat, setSubCat] = useState("");
+  const [selectedCat, setSelectedCat] = useState([]);
   const [citation, setCitation] = useState("");
   const [type, setType] = useState("");
   const [description, setDescription] = useState("");
@@ -20,20 +18,42 @@ function CreateResource() {
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const navigate = useNavigate();
+  let menuRef = useRef();
 
   useEffect(() => {
-    const getInstitutes = async () => {
+    const getCat = async () => {
       try {
-        const res = await axios.get("http://13.36.208.80:3001/institutes/all", {
+        const res = await axios.get("http://13.36.208.80:3002/categories/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
-        setInstitutes(res.data);
+        setAllCat(res.data);
       } catch (err) {
         console.log(err);
       }
     };
-    getInstitutes();
-  }, [user.jwt_token]);
+    getCat();
+
+    function handler(e) {
+      if (!menuRef.current.contains(e.target)) {
+        setCreateResourceModal(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }, [user.jwt_token, setCreateResourceModal]);
+
+  const getSub = async (e) => {
+    setCategory(e.target.value);
+    try {
+      const res = await axios.get(
+        `http://13.36.208.80:3002/categories/subs?name=${e.target.value}`
+      );
+      setSelectedCat(res.data);
+    } catch (err) {}
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,35 +70,27 @@ function CreateResource() {
           sub_categories: [subCat],
           citations: [citation],
           resource_type: type,
-          institute: institute,
+          institute: instituteId,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
-      console.log(res.data);
       navigate("/admin/resources");
     } catch (err) {
       setLoading(false);
       setErr(true);
-
       console.log(err);
     }
   };
-  console.log(type);
+
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
-      <div className="md:w-[24%]">
-        <Sidebar />
-      </div>
-      <div className="md:w-[82%]">
-        <div>
-          <Topbar />
-        </div>
-        <div className="resource_container">
+    <div className="modal_container">
+      <div className="ml-[24%] w-full">
+        <div className="modal_content w-[80%]" ref={menuRef}>
           <div className="resource_heading">
             <h1 className="text-center text-3xl">Create Resource</h1>
           </div>
-          <form>
+          <form className="create_form">
             <div className="input_content">
               <label>Topic :</label>
               <input
@@ -89,19 +101,37 @@ function CreateResource() {
             </div>
             <div className="input_content">
               <label>Category :</label>
-              <input
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-              />
+              <select
+                onChange={(e) => {
+                  getSub(e);
+                }}
+                className="select"
+              >
+                <option>-select category</option>
+                {allCat.map((cat, index) => {
+                  return (
+                    <option key={index} value={cat.name}>
+                      {cat.name}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
             <div className="input_content">
               <label>Sub_categories:</label>
-              <input
-                type="text"
-                value={subCat}
+              <select
                 onChange={(e) => setSubCat(e.target.value)}
-              />
+                className="select"
+              >
+                <option>-select sub category</option>
+                {selectedCat.map((sub, index) => {
+                  return (
+                    <option key={index} value={sub}>
+                      {sub}
+                    </option>
+                  );
+                })}
+              </select>
             </div>
             <div className="input_content">
               <label>Citations:</label>
@@ -113,12 +143,12 @@ function CreateResource() {
             </div>
             <div className="input_content">
               <label>Resource Type:</label>
-              <input list="data" onChange={(e) => setType(e.target.value)} />
-              <datalist id="data">
-                <option value="government" />
-                <option value="private" />
-                <option value="education" />
-              </datalist>
+              <select onChange={(e) => setType(e.target.value)}>
+                <option>-select resource type</option>
+                <option value="government">government</option>
+                <option value="private">private</option>
+                <option value="education">education</option>
+              </select>
             </div>
             <div className="input_content">
               <label>Description:</label>
@@ -128,23 +158,7 @@ function CreateResource() {
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
-            <div className="input_content justify-center py-2">
-              <label>Select institute:</label>
-              <div>
-                <select
-                  onChange={(e) => setInstitute(e.target.value)}
-                  className="select"
-                >
-                  {institutes.map((institute, index) => {
-                    return (
-                      <option key={index} value={institute}>
-                        {institute.name}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            </div>
+
             <div>
               {loading ? (
                 <div>

@@ -1,23 +1,22 @@
 @tailwind components;
 
 @layer components {
-  .resource_container {
-    @apply grid gap-2 rounded-md bg-white mx-auto w-[90%] mt-10 mb-10;
-  }
-
-  .resource_container form {
-    @apply grid gap-5 py-4 mx-auto w-full;
+  .create_form {
+    @apply grid gap-5 py-4 px-4 w-full;
   }
   .resource_heading {
     @apply w-full py-3 border-b-2 border-gray-400;
   }
   .input_content {
-    @apply flex gap-4 items-center px-3 justify-center;
+    @apply flex gap-4 items-center px-3;
   }
   .input_content label {
     @apply text-xl md:w-[15%];
   }
   .input_content input {
+    @apply border-2 border-gray-400 rounded-sm p-1 w-[45%];
+  }
+  .input_content select {
     @apply border-2 border-gray-400 rounded-sm p-1 w-[45%];
   }
   .input_content textarea {

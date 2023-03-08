@@ -17,22 +17,44 @@ function Resources() {
     const getResources = async () => {
       setLoading(true);
       setError(false);
-      try {
-        const res = await axios.get("http://13.36.208.80:3002/resources/all", {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
-        });
-        setLoading(false);
-        setAllResources(res.data);
-        console.log(res.data);
-      } catch (err) {
-        setLoading(false);
-        setError(true);
-        setErrMsg(err.response.data.message);
-        console.log(err);
+      if (user.superadmin) {
+        try {
+          const res = await axios.get(
+            "http://13.36.208.80:3002/resources/all",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setLoading(false);
+          setAllResources(res.data);
+          console.log(res.data);
+        } catch (err) {
+          setLoading(false);
+          setError(true);
+          setErrMsg(err.response.data.message);
+          console.log(err);
+        }
+      } else {
+        try {
+          const res = await axios.get(
+            "http://13.36.208.80:3002/resources/my-resources",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setLoading(false);
+          setAllResources(res.data);
+          console.log(res.data);
+        } catch (err) {
+          setLoading(false);
+          setError(true);
+          setErrMsg(err.response.data.message);
+          console.log(err);
+        }
       }
     };
     getResources();
-  }, [user.jwt_token]);
+  }, [user.jwt_token, user.superadmin]);
 
   const viewResource = (resource) => {
     sessionStorage.setItem("resourceId", resource._id);
@@ -57,36 +79,42 @@ function Resources() {
             <div>{errMsg}</div>
           ) : (
             <>
-              <table className="bg-white rounded-md shadow-md">
-                <thead>
-                  <tr>
-                    <th scope="col">s/n</th>
-                    <th scope="col">Resources</th>
-                    <th scope="col">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allResourrces.map((resource, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{resource.topic}</td>
-                      <td>
-                        <div className="flex gap-3 items-center justify-center">
-                          <button
-                            onClick={() => viewResource(resource)}
-                            className="hover:text-green_bg p-2 border-gray_bg bg-gray_bg rounded-sm"
-                          >
-                            <FaEye size="1.2rem" />
-                          </button>
-                          <button className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600">
-                            <RiDeleteBinLine size="1.2rem" />
-                          </button>
-                        </div>
-                      </td>
+              {allResourrces?.length === 0 ? (
+                <div>
+                  <h1>No resource</h1>
+                </div>
+              ) : (
+                <table className="bg-white rounded-md shadow-md">
+                  <thead>
+                    <tr>
+                      <th scope="col">s/n</th>
+                      <th scope="col">Resources</th>
+                      <th scope="col">Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {allResourrces.map((resource, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>{resource.topic}</td>
+                        <td>
+                          <div className="flex gap-3 items-center justify-center">
+                            <button
+                              onClick={() => viewResource(resource)}
+                              className="hover:text-green_bg p-2 border-gray_bg bg-gray_bg rounded-sm"
+                            >
+                              <FaEye size="1.2rem" />
+                            </button>
+                            <button className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600">
+                              <RiDeleteBinLine size="1.2rem" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </>
           )}
         </div>

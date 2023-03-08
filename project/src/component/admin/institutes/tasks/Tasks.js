@@ -33,7 +33,6 @@ function Tasks({ tasks, instituteId }) {
                 <td>{index + 1}</td>
                 <td>{task.name}</td>
                 <td>
-                  {" "}
                   <button
                     className="p-2 bg-[#d14949] rounded-md w-28 text-white"
                     onClick={() => deleteBtn(task)}

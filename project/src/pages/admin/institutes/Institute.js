@@ -3,10 +3,11 @@ import { Context } from "../../../context/Context";
 import Admin from "../../../component/admin/institutes/admin/Admin";
 import Files from "../../../component/admin/institutes/all_files/Files";
 import Members from "../../../component/admin/institutes/members/Members";
-import Resources from "../../../component/admin/institutes/Resources";
+import Resources from "../../../component/admin/institutes/resources/Resources";
 import Tasks from "../../../component/admin/institutes/tasks/Tasks";
 import Sidebar from "../../../component/admin/Sidebar";
 import Topbar from "../../../component/admin/Topbar";
+import Request from "../../../component/admin/institutes/requests.js/Request";
 import axios from "axios";
 import "./institutes.css";
 
@@ -14,6 +15,7 @@ function Institute() {
   const { user } = useContext(Context);
   const [institute, setInstitute] = useState([]);
   const id = sessionStorage.getItem("id");
+  const [admin, setAdmin] = useState(false);
 
   //tab active states
   const [activeIndex, setActiveIndex] = useState(1);
@@ -28,12 +30,15 @@ function Institute() {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setInstitute(res.data);
+        if (res.data.admins[0]._id === user.id) {
+          setAdmin(true);
+        }
       } catch (err) {
         console.log(err);
       }
     };
     getInstitute();
-  }, [id, user.jwt_token]);
+  }, [id, user.jwt_token, admin, user.id]);
 
   return (
     <>
@@ -76,6 +81,12 @@ function Institute() {
             >
               tasks
             </button>
+            <button
+              className={`tab ${checkActive(6, "active")}`}
+              onClick={() => handleClick(6)}
+            >
+              requests
+            </button>
           </div>
           <div className="panels">
             <div className={`panel ${checkActive(1, "active")}`}>
@@ -85,16 +96,24 @@ function Institute() {
               <Files files={institute.files} instituteId={institute.id} />
             </div>
             <div className={`panel ${checkActive(3, "active")}`}>
-              <Members members={institute.members} instituteId={institute.id} />
+              <Members
+                members={institute.members}
+                instituteId={institute.id}
+                admin={admin}
+              />
             </div>
             <div className={`panel ${checkActive(4, "active")}`}>
               <Resources
                 resources={institute.resources}
                 instituteId={institute.id}
+                admin={admin}
               />
             </div>
             <div className={`panel ${checkActive(5, "active")}`}>
               <Tasks tasks={institute.tasks} instituteId={institute.id} />
+            </div>
+            <div className={`panel ${checkActive(6, "active")}`}>
+              <Request instituteId={institute.id} admin={admin} />
             </div>
           </div>
         </div>
