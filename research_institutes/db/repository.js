@@ -59,6 +59,17 @@ const log_request_error = async (message) => {
     }
 }
 
+const get_resources_readable = async (resources_idx) => {
+    const publish_res = await axios({
+        method: 'post',
+        url: `${USERS_BASE_URL}/resources-data`,
+        data: {"resources": resources_idx}
+    })
+    if (publish_res.status != 200) return {status: 400, message: "something went wrong"};
+
+    return {status: 200, data: publish_res.data};
+}
+
 /* ----------------------------------- Institutes ----------------------------------- */
 const create_new_institute = async(data) => {
     const dataToSave = await data.save();
@@ -260,8 +271,23 @@ const find_request_by_resource = async (resource_id) => {
 }
 
 const get_institute_requests = async (institute_id) => {
-    const data = await Model.pubRequest.find({institute: institute_id})
-    return data;
+    let data = await Model.pubRequest.find({institute: institute_id})
+    let result = []
+    const resources = []
+    data.forEach((elem) => {
+        resources.push(elem.resource)
+    })
+    const res = await get_resources_readable(resources)
+    const arr = res.data
+    
+    for (let i = 0; i < arr.length; i++) {
+        const r = {}
+        r.institute = data[i].institute
+        r.id = data[i].id
+        r.resource = arr[i]
+        result.push(r)
+    }
+    return result;
 }
 
 /*---------------------------------------- Tasks -------------------------------------------------*/

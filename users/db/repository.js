@@ -70,6 +70,11 @@ const get_resource_data = async(resource_id) => {
     return [user, institute];
 }
 
+const get_resources_readable = async (resources_idx) => {
+    const result = await Model.resource.find({"_id": {$in: resources_idx}}, {_id: 1, topic: 1})
+    return result;
+}
+
 const edit_username = async(id, new_username) => {
     await Model.user.findByIdAndUpdate(id, {username: new_username});
     const result = await clean_user_by_id(id)
@@ -246,5 +251,5 @@ module.exports = {
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
-    clean_user_by_id
+    clean_user_by_id, get_resources_readable
 }

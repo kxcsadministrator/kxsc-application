@@ -1422,4 +1422,29 @@ router.get('/resource-data/:id', async (req, res) => {
     }
 })
 
+router.post('/resources-data', async (req, res) => {
+    try {
+        const resources_idx = req.body.resources;
+        // if (!req.headers.authorization) {
+        //     helpers.log_request_error(`POST users/resource-data - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
+        // const token = req.headers.authorization.split(' ')[1];
+        // if (!token) {
+        //     helpers.log_request_error(`POST users/resource-data - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
+
+        // const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const result = await repository.get_resources_readable(resources_idx)
+
+        helpers.log_request_info(`POST users/resource-data - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`POST users/resource-data - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
 module.exports = router;
