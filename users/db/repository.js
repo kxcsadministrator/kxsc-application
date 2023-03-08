@@ -183,7 +183,23 @@ const find_request_by_resource = async (resource_id) => {
 
 const get_all_requests = async () => {
     const data = await Model.pubRequest.find()
-    return data;
+    const resources_idx = []
+    const res = []
+
+    data.forEach((elem) => {
+        resources_idx.push(elem.resource)
+    })
+
+    const resources = await get_resources_readable(resources_idx)
+
+    for (let i = 0; i < resources.length; i++) {
+        let r = {}
+        r.institute = data[i].institute
+        r.resource = resources[i]
+        r.id = data[i].id
+        res.push(r)
+    }
+    return res;
 }
 
 /* ------------------------------ Resources/Institutes misc ----------------------------- */
