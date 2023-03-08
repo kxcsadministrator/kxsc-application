@@ -24,10 +24,10 @@ const validateArray = async (array1, array2)=>{
 }
 
 const validateUser = async (headers) => {
-    if (!headers.authorization) return {status: 401, message: "Token not found"};
+    // if (!headers.authorization) return {status: 401, message: "Token not found"};
 
     const token = headers.authorization.split(' ')[1];
-    if (!token) return {status: 401, message: "Token not found"};
+    // if (!token) return {status: 401, message: "Token not found"};
     
     try {
         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {token: token});

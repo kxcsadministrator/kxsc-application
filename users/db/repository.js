@@ -46,9 +46,12 @@ const get_institute_members = async(institute_id) => {
     const temp = await Model.institute.findById(institute_id);
     const members = temp.members;
     const admins = temp.admins;
+
     const member_results = await Model.user.find({ "_id": {$in: members} }, {username: 1, _id: 1});
     const admin_results = await Model.user.find({ "_id": {$in: admins} }, {username: 1, _id: 1});
-    const resource_results = await Model.resource.find({institute: institute_id}, {_id: 1, topic: 1})
+    const resource_results = await Model.resource.find(
+        {"_id": {$in: temp.resources}}, {_id: 1, topic: 1}
+    )
     return [member_results, admin_results, resource_results];
 }
 
@@ -65,6 +68,11 @@ const get_resource_data = async(resource_id) => {
     const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1});
     
     return [user, institute];
+}
+
+const get_resources_readable = async (resources_idx) => {
+    const result = await Model.resource.find({"_id": {$in: resources_idx}}, {_id: 1, topic: 1})
+    return result;
 }
 
 const edit_username = async(id, new_username) => {
@@ -175,7 +183,23 @@ const find_request_by_resource = async (resource_id) => {
 
 const get_all_requests = async () => {
     const data = await Model.pubRequest.find()
-    return data;
+    const resources_idx = []
+    const res = []
+
+    data.forEach((elem) => {
+        resources_idx.push(elem.resource)
+    })
+
+    const resources = await get_resources_readable(resources_idx)
+
+    for (let i = 0; i < resources.length; i++) {
+        let r = {}
+        r.institute = data[i].institute
+        r.resource = resources[i]
+        r.id = data[i].id
+        res.push(r)
+    }
+    return res;
 }
 
 /* ------------------------------ Resources/Institutes misc ----------------------------- */
@@ -243,5 +267,5 @@ module.exports = {
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
-    clean_user_by_id
+    clean_user_by_id, get_resources_readable
 }

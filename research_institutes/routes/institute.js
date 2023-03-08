@@ -115,10 +115,17 @@ router.get('/one/:id', async (req, res) => {
         }
 
         const id = req.params.id;
-        const data = await repository.get_institute_data(id, req.headers);
-        if (!data) {
+        const institute_data = await repository.get_institute_by_id(id)
+        if (!institute_data) {
             helpers.log_request_error(`GET institutes/one/${req.params.id} - 404: Institute not found`) 
             return res.status(404).json({message: `insititute with id ${id} not found`});
+        }
+
+        const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
+        if (isAdmin){
+            let data = await repository.get_institute_data(id, req.headers);
+            helpers.log_request_info(`GET institutes/one/${req.params.id} - 200`) 
+            return res.status(200).json(data);
         }
 
         const isMember = await helpers.validateInstituteMembers(req.headers, id);
@@ -127,6 +134,16 @@ router.get('/one/:id', async (req, res) => {
             return res.status(401).json({message: `Unauthorized access. User not a member of institute`})
         }
         
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/one/${req.params.id} -${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data;
+        
+        let data = await repository.get_institute_data(id, req.headers, user._id.toString());
+
         helpers.log_request_info(`GET institutes/one/${req.params.id} - 200`) 
         res.status(200).json(data);
     } catch (error) {
@@ -174,6 +191,52 @@ router.get('/all', async (req, res) => {
         res.status(200).json(data);
     } catch (error) {
         helpers.log_request_error(`GET institutes/all - 400: ${error.message}`) 
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /institutes/my-institutes:
+ *  get:
+ *      summary: Gets all the institutes that the user making the request is a part of.
+ *      description: |
+ *           Returns the results from newest to oldest by default
+ * 
+ *           Requires a bearer token for authorization.
+ * responses:
+ *    '200':
+ *      description: Ok
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/my-institutes', async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/my-institutes - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/all - ${validateUser.status}: ${validateUser.message}`) 
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+        const user = validateUser.data;
+
+        if (user.superadmin) {
+            helpers.log_request_error(`GET institutes/my-institutes - 200`)
+            const data = await repository.get_all_institutes(); 
+            return res.status(200).json(data)
+        }
+
+        const data = await repository.get_user_institutes(user._id.toString());
+
+        helpers.log_request_info(`GET institutes/my-institutes - 200`) 
+        res.status(200).json(data);
+    } catch (error) {
+        helpers.log_request_error(`GET institutes/my-institutes - 400: ${error.message}`) 
         res.status(400).json({message: error.message});
     }
 })
@@ -578,11 +641,11 @@ router.patch('/remove-resources/:id',
             helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 401: Token not found`) 
             return res.status(401).json({message: "Token not found"});
         }
-        const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) {
-            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can remove resources`) 
-            return res.status(401).json({message: "Only institute admins can add resources"})
-        }
+        // const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
+        // if (!isAdmin) {
+        //     helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can remove resources`) 
+        //     return res.status(401).json({message: "Only institute admins can add resources"})
+        // }
 
         const result = await repository.remove_resources_from_institute(id, resources_data);
 

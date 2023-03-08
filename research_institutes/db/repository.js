@@ -59,6 +59,17 @@ const log_request_error = async (message) => {
     }
 }
 
+const get_resources_readable = async (resources_idx) => {
+    const publish_res = await axios({
+        method: 'post',
+        url: `${USERS_BASE_URL}/resources-data`,
+        data: {"resources": resources_idx}
+    })
+    if (publish_res.status != 200) return {status: 400, message: "something went wrong"};
+
+    return {status: 200, data: publish_res.data};
+}
+
 /* ----------------------------------- Institutes ----------------------------------- */
 const create_new_institute = async(data) => {
     const dataToSave = await data.save();
@@ -75,15 +86,21 @@ const get_institute_by_id = async(id) => {
     return institute;
 }
 
-const get_institute_data = async (id, headers) => {
+const get_institute_data = async (id, headers, user_id='') => {
     const institute = await Model.institute.findById(id);
     if (!institute) return null;
     const member_data = await get_insitute_member_data(id, headers);
-    const tasks = await Model.task.find({ "_id": {$in: institute.tasks} }, {_id: 1, name: 1})
+    let tasks = null
     const files = await Model.instituteFile.find({ "_id": {$in: institute.files} }, {_id: 1, original_name: 1, date_created: 1})
 
+    if (user_id === ''){
+        tasks = await Model.task.find({ "_id": {$in: institute.tasks} }, {_id: 1, name: 1})
+    }
+    else tasks = await get_user_tasks_by_institute(id, user_id);
+    
     const result = {
         "id": institute._id,
+        "name": institute.name,
         "members": member_data.members,
         "admins": member_data.admins,
         "resources": member_data.resources,
@@ -93,9 +110,18 @@ const get_institute_data = async (id, headers) => {
     return result;
 }
 
+
 const get_all_institutes = async() => {
     const result = await Model.institute.find({}, {_id: 1, name: 1}).sort({"date_created": -1});
     return result;
+}
+
+const get_user_institutes = async(user_id) => {
+    const result = await Model.institute.find({$or: [
+        {admins: user_id},
+        {members: user_id}
+    ]},{_id: 1, name: 1}).sort({"date_created": -1});
+    return result
 }
 
 const add_institute_admins =  async (id, admin_idx) => {
@@ -245,8 +271,23 @@ const find_request_by_resource = async (resource_id) => {
 }
 
 const get_institute_requests = async (institute_id) => {
-    const data = await Model.pubRequest.find({institute: institute_id})
-    return data;
+    let data = await Model.pubRequest.find({institute: institute_id})
+    let result = []
+    const resources = []
+    data.forEach((elem) => {
+        resources.push(elem.resource)
+    })
+    const res = await get_resources_readable(resources)
+    const arr = res.data
+    
+    for (let i = 0; i < arr.length; i++) {
+        const r = {}
+        r.institute = data[i].institute
+        r.id = data[i].id
+        r.resource = arr[i]
+        result.push(r)
+    }
+    return result;
 }
 
 /*---------------------------------------- Tasks -------------------------------------------------*/
@@ -286,6 +327,16 @@ const get_all_tasks = async() => {
     const result =  await Model.task.find({}, {_id: 1, name: 1, author: 1, status: 1}).sort({"date_created": -1});
     return result;
 }
+
+const get_user_tasks_by_institute = async(institute_id, user_id) => {
+    const result = await Model.task.find({institute: institute_id, 
+        $or: [
+            {author: user_id},
+            {collaborators: user_id}
+        ]
+    }).sort({"date_created": -1});
+    return result
+} 
 
 const update_task = async(id, updateObj) => {
     const data = await Model.task.findByIdAndUpdate(id, updateObj);
@@ -404,5 +455,5 @@ module.exports = {
     add_task_file, add_task_comment, get_task_comments, edit_task_comment, delete_task_comment, get_comment_by_id, edit_task_name,
     edit_institute_name, add_resources_to_institute, remove_resources_from_institute, request_to_publish, publish, find_request_by_resource,
     get_institute_requests, get_institute_data, get_task_data, mark_task_as_completed, mark_task_as_pending, update_task, update_institute,
-    get_institute_file_by_id, delete_institute_file
+    get_institute_file_by_id, delete_institute_file, get_user_institutes, get_user_tasks_by_institute
  };

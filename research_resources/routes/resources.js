@@ -190,7 +190,8 @@ router.get('/one/:id', async (req, res) => {
         }
 
         if (resource.visibility != "public"){
-            if (user._id.toString() != resource.author && user.superadmin == false) {
+            console.log(user._id.toString(), '---', resource.author)
+            if (user._id.toString() != resource.author._id && user.superadmin == false) {
                 helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Unauthorized access to get`)
                 return res.status(401).json({message: 'Unauthorized access to get'});
             }
@@ -426,12 +427,12 @@ router.get('/public', async (req, res) => {
 */
 router.post('/request-institute-publish/:id', async (req, res) => {
     try {
-        // Authorization and validation
-        if (!req.headers.authorization) {
-            helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 401: Token not found`)
+        // // Authorization and validation
+        // if (!req.headers.authorization) {
+        //     helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 401: Token not found`)
 
-            return res.status(401).json({message: "Token not found"});
-        }
+        //     return res.status(401).json({message: "Token not found"});
+        // }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
             helpers.log_request_error(
@@ -466,7 +467,7 @@ router.post('/request-institute-publish/:id', async (req, res) => {
 
         res.status(200).json(publish_res.data);
     } catch (error) {
-        if (error.response.data.message) error.message = error.response.data.message;
+        if (error.response) error.message = error.response.data.message;
         helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 400: ${error.message}`)
 
         res.status(400).json({message: error.message});
