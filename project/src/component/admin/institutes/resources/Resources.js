@@ -70,13 +70,13 @@ function Resources({ resources, instituteId, admin }) {
                   <td>
                     <div className="flex items-between gap-3">
                       <button
-                        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                        className="p-2 bg-[#b2b2b2] rounded-md w-32 text-white"
                         onClick={() => viewResource(resource)}
                       >
                         view
                       </button>
                       <button
-                        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                        className="p-2 bg-[#52cb83] rounded-md w-32 text-white"
                         onClick={() => publish(resource._id)}
                       >
                         publish
