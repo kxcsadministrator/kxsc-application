@@ -38,14 +38,13 @@ function Resources({ resources, instituteId, admin }) {
   };
   return (
     <div>
-      {(user.superadmin || admin) && (
-        <button
-          className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-          onClick={() => setCreateResourceModal(true)}
-        >
-          Add resource
-        </button>
-      )}
+      <button
+        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+        onClick={() => setCreateResourceModal(true)}
+      >
+        Add resource
+      </button>
+
       {resources?.length ? (
         <table className="bg-white rounded-md shadow-md">
           <thead>
