@@ -60,7 +60,7 @@ function Resource() {
       console.log(err.response);
       setLoading(false);
       setErr(true);
-      setErrMsg(err.response.data);
+      setErrMsg("request has already been publish or cannot be found");
     }
   };
 
