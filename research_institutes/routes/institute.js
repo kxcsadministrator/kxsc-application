@@ -641,11 +641,11 @@ router.patch('/remove-resources/:id',
             helpers.log_request_error(`PATCH institutes/remove-resources/${req.params.id} - 401: Token not found`) 
             return res.status(401).json({message: "Token not found"});
         }
-        const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
-        if (!isAdmin) {
-            helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can remove resources`) 
-            return res.status(401).json({message: "Only institute admins can add resources"})
-        }
+        // const isAdmin = await helpers.validateInstituteAdmin(req.headers, id);
+        // if (!isAdmin) {
+        //     helpers.log_request_error(`PATCH institutes/add-resources/${req.params.id} - 401: Unauthorized access. Only institute admins can remove resources`) 
+        //     return res.status(401).json({message: "Only institute admins can add resources"})
+        // }
 
         const result = await repository.remove_resources_from_institute(id, resources_data);
 

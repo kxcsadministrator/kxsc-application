@@ -46,9 +46,12 @@ const get_institute_members = async(institute_id) => {
     const temp = await Model.institute.findById(institute_id);
     const members = temp.members;
     const admins = temp.admins;
+
     const member_results = await Model.user.find({ "_id": {$in: members} }, {username: 1, _id: 1});
     const admin_results = await Model.user.find({ "_id": {$in: admins} }, {username: 1, _id: 1});
-    const resource_results = await Model.resource.find({institute: institute_id}, {_id: 1, topic: 1})
+    const resource_results = await Model.resource.find(
+        {"_id": {$in: temp.resources}}, {_id: 1, topic: 1}
+    )
     return [member_results, admin_results, resource_results];
 }
 

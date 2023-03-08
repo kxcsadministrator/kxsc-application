@@ -59,11 +59,11 @@ const log_request_error = async (message) => {
 /*------------------------------ Resources Section ------------------------------------------ */
 const create_new_resource = async (data)=>{
     const dataToSave = await data.save();
-    return dataToSave;
+    return dataToSave._id;
 }
 
 const get_resource_by_id = async (id)=>{
-    const data = await Model.resource.findById(id, {_id: 1, topic: 1, sub_categories: 1});
+    const data = await Model.resource.findById(id);
     return data;
 }
 
