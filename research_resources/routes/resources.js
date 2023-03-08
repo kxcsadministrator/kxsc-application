@@ -427,12 +427,12 @@ router.get('/public', async (req, res) => {
 */
 router.post('/request-institute-publish/:id', async (req, res) => {
     try {
-        // Authorization and validation
-        if (!req.headers.authorization) {
-            helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 401: Token not found`)
+        // // Authorization and validation
+        // if (!req.headers.authorization) {
+        //     helpers.log_request_error(`POST /resources/request-institute-publish/${req.params.id} - 401: Token not found`)
 
-            return res.status(401).json({message: "Token not found"});
-        }
+        //     return res.status(401).json({message: "Token not found"});
+        // }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
             helpers.log_request_error(
