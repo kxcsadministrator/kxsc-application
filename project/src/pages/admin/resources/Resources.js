@@ -75,7 +75,7 @@ function Resources() {
       <div className="sidebar_content">
         <Sidebar />
       </div>
-      <div className="sidebar_content">
+      <div className="main_content">
         <div>
           <Topbar />
         </div>

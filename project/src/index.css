@@ -65,4 +65,16 @@ table th {
   .main_content {
     @apply lg:w-[82%] md:w-[74%] w-full;
   }
+  .btn_green {
+    @apply p-2 bg-[#52cb83] rounded-md lg:w-40 text-white my-3 w-[70%];
+  }
+  .btn_red {
+    @apply bg-[#d14949] text-white p-2 rounded-md lg:w-40 w-[70%];
+  }
+  .btn_gray {
+    @apply bg-[#cccccc] text-white p-2 rounded-md lg:w-40 w-[70%];
+  }
+  .err_text {
+    @apply text-[#d14949] text-sm;
+  }
 }
