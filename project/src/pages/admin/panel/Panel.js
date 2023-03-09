@@ -43,14 +43,14 @@ function Panel() {
 
   return (
     <div className="panel_container">
-      <div className="w-[24%] relative">
+      <div className="sidebar_content">
         <Sidebar />
       </div>
-      <div className="w-[82%]">
+      <div className="main_content">
         <div>
           <Topbar />
         </div>
-        <div className="grid gap-5 my-10">
+        <div className="panel_content">
           {/* box containers*/}
           <div className="box_container">
             {/* user_box */}
@@ -86,11 +86,11 @@ function Panel() {
           </div>
         </div>
         {/* charts */}
-        <div className="flex gap-6 px-4 justify-between min-h-[45%]">
-          <div className="bg-white rounded-md shadow-md w-[60%] p-4">
+        <div className="chart_container">
+          <div className="barchart_container">
             <BarChart />
           </div>
-          <div className="bg-white rounded-md shadow-md w-[35%] p-4 flex flex-col items-center">
+          <div className="piechart_container">
             <PieChart />
           </div>
         </div>

@@ -2,39 +2,45 @@
 
 @layer components {
   .panel_container {
-    @apply max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg md:max-h-screen md:overflow-y-hidden;
+    @apply max-w-[1560px] mx-auto flex md:w-full bg-gray_bg lg:max-h-screen lg:min-h-screen lg:overflow-y-hidden;
   }
   .box_container {
-    @apply flex px-10 justify-between;
+    @apply flex md:flex-row flex-col md:px-2 lg:px-10 md:justify-between gap-3;
   }
-
+  .panel_content {
+    @apply grid gap-5 my-10 px-6;
+  }
   .box {
-    @apply w-[30%] max-w-[320px] min-h-[150px] h-fit bg-white rounded-md p-4 shadow-md;
+    @apply md:w-[30%] w-full mx-auto md:mx-0  max-w-[320px] md:min-h-[150px] h-fit bg-white rounded-md p-4 shadow-md;
   }
   .text_container {
     @apply flex flex-col gap-2;
   }
 
+  .text_container h4 {
+    @apply lg:text-2xl md:text-lg text-sm;
+  }
+
   .text_container p {
-    @apply text-2xl font-bold;
+    @apply lg:text-3xl font-bold text-xl;
   }
 
   .circle_3 {
-    @apply w-[35px] h-[35px] bg-[#ec3d3d] rounded-[40%];
+    @apply w-[15px] h-[15px] md:w-[20px] md:h-[20px] lg:w-[30px] lg:h-[30px] bg-[#ec3d3d] rounded-[40%];
   }
   .circle_2 {
-    @apply w-[35px] h-[35px] bg-[#3d80ec] rounded-[40%];
+    @apply w-[15px] h-[15px] lg:w-[30px] md:w-[20px] md:h-[20px] lg:h-[30px] bg-[#3d80ec] rounded-[40%];
   }
   .circle_1 {
-    @apply w-[35px] h-[35px] bg-[#3dec9a] rounded-[40%];
+    @apply w-[15px] h-[15px] lg:w-[30px] md:w-[20px] md:h-[20px] lg:h-[30px] bg-[#3dec9a] rounded-[40%];
   }
-  .circle-0 {
-    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  .chart_container {
+    @apply flex lg:flex-row flex-col gap-6 px-6 md:px-10 lg:px-6  justify-between lg:h-[55%] mx-auto lg:mx-0;
   }
-  .circle-1 {
-    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  .barchart_container {
+    @apply bg-white rounded-md shadow-md lg:w-[60%] p-4 w-full;
   }
-  .circle-2 {
-    @apply w-[10px] h-[10px] bg-[#3dec9a] rounded-full;
+  .piechart_container {
+    @apply bg-white rounded-md shadow-md lg:w-[35%] p-4  w-full flex justify-center;
   }
 }

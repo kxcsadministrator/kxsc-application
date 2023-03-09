@@ -34,7 +34,7 @@ function Tasks({ tasks, instituteId }) {
                 <td>{task.name}</td>
                 <td>
                   <button
-                    className="p-2 bg-[#d14949] rounded-md w-28 text-white"
+                    className="p-2 bg-[#d14949] rounded-md  lg:w-28 w-[70%] text-white"
                     onClick={() => deleteBtn(task)}
                   >
                     Delete

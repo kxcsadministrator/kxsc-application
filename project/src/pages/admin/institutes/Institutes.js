@@ -73,10 +73,10 @@ function Institutes() {
 
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
-      <div className="w-[24%]">
+      <div className="sidebar_content">
         <Sidebar />
       </div>
-      <div className="w-[82%]">
+      <div className="main_content">
         <div>
           <Topbar />
         </div>

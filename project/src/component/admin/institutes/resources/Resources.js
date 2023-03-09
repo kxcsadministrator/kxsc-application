@@ -66,24 +66,24 @@ function Resources({ resources, instituteId, admin }) {
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{resource.topic}</td>
-                {(user.superadmin || admin) && (
-                  <td>
-                    <div className="flex items-between gap-3">
-                      <button
-                        className="p-2 bg-[#b2b2b2] rounded-md w-32 text-white"
-                        onClick={() => viewResource(resource)}
-                      >
-                        view
-                      </button>
+                <td>
+                  <div className="flex items-between gap-3">
+                    <button
+                      className="p-2 bg-[#b2b2b2] rounded-md w-32 text-white"
+                      onClick={() => viewResource(resource)}
+                    >
+                      view
+                    </button>
+                    {(user.superadmin || admin) && (
                       <button
                         className="p-2 bg-[#52cb83] rounded-md w-32 text-white"
                         onClick={() => publish(resource._id)}
                       >
                         publish
                       </button>
-                    </div>
-                  </td>
-                )}
+                    )}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

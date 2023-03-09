@@ -44,7 +44,7 @@ table th {
 
 @layer components {
   body {
-    @apply m-0;
+    @apply m-0 bg-gray_bg;
   }
   .link {
     @apply no-underline text-tgray hover:text-white;
@@ -58,5 +58,11 @@ table th {
 
   .modal_heading {
     @apply font-bold text-[20px] border-b-2 border-gray-300 w-full text-center pb-2;
+  }
+  .sidebar_content {
+    @apply lg:w-[24%] md:w-[30%] md:relative absolute w-full;
+  }
+  .main_content {
+    @apply lg:w-[82%] md:w-[74%] w-full;
   }
 }

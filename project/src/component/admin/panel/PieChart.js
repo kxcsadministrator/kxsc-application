@@ -55,16 +55,6 @@ function PieChart() {
           }}
         />
       </div>
-      {/* 
-      <div className="flex justify-between px-2 items-center">
-        {resource.map((data, index) => (
-          <div key={index} className="flex gap-2 items-center">
-            <p>{data._id}</p>
-            <div className={`circle-${index}`} />
-          </div>
-        ))}
-          </div>
-          */}
     </>
   );
 }

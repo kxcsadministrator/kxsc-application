@@ -62,10 +62,10 @@ function CreateUser() {
   };
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
-      <div className="md:w-[24%]">
+      <div className="sidebar_content">
         <Sidebar />
       </div>
-      <div className="md:w-[82%]">
+      <div className="main_content">
         <div>
           <Topbar />
         </div>

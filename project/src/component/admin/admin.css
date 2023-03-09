@@ -24,7 +24,7 @@
 }
 @layer components {
   .sidebar_container {
-    @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit overflow-y-scroll fixed pb-10 hidden w-[23%];
+    @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[70px] md:mt-0 overflow-y-scroll fixed pb-10 hidden lg:w-[23%] md:w-[29%] w-full;
   }
   .menu_content {
     @apply flex justify-between items-center px-2 gap-3 cursor-pointer hover:text-white;
@@ -56,9 +56,30 @@
     @apply flex gap-3 items-center px-2 py-1;
   }
   .content h5 {
-    @apply text-base;
+    @apply text-base md:text-sm lg:text-base;
   }
   .content_1 h5 {
-    @apply text-base;
+    @apply text-base md:text-sm lg:text-base;
+  }
+  .sidebar .toggleMenu {
+    @apply md:hidden block absolute mt-[70px] bg-black_bg text-white p-2 rounded-sm cursor-pointer z-20;
+  }
+  .sidebar.active .toggleMenu {
+    @apply bg-white text-black;
+  }
+  .sidebar .toggleMenu .close {
+    @apply hidden;
+  }
+  .sidebar.active .toggleMenu .close {
+    @apply block;
+  }
+  .sidebar .toggleMenu .hamburger {
+    @apply block;
+  }
+  .sidebar.active .toggleMenu .hamburger {
+    @apply hidden;
+  }
+  .sidebar.active .sidebar_container {
+    @apply flex flex-col z-10;
   }
 }

@@ -37,10 +37,10 @@ function CreateInstitues() {
 
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
-      <div className="w-[24%]">
+      <div className="sidebar_content">
         <Sidebar />
       </div>
-      <div className="w-[82%]">
+      <div className="main_content">
         <div>
           <Topbar />
         </div>
@@ -52,7 +52,7 @@ function CreateInstitues() {
             <div className="flex flex-col justify-center gap-6">
               <div className="flex gap-3 items-center">
                 <p className="w-[30%]">Institues Name: </p>
-                <div className="w-[300px] h-[40px]">
+                <div className="lg:w-[300px] w-[60%] h-[40px]">
                   <input
                     placeholder="Username"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"

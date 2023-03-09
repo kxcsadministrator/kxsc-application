@@ -40,7 +40,7 @@ function Admin({ admins, instituteId }) {
                 {user.superadmin && (
                   <td>
                     <button
-                      className="bg-[#d14949] text-white p-2 rounded-md w-40"
+                      className="bg-[#d14949] text-white p-2 rounded-md lg:w-40 w-[70%]"
                       onClick={() => deleteBtn(admin)}
                     >
                       Remove
