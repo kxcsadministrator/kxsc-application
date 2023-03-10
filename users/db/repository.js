@@ -6,6 +6,40 @@ const create_new_user = async(data) => {
     return dataToSave
 }
 
+const get_user_dashboard = async(id) => {
+    const institutes = await Model.institute.find({$or: [
+        {admins: id},
+        {members: id}
+    ]}, {_id: 1, name: 1, resources: 1})
+
+    let institute_resources = []
+    let main_institute_name = null
+    let user_resources = []
+
+    if (institutes.length > 0){
+        main_institute_name = institutes[0].name
+       institute_resources = await Model.resource.find({"_id": {$in: institutes[0].resources}}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1})
+    }
+
+    user_resources = await Model.resource.find({author: id}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1})
+
+    let user_tasks = await Model.task.find({$or: [
+        {author: id},
+        {collaborators: id}
+    ]}, {_id: 1, name: 1})
+
+    return {
+        institute_resource: {
+            name: main_institute_name,
+            resources: institute_resources
+        },
+        user_resources: user_resources,
+        user_institutes: institutes.slice(1),
+        user_tasks: user_tasks
+    }
+    
+}
+
 const clean_user_by_id =  async (id) => {
     const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
     let image = null;
@@ -267,5 +301,5 @@ module.exports = {
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
-    clean_user_by_id, get_resources_readable
+    clean_user_by_id, get_resources_readable, get_user_dashboard
 }

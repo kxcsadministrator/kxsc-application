@@ -4,6 +4,7 @@ const fs = require('fs');
 const axios = require('axios')
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
+const LOG_BASE_URL = process.env.LOG_URL
 
 /* 
 The functions in this file interact directly with the DB. These functions abstract away
@@ -27,12 +28,13 @@ const get_resource_user_data = async(resource_id, headers) => {
 const clean_resource = async (resource, id, headers) => {
     const resource_data = await get_resource_user_data(id, headers);
     const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
-    const rating = await get_rating(id);
+    // const rating = await get_rating(id);
 
     const result = {
         "id": id,
         "author": resource_data.author,
         "topic": resource.topic,
+        "avatar": resource.avatar,
         "description": resource.description,
         "institute": resource_data.institute,
         "category": resource.category,
@@ -40,7 +42,7 @@ const clean_resource = async (resource, id, headers) => {
         "visibility": resource.visibility,
         "resource_type": resource.resource_type,
         "citations": resource.citations,
-        "rating": rating,
+        "rating": resource.rating,
         "files": files,
         "date_created": resource.date
     }
@@ -59,7 +61,11 @@ const log_request_error = async (message) => {
 /*------------------------------ Resources Section ------------------------------------------ */
 const create_new_resource = async (data)=>{
     const dataToSave = await data.save();
-    return dataToSave._id;
+    let res = {}
+    res.id = dataToSave._id
+    res.topic = dataToSave.topic
+    res.author = dataToSave.author
+    return res;
 }
 
 const get_resource_by_id = async (id)=>{
@@ -126,19 +132,20 @@ const get_all_resources = async (category="None", sub_cat="None")=>{
 }
 
 const get_user_resources = async (author_id, institute_id = "None")=>{
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1}
     if (institute_id === "None"){
-        const data = await Model.resource.find({author: author_id}, {_id: 1, topic: 1}).sort({"date": -1});
+        const data = await Model.resource.find({author: author_id}, projection).sort({"date": -1});
         return data;
     }
     else {
-        const data = await Model.resource.find({author: author_id, institute: institute_id}, {_id: 1, topic: 1}).sort({"date": -1});
+        const data = await Model.resource.find({author: author_id, institute: institute_id}, projection).sort({"date": -1});
         return data;
     }
     
 }
 
 const get_public_resources = async (category="None", sub_cat="None")=>{
-    const projection = {_id: 1, topic: 1}
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1}
     if (category === "None"){
         const data = await Model.resource.find({visibility: "public"}, projection).sort({"date": -1});
         return data;
@@ -222,11 +229,11 @@ const delete_resource_by_id = async (req) => {
     if (files){
         files.map(p => {
             fs.unlink(p.path, (err) => {
-                if (err) {
-                  console.error(err)
-                  return
+                    if (err) {
+                        log_request_error(`file unlink: ${err}`)
+                    return
+                    }
                 }
-            }
             )
         })
     }
@@ -242,9 +249,35 @@ const rate_resource = async (resource_id, user_id, value) => {
         score: value
     })
     const result = await data.save();
-    let resource = await Model.resource.findByIdAndUpdate(resource_id, {$push: {ratings: [result._id]}});
+    const new_rating = await get_rating(resource_id)
+    console.log(new_rating)
+    let resource = await Model.resource.findByIdAndUpdate(resource_id, {rating: new_rating});
     resource = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return resource;
+}
+
+const update_resource_avatar = async (resource_id, avatar_path) => {
+    let parent = await Model.resource.findByIdAndUpdate(resource_id, {avatar: avatar_path});
+    parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
+    return parent;
+}
+
+const remove_resource_avatar = async (resource_id) => {
+    let resource = await Model.resource.findById(resource_id);
+    if (!resource.avatar) return resource
+
+    fs.unlink(resource.avatar, (err) => {
+            if (err) {
+            log_request_error(`file unlink: ${err}`)
+            return
+            }
+        }
+    )
+    resource.avatar = undefined;
+    resource.save()
+    
+    let parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
+    return parent;
 }
 
 const add_resource_file = async (resource_id, data) => {
@@ -274,8 +307,8 @@ const delete_resource_file = async (file_id) => {
     return resource
 }
 
-const get_resource_file_by_id = async(id, resource_id) => {
-    const res = await Model.resourceFile.findOne({_id: id, parent: resource_id})
+const get_resource_file_by_id = async(id) => {
+    const res = await Model.resourceFile.findOne({_id: id})
     return res;
 }
 
@@ -293,9 +326,9 @@ const get_rating = async (id) => {
         ratings.push(p.score);
     })
 
-    if (!ratings.length) return {"average_rating": 0};
+    if (!ratings.length) return 0;
     let result = ratings.reduce((acc, c) => acc + c, 0) / ratings.length
-    return {"average_rating": result};
+    return result;
 }
 
 const get_monthly_stats =  async () => {
@@ -429,5 +462,6 @@ module.exports = {
     add_sub_categories, remove_sub_categories, get_resource_by_topic, update_resource_topic, update_resource_description, 
     update_visibility, update_resource_type, add_resource_sub_categories, remove_resource_sub_categories, add_resource_citations,
     remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
-    get_resource_data, get_group_stats, update_resource_fields, delete_resource_file, get_resource_file_by_id
+    get_resource_data, get_group_stats, update_resource_fields, delete_resource_file, get_resource_file_by_id, update_resource_avatar,
+    remove_resource_avatar
 }
