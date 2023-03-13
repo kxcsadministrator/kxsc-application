@@ -87,7 +87,7 @@ function Details({ resource, user }) {
                   className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
                   onClick={() => publishRequest()}
                 >
-                  Request to publish
+                  P ublish
                 </button>
               )}
             </div>

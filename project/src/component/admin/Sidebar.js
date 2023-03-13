@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { BsBarChart } from "react-icons/bs";
 import { RiMessage2Line, RiMenu2Line, RiCloseLine } from "react-icons/ri";
-import { AiFillFormatPainter } from "react-icons/ai";
+import { AiFillFormatPainter, AiOutlineLogout } from "react-icons/ai";
 import { AiFillHdd } from "react-icons/ai";
 import { SiRoamresearch } from "react-icons/si";
 import { FaGalacticRepublic, FaUserAlt } from "react-icons/fa";
 import { GoSignIn } from "react-icons/go";
 import { FiUsers } from "react-icons/fi";
-import { Link } from "react-router-dom";
-
-import Dark from "../Dark";
+import { Link, useNavigate } from "react-router-dom";
 import { CgChevronDown } from "react-icons/cg";
 import { useContext } from "react";
 import { Context } from "../../context/Context";
 import "./admin.css";
 
 function Sidebar() {
-  const { user } = useContext(Context);
+  const { user, dispatch } = useContext(Context);
   const [msgMenu, setMsgMenu] = useState(false);
   const [catMenu, setCatMenu] = useState(false);
   const [resourceMenu, setResourceMenu] = useState(false);
@@ -24,6 +22,7 @@ function Sidebar() {
   const [mriMenu, setMriMenu] = useState(false);
   const [usersMenu, setUsersMenu] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const navigate = useNavigate();
 
   //show hamburger menu
   function displayMenu() {
@@ -36,6 +35,11 @@ function Sidebar() {
       document.body.style.overflow = "visible";
     }
   }
+
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    navigate("/");
+  };
 
   return (
     <div className={"sidebar " + (navOpen && "active")}>
@@ -233,6 +237,10 @@ function Sidebar() {
               <GoSignIn />
               <h5>Manage Newsletter SignUp</h5>
             </Link>
+            <div className="content_1 link" onClick={() => logout()}>
+              <AiOutlineLogout />
+              <h5>Log Out</h5>
+            </div>
           </div>
         ) : (
           <div className="flex flex-col justify-center gap-3 w-[80%] mx-auto text-tgray">
@@ -299,6 +307,10 @@ function Sidebar() {
               <FaUserAlt />
               <h5>My profile</h5>
             </Link>
+            <div className="content_1 link" onClick={() => logout()}>
+              <AiOutlineLogout />
+              <h5>Log Out</h5>
+            </div>
           </div>
         )}
       </div>
