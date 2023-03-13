@@ -17,6 +17,7 @@ import PendingResources from "./pages/admin/resources/PendingResources";
 import PublicResources from "./pages/admin/resources/PublicResources";
 import Categories from "./pages/admin/categories/Categories";
 import Category from "./pages/admin/categories/Category";
+import CreateCategory from "./pages/admin/categories/CreateCategory";
 
 function App() {
   const { user } = useContext(Context);
@@ -44,6 +45,7 @@ function App() {
           <Route path="/admin/public_resources" element={<PublicResources />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/category/:name" element={<Category />} />
+          <Route path="/admin/create-category" element={<CreateCategory />} />
         </Routes>
       </div>
     </BrowserRouter>

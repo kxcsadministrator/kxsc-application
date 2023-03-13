@@ -104,7 +104,7 @@ function Sidebar() {
               </div>
               {/* Category  Menu*/}
               <div className="dropdown_menu">
-                <Link className="link" to="/">
+                <Link className="link" to="/admin/create-category">
                   <p>Create Category</p>
                 </Link>
                 <Link className="link" to="/admin/categories">

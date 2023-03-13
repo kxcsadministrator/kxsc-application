@@ -76,8 +76,8 @@ function CreateUser() {
             </h1>
             <div className="flex flex-col justify-center gap-6">
               <div className="flex gap-3 items-center">
-                <p className="w-[30%]">Username: </p>
-                <div className="w-[300px] h-[40px]">
+                <p className="w-[30%] hidden md:block">Username: </p>
+                <div className="md:w-[300px] md:h-[40px]">
                   <input
                     placeholder="Username"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
@@ -87,8 +87,8 @@ function CreateUser() {
                 </div>
               </div>
               <div className="flex gap-3 items-center">
-                <p className="w-[30%]">Email: </p>
-                <div className="w-[300px] h-[40px]">
+                <p className="w-[30%] hidden md:block">Email: </p>
+                <div className="md:w-[300px] md:h-[40px]">
                   <input
                     placeholder="Email"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
@@ -98,8 +98,8 @@ function CreateUser() {
                 </div>
               </div>
               <div className="flex gap-3 items-center">
-                <p className="w-[30%]">Password: </p>
-                <div className="w-[300px] h-[40px]">
+                <p className="w-[30%] hidden md:block">Password: </p>
+                <div className="md:w-[300px] md:h-[40px]">
                   <input
                     placeholder="Password"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
