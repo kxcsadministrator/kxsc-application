@@ -1,3 +1,4 @@
+@tailwind components;
 .tabs {
   display: flex;
 }
@@ -23,4 +24,13 @@
 }
 .panel.active {
   display: block;
+}
+
+@layer components {
+  .tab {
+    @apply text-sm md:text-base;
+  }
+  .tabs {
+    @apply flex flex-col md:flex-row;
+  }
 }

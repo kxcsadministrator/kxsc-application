@@ -32,8 +32,13 @@ function Login() {
     <div className="login_container">
       <div className="form_container">
         <form className="login_form" onSubmit={handleSubmit}>
-          <div className="bg-gray-400 rounded-md h-[60px] w-[80%] mx-auto p-1 mt-3 mb-4">
-            <h5 className="text-white">KXC Inc.</h5>
+          <div className="w-[80%] mx-auto ">
+            <img src="/logo.png" alt="logo image" />
+          </div>
+          <div className="w-[80%] mx-auto ">
+            <p className="text-2xl font-bold text-green_bg text-center">
+              Log In
+            </p>
           </div>
           <div className="input_container">
             <input placeholder="Username" ref={userRef} type="text" />
@@ -49,7 +54,10 @@ function Login() {
             <span></span>
           </div>
           <p className="text-center text-sm">
-            <Link to="/" className="link text-center text-gray-400">
+            <Link
+              to="/"
+              className="link text-center text-gray-400 hover:text-green_bg"
+            >
               Forgot password?
             </Link>
           </p>
@@ -61,7 +69,7 @@ function Login() {
           Sign Up
         </Link>
       </div>
-      <footer className="mt-[60px] text-center">
+      <footer className="mt-[30px] text-center">
         <p>© 2023 KXC INC. FROM KXC INC.</p>
       </footer>
     </div>

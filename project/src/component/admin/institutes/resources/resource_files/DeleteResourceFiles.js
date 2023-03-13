@@ -1,21 +1,18 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
-import { Context } from "../../../../context/Context";
-import { useNavigate } from "react-router-dom";
-
-function MakeAdminModal({ setAdminModal, instituteId }) {
-  const [username, setUsername] = useState("");
+import { Context } from "../../../../../context/Context";
+function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
   let menuRef = useRef();
+  //
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setAdminModal(false);
+        setDeleteFileModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -23,49 +20,42 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setAdminModal]);
+  }, [setDeleteFileModal]);
 
-  const submitAdmin = async (e) => {
-    e.preventDefault();
+  const submitFile = async () => {
     setLoading(true);
     setSuccess(false);
     setErr(false);
     try {
-      const res = await axios.patch(
-        `http://13.36.208.80:3001/institutes/add-admins/${instituteId}`,
-        { admins: [username] },
+      const res = await axios.delete(
+        `http://13.36.208.80:3002/resources/${resource.id}/delete-file/${file._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
       setSuccess(true);
       setTimeout(() => {
-        setAdminModal(false);
+        setDeleteFileModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
       setSuccess(false);
       setLoading(false);
       setErr(true);
-      setErrMsg(err.response.data.message);
+
       console.log(err);
     }
   };
+
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Make Admin
-        </h1>
+        <h1 className="modal_heading">Add Member</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <div>
-            <input
-              placeholder="Username"
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1 rounded-sm"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
+            <p>
+              Are you sure you want to delete
+              <span className="font-bold">{file.original_name}</span>
+            </p>
           </div>
           <div>
             {loading ? (
@@ -74,7 +64,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
               </div>
             ) : err ? (
               <div>
-                <p className="err_text">{errMsg}</p>
+                <p className="text-red-400">{errMsg}</p>
               </div>
             ) : success ? (
               <div>
@@ -83,13 +73,20 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
             ) : (
               <div></div>
             )}
-            <div>
+
+            <div className="flex items-center gap-3">
               <button
-                onClick={(e) => submitAdmin(e)}
-                className="bg-green_bg  w-full text-white p-2 rounded-sm"
+                onClick={() => setDeleteFileModal(false)}
+                className="bg-green_bg rounded-sm h-[35px] w-full py-1 px-2 text-white"
+              >
+                back
+              </button>
+              <button
+                onClick={() => submitFile()}
+                className="bg-[#d14949] rounded-sm h-[35px] w-full py-1 px-2 text-white"
                 disabled={loading}
               >
-                Make Admin
+                continue
               </button>
             </div>
           </div>
@@ -99,4 +96,4 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
   );
 }
 
-export default MakeAdminModal;
+export default DeleteResourceFiles;

@@ -42,13 +42,17 @@ function Sidebar() {
       <div className="sidebar_container">
         {/* Logo Section*/}
         <div className="border-b-2 border-gray-400 pb-3">
-          <div className="bg-gray-400 rounded-md h-[60px] w-[80%] mx-auto p-1">
-            <h5 className="text-white">KXC Inc.</h5>
+          <div className="bg-white rounded-md h-[70px] w-[80%] mx-auto p-1 flex justify-center items-center">
+            <img
+              src="/logo.png"
+              alt="logo image"
+              className="h-[50px] w-[60%]"
+            />
           </div>
         </div>
         {/* nav Section*/}
         {user.superadmin ? (
-          <div className="grid gap-4 w-[80%] mx-auto text-tgray">
+          <div className="grid gap-3 w-[80%] mx-auto text-tgray">
             {/* dashboard Link*/}
             <Link
               className="flex gap-3 items-center px-1 py-1 no-underline link text-tgray"
@@ -103,14 +107,8 @@ function Sidebar() {
                 <Link className="link" to="/">
                   <p>Create Category</p>
                 </Link>
-                <Link className="link" to="/">
-                  <p>Create Sub-category</p>
-                </Link>
-                <Link className="link" to="/">
+                <Link className="link" to="/admin/categories">
                   <p>List of Categories</p>
-                </Link>
-                <Link className="link" to="/">
-                  <p>List of Sub-categories</p>
                 </Link>
               </div>
               <div className="dash" />
@@ -237,8 +235,17 @@ function Sidebar() {
             </Link>
           </div>
         ) : (
-          <div className="grid gap-4 w-[80%] mx-auto text-tgray">
+          <div className="flex flex-col justify-center gap-3 w-[80%] mx-auto text-tgray">
             {/* Resource Section - text and Menu*/}
+            <Link
+              className="flex gap-3 items-center px-1 py-1 no-underline link text-tgray"
+              to="/admin"
+              onClick={() => setNavOpen(false)}
+            >
+              <BsBarChart />
+              <h5 className="text-base md:text-sm lg:text-base">Dashboard</h5>
+            </Link>
+
             <div className={"menu " + (resourceMenu && "active")}>
               <div
                 className="menu_content"

@@ -1,35 +1,26 @@
 import { useContext, useState } from "react";
-import { Context } from "../../../../context/Context";
-import { Link } from "react-router-dom";
+import { Context } from "../../../../../context/Context";
 import axios from "axios";
-import AddFiles from "./AddFiles";
-import DeleteFileModal from "./DeleteFileModal";
-import fileDownload from "js-file-download";
+import AddResourceFile from "./AddResourceFile";
+import DeleteResourceFiles from "./DeleteResourceFiles";
 
-function Files({ files, instituteId, admin }) {
+function ResourceFiles({ resource }) {
   const { user } = useContext(Context);
   const [addFileModal, setAddFileModal] = useState(false);
   const [deleteFileModal, setDeleteFileModal] = useState(false);
   const [file, setFile] = useState();
-  console.log(files);
 
   const deleteBtn = (file) => {
     setFile(file);
     setDeleteFileModal(true);
   };
 
-  const downloadBtn = async (file) => {
+  const downloadBtn = async (id) => {
     try {
       const res = await axios.get(
-        `http://13.36.208.80:3001/institutes/download-file/${file._id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.jwt_token}`,
-          },
-          responseType: "blob",
-        }
+        `http://13.36.208.80:3002/resources/${resource.id}/download-file/${id}`,
+        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      fileDownload(res.data, `${file.original_name}`);
       console.log(res.data);
     } catch (err) {
       console.log(err);
@@ -38,35 +29,34 @@ function Files({ files, instituteId, admin }) {
 
   return (
     <div>
-      {user.superadmin && (
-        <button className="btn_green_h" onClick={() => setAddFileModal(true)}>
-          Add files
-        </button>
-      )}
-
-      {files?.length ? (
+      <button
+        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+        onClick={() => setAddFileModal(true)}
+      >
+        Add files
+      </button>
+      {resource?.files?.length ? (
         <table className="bg-white rounded-md shadow-md">
           <thead>
             <tr>
               <th scope="col">s/n</th>
               <th scope="col">Files</th>
-              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
-            {files.map((file, index) => (
+            {resource.files.map((file, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{file.original_name}</td>
                 <td>
-                  <div class="flex gap-3 items-center">
+                  <div className="flex gap-3 items-center">
                     <button
                       className="btn_green"
-                      onClick={() => downloadBtn(file)}
+                      onClick={() => downloadBtn(file._id)}
                     >
                       Download
                     </button>
-                    {(user.superadmin || admin) && (
+                    {user.superadmin && (
                       <button
                         className="btn_red"
                         onClick={() => deleteBtn(file)}
@@ -86,19 +76,19 @@ function Files({ files, instituteId, admin }) {
         </div>
       )}
       <div className="relative w-full h-full">
-        {addFileModal && (
-          <AddFiles
-            setAddFileModal={setAddFileModal}
-            instituteId={instituteId}
+        {deleteFileModal && (
+          <DeleteResourceFiles
+            setDeleteFileModal={setDeleteFileModal}
+            resource={resource}
+            file={file}
           />
         )}
       </div>
       <div className="relative w-full h-full">
-        {deleteFileModal && (
-          <DeleteFileModal
-            setDeleteFileModal={setDeleteFileModal}
-            instituteId={instituteId}
-            file={file}
+        {addFileModal && (
+          <AddResourceFile
+            setAddFileModal={setAddFileModal}
+            resourceId={resource.id}
           />
         )}
       </div>
@@ -106,4 +96,4 @@ function Files({ files, instituteId, admin }) {
   );
 }
 
-export default Files;
+export default ResourceFiles;

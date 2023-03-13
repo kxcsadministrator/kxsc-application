@@ -82,13 +82,13 @@ function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setDeleteAdminModal(false)}
-                className="bg-green-600 h-[35px] w-full py-1 px-2"
+                className="bg-green_bg rounded-sm h-[35px] w-full py-1 px-2"
               >
                 <p className="text-white">back</p>
               </button>
               <button
                 onClick={(e) => submitAdmin(e)}
-                className="bg-[#d14949] h-[35px] w-full py-1 px-2"
+                className="bg-[#d14949] rounded-sm h-[35px] w-full py-1 px-2"
                 disabled={loading}
               >
                 <p className="text-white">continue</p>

@@ -1,21 +1,22 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
-import { Context } from "../../../../context/Context";
-import { useNavigate } from "react-router-dom";
+import { Context } from "../../../../../context/Context";
+import { useForm } from "react-hook-form";
 
-function MakeAdminModal({ setAdminModal, instituteId }) {
-  const [username, setUsername] = useState("");
+function AddResourceFile({ setAddFileModal, resourceId }) {
   const { user } = useContext(Context);
+  const [file, setFile] = useState();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
   let menuRef = useRef();
+
+  //
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setAdminModal(false);
+        setAddFileModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -23,23 +24,33 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setAdminModal]);
+  }, [setAddFileModal]);
 
-  const submitAdmin = async (e) => {
-    e.preventDefault();
+  const submit = async (event) => {
+    event.preventDefault();
     setLoading(true);
     setSuccess(false);
     setErr(false);
+    const formData = new FormData();
+    formData.append("files", file);
+
     try {
-      const res = await axios.patch(
-        `http://13.36.208.80:3001/institutes/add-admins/${instituteId}`,
-        { admins: [username] },
-        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+      const res = await axios.post(
+        `http://13.36.208.80:3002/resources/upload-files/${resourceId}`,
+        formData,
+        {
+          headers: {
+            "Context-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.jwt_token}`,
+          },
+        }
       );
+
       setLoading(false);
       setSuccess(true);
+      console.log(res.data);
       setTimeout(() => {
-        setAdminModal(false);
+        setAddFileModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -50,21 +61,24 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
       console.log(err);
     }
   };
+
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Make Admin
+          Add Files
         </h1>
-        <div className="flex flex-col items-center w-full gap-3">
+        <form
+          className="flex flex-col items-center w-full gap-3"
+          onSubmit={submit}
+        >
           <div>
             <input
-              placeholder="Username"
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1 rounded-sm"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
+              placeholder="Upload File"
+              type="file"
+              multiple="multiple"
+              filename={file}
+              onChange={(e) => setFile(e.target.files[0])}
             />
           </div>
           <div>
@@ -85,18 +99,18 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
             )}
             <div>
               <button
-                onClick={(e) => submitAdmin(e)}
+                type="submit"
                 className="bg-green_bg  w-full text-white p-2 rounded-sm"
                 disabled={loading}
               >
-                Make Admin
+                Add file
               </button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 }
 
-export default MakeAdminModal;
+export default AddResourceFile;

@@ -39,8 +39,13 @@ function SignUp() {
     <div className="signIn_container">
       <div className="form_container">
         <form className="signIn_form">
-          <div className=" rounded-md flex justify-center items-center py-2">
-            <h5 className="text-green_bg text-2xl">Sign Up</h5>
+          <div className="w-[80%] mx-auto ">
+            <img src="/logo.png" alt="logo image" />
+          </div>
+          <div className="w-[80%] mx-auto ">
+            <p className="text-2xl font-bold text-green_bg text-center">
+              Sign In
+            </p>
           </div>
           <div className="input_container">
             <input
@@ -84,8 +89,30 @@ function SignUp() {
               Sign Up
             </button>
           </div>
+          <div className="flex separator items-center">
+            <span></span>
+            <div className="or">OR</div>
+            <span></span>
+          </div>
+          <p className="text-center text-sm">
+            <Link
+              to="/"
+              className="link text-center text-gray-400 hover:text-green_bg"
+            >
+              Forgot password?
+            </Link>
+          </p>
         </form>
       </div>
+      <div className="sign_container">
+        <p>Don't have an account? </p>
+        <Link to="/" className="link text-[#34c684] hover:text-black">
+          Login In
+        </Link>
+      </div>
+      <footer className="mt-[30px] text-center">
+        <p>© 2023 KXC INC. FROM KXC INC.</p>
+      </footer>
     </div>
   );
 }

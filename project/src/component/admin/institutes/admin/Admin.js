@@ -17,10 +17,7 @@ function Admin({ admins, instituteId }) {
   return (
     <div>
       {user.superadmin && (
-        <button
-          className="p-2 bg-[#52cb83] rounded-md w-44 text-white my-3"
-          onClick={() => setAdminModal(true)}
-        >
+        <button className="btn_green" onClick={() => setAdminModal(true)}>
           Add admin
         </button>
       )}

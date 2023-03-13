@@ -5,13 +5,13 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: px;
 }
 
 .menu .dropdown_menu {
   display: none;
   flex-direction: column;
-  gap: 5px;
+  gap: 3px;
   padding-left: 30px;
 }
 

@@ -53,7 +53,7 @@ table th {
     @apply fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(5,2,9,0.6)];
   }
   .modal_content {
-    @apply flex flex-col  py-2 gap-5 w-[35%] h-fit pb-5 bg-white rounded-md shadow-md;
+    @apply flex flex-col  py-2 gap-5 md:w-[65%] w-[80%] lg:w-[35%] h-fit pb-5 bg-white rounded-md shadow-md;
   }
 
   .modal_heading {
@@ -66,13 +66,16 @@ table th {
     @apply lg:w-[82%] md:w-[74%] w-full;
   }
   .btn_green {
-    @apply p-2 bg-[#52cb83] rounded-md lg:w-40 text-white my-3 w-[70%];
+    @apply p-2 bg-[#52cb83] rounded-md lg:w-36 text-white my-3 w-[40%] text-sm md:text-base;
+  }
+  .btn_green_h {
+    @apply p-2 my-2 bg-[#52cb83] rounded-md w-36 text-white my-3 text-sm md:text-base;
   }
   .btn_red {
-    @apply bg-[#d14949] text-white p-2 rounded-md lg:w-40 w-[70%];
+    @apply bg-[#d14949] text-white p-2 rounded-md lg:w-36 w-[40%] text-sm md:text-base;
   }
   .btn_gray {
-    @apply bg-[#cccccc] text-white p-2 rounded-md lg:w-40 w-[70%];
+    @apply bg-[#cccccc] text-white p-2 rounded-md lg:w-36 w-[40%] text-sm md:text-base;
   }
   .err_text {
     @apply text-[#d14949] text-sm;

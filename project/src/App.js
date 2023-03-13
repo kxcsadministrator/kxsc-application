@@ -15,6 +15,8 @@ import Resource from "./pages/admin/resources/Resource";
 import SignUp from "./pages/sign_up/SignUp";
 import PendingResources from "./pages/admin/resources/PendingResources";
 import PublicResources from "./pages/admin/resources/PublicResources";
+import Categories from "./pages/admin/categories/Categories";
+import Category from "./pages/admin/categories/Category";
 
 function App() {
   const { user } = useContext(Context);
@@ -24,10 +26,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/sign_up" element={<SignUp />} />
-          <Route
-            path="/admin"
-            element={user?.superadmin ? <Panel /> : <Institutes />}
-          />
+          <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/institutes" element={<Institutes />} />
@@ -43,6 +42,8 @@ function App() {
             element={<PendingResources />}
           />
           <Route path="/admin/public_resources" element={<PublicResources />} />
+          <Route path="/admin/categories" element={<Categories />} />
+          <Route path="/admin/category/:name" element={<Category />} />
         </Routes>
       </div>
     </BrowserRouter>

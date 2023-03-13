@@ -41,7 +41,7 @@ form input:focus {
 
 @layer components {
   .login_container {
-    @apply max-w-[1560px] w-full h-screen top-0 pt-16  mx-auto bg-gray_bg;
+    @apply max-w-[1560px] w-full min-h-screen h-fit top-0 pt-9  mx-auto bg-gray_bg;
   }
   .form_container {
     @apply max-w-[350px] w-[90%] bg-white border-[1px] m-auto min-h-[60vh] h-fit  p-5;
