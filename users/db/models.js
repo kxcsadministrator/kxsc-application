@@ -144,6 +144,11 @@ const resourceSchema = new mongoose.Schema({
     files: {
         required: false,
         type: [String]
+    },
+
+    avatar: {
+        type: String,
+        required: false
     }
 });
 

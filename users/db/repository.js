@@ -18,15 +18,54 @@ const get_user_dashboard = async(id) => {
 
     if (institutes.length > 0){
         main_institute_name = institutes[0].name
-       institute_resources = await Model.resource.find({"_id": {$in: institutes[0].resources}}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1})
+        institute_resources = await Model.resource.find(
+            {"_id": {$in: institutes[0].resources}}, 
+            {_id: 1, topic: 1, rating: 1, institute: 1, date: 1, author: 1, avatar: 1}
+        )
+        for (let i = 0; i < institute_resources.length; i++) {
+            const resource = institute_resources[i];
+            const author = await Model.user.findById(resource.author, {_id: 1, username: 1})
+            const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1})
+            resource.author = author.username
+            resource.institute = institute.name
+            let date  = new Date(resource.date).toDateString()
+            let data = {
+                _id: resource._id,
+                topic: resource.topic,
+                author: author.username,
+                institute: institute.name,
+                rating: resource.rating,
+                date: date,
+                avatar: resource.avatar
+            }
+            institute_resources[i] = data
+        }
     }
 
-    user_resources = await Model.resource.find({author: id}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1})
+    user_resources = await Model.resource.find({author: id}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1, avatar: 1, author: 1})
+    for (let i = 0; i < user_resources.length; i++) {
+        const resource = user_resources[i];
+        const author = await Model.user.findById(resource.author, {_id: 1, username: 1})
+        const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1})
+        resource.author = author.username
+        resource.institute = institute.name
+        let date  = new Date(resource.date).toDateString()
+        let data = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: author.username,
+            institute: institute.name,
+            rating: resource.rating,
+            date: date,
+            avatar: resource.avatar
+        }
+        user_resources[i] = data
+    }
 
     let user_tasks = await Model.task.find({$or: [
         {author: id},
         {collaborators: id}
-    ]}, {_id: 1, name: 1})
+    ]}, {_id: 1, name: 1, status: 1})
 
     return {
         institute_resource: {
