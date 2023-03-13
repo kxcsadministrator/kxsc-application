@@ -150,10 +150,14 @@ function Panel() {
                     <img src="/default.png" alt="default" />
                   </div>
                   <div className="obj_text">
-                    <p>{dashboard?.institute_resource?.name}</p>
                     {dashboard?.institute_resource?.resources?.map(
                       (resource, index) => (
-                        <p key={index}>{resource.topic}</p>
+                        <ul className="flex flex-col">
+                          <li key={index}>{resource.topic}</li>
+                          <li>{resource.author}</li>
+                          <li>{resource.rating}</li>
+                          <li>{resource.date}</li>
+                        </ul>
                       )
                     )}
                   </div>
@@ -179,7 +183,12 @@ function Panel() {
                     </div>
                     <div className="obj_text">
                       {dashboard?.user_resources?.map((resource, index) => (
-                        <p key={index}>{resource.topic}</p>
+                        <ul className="flex flex-col">
+                          <li key={index}>{resource.topic}</li>
+                          <li>{resource.author}</li>
+                          <li>{resource.rating}</li>
+                          <li>{resource.date}</li>
+                        </ul>
                       ))}
                     </div>
                   </div>
@@ -207,23 +216,52 @@ function Panel() {
                     </Link>
                   </p>
                 </div>
-                {dashboard?.user_institutes?.map((institute, index) => (
-                  <div className="obj_body" key={index}>
-                    <p className="obj_text">{institute.name}</p>
+                {dashboard?.user_institutes?.length ? (
+                  <div>
+                    {dashboard?.user_institutes?.map((institute, index) => (
+                      <div className="obj_body" key={index}>
+                        <p className="obj_text">{institute.name}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="w-[30%]">
+                      <img src="/book.png" alt="default" />
+                    </div>
+                    <div className="obj_text">
+                      <p>Its a bit lonely here</p>
+                    </div>
+                  </div>
+                )}
               </div>
+
               {/* published Resources */}
               <div className="obj_content">
                 <div className="obj_heading">
                   <p>My Tasks</p>
                 </div>
-
-                {dashboard?.user_tasks?.map((task, index) => (
-                  <div className="obj_body" key={index}>
-                    <p>{task.name}</p>
+                {dashboard?.user_tasks?.length ? (
+                  <div>
+                    {dashboard?.user_tasks?.map((task, index) => (
+                      <div className="obj_body " key={index}>
+                        <p className="w-5">
+                          <img src="/ellipse.png" alt="default" />
+                        </p>
+                        <p>{task.name}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : (
+                  <div className="flex flex-col items-center">
+                    <div className="w-[30%]">
+                      <img src="/book.png" alt="default" />
+                    </div>
+                    <div className="obj_text">
+                      <p>Its a bit lonely here</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
