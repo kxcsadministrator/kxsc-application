@@ -61,14 +61,19 @@ const resourceSchema = new mongoose.Schema({
         default: Date.now
     },
 
-    ratings: [{
-        type: Schema.Types.ObjectId,
-        ref: "ratings"
-    }],
+    rating: {
+        type: Number,
+        default: 0
+    },
 
     files: {
         required: false,
         type: [String]
+    },
+
+    avatar: {
+        type: String,
+        required: false
     }
 });
 

@@ -136,10 +136,10 @@ const resourceSchema = new mongoose.Schema({
         default: Date.now
     },
 
-    ratings: [{
-        type: Schema.Types.ObjectId,
-        ref: "ratings"
-    }],
+    rating: {
+        type: Number,
+        default: 0
+    },
 
     files: {
         required: false,
@@ -179,6 +179,43 @@ const instituteSchema = new mongoose.Schema({
     }]
 })
 
+const taskSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    author: {
+        type: String,
+        required: true
+    },
+    institute: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "ResearchInstitute"
+    },
+    collaborators: { // refactor when users service is implemented
+        type: [String],
+        // validate: v => Array.isArray(v) && v.length > 0
+    },
+    status: {
+        type: String,
+        default: "pending"
+    },
+    date_created: {
+        type: Date, 
+        default: Date.now
+    },
+    comments: [{
+        type: Schema.Types.ObjectId,
+        ref: "Comment",
+    }],
+    files: [{ 
+        type: Schema.Types.ObjectId,
+        ref: "TaskFile"
+    }]
+})
+
+
 /* ---------------------------------- Message Schema ---------------------------------- */
 const messageSchema = new mongoose.Schema({
     sender: {
@@ -207,6 +244,7 @@ const token = mongoose.model("token", tokenSchema);
 const pubRequest = mongoose.model("AdminPublishRequest", publicationRequestSchema)
 const resource = mongoose.model('Resource', resourceSchema);
 const institute = mongoose.model("ResearchInstitute", instituteSchema);
+const task = mongoose.model("Task", taskSchema);
 const message = mongoose.model("Message", messageSchema)
 
-module.exports = { profilePic, user, token, pubRequest, resource, institute, message};
+module.exports = { profilePic, user, token, pubRequest, resource, institute, task, message};

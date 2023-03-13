@@ -11,12 +11,21 @@ const schemas = require('../schemas/resource-schemas');
 const router = express.Router()
 
 const FILE_PATH = "uploads/"
+const maxSize = 2000000
 const storage = multer.diskStorage({
     destination: FILE_PATH,
+    limits: { fileSize: maxSize },
     filename: (req, file, callback) => {
         const date = Date.now()
         callback(null, date.toString() + "-" + file.originalname);
-    }
+    },
+    fileFilter: function (req, file, cb) {
+        if (file.mimetype !== 'image/png') {
+         req.fileValidationError = 'goes wrong on the mimetype';
+         return cb(null, false, new Error('goes wrong on the mimetype'));
+        }
+        cb(null, true);
+       }
   });
 const upload = multer({ storage: storage });
 
@@ -57,7 +66,11 @@ const INSTITUTE_BASE_URL = process.env.INSTITUTE_SERVICE
  *    '401':
  *      description: Unauthorized
 */
-router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (req, res) => {
+router.post('/new',  
+    upload.single("avatar"),
+    validator.checkSchema(schemas.newResourceSchema), 
+    async (req, res) => {
+        const file = req.file;
     try {
         //input validation
         const errors = validator.validationResult(req);
@@ -68,11 +81,13 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
 
         // Authorization
         if (!req.headers.authorization) {
+            helpers.delete_file(file.path)
             helpers.log_request_error('POST /resources/new - 401: Token not found')
             return res.status(401).json({message: "Token not found"});
         }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST /resources/new - ${validateUser.status}: ${validateUser.message}`)
             return res.status(validateUser.status).json({message: validateUser.message});
         }
@@ -80,12 +95,14 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
 
         const category = await repository.get_category_by_name(req.body.category);
         if (!category) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST /resources/new - 404: Category: ${req.body.category} not found`)
             return res.status(404).json({message: `Category: ${req.body.category} not found`});
         }
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
         if (unknown_cats.length !== 0) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST /resources/new - 404: Unkown sub-categories`)
 
             return res.status(404).json({
@@ -103,6 +120,7 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
 
         const validateTopic = await helpers.validateTopicName(req.body.topic, req.body.institute,  user._id.toString());
         if (!validateTopic) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST /resources/new - 409: Duplicate resouce`)
 
             return res.status(409).json(
@@ -119,11 +137,28 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
         }
         const unique_subs = new Set(req.body.sub_categories);
         
+       
+        let avatar_path = null;
+
+        if (file){ // if a file is sent
+            if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")) {
+                helpers.log_request_error(`POST resources/new - 400: only .png, .jpg and .jpeg format allowed`)
+                helpers.delete_file(file.path)
+                return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+            }
+            if (file.size > maxSize) {
+                helpers.log_request_error(`POST resources/new - 400: File exceeded 2MB size limit`)
+                helpers.delete_file(file.path)
+                return res.status(400).json({message: "File exceeded 2MB size limit"});
+            }
+            avatar_path = `${FILE_PATH}${file.filename}`
+        }
 
         const data = new Model.resource({
             topic: req.body.topic,
             description: req.body.description,
             author: user._id.toString(),
+            avatar: avatar_path,
             category: req.body.category,
             sub_categories: Array.from(unique_subs),
             citations: citations,
@@ -137,6 +172,7 @@ router.post('/new',  validator.checkSchema(schemas.newResourceSchema), async (re
         helpers.log_request_info(`POST /resources/new - 201`)
         res.status(201).json(dataToSave);
     } catch (error) {
+        helpers.delete_file(file.path)
         helpers.log_request_error(`POST /resources/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -190,8 +226,7 @@ router.get('/one/:id', async (req, res) => {
         }
 
         if (resource.visibility != "public"){
-            console.log(user._id.toString(), '---', resource.author)
-            if (user._id.toString() != resource.author._id && user.superadmin == false) {
+            if (user._id.toString() != resource.author && user.superadmin == false) {
                 helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Unauthorized access to get`)
                 return res.status(401).json({message: 'Unauthorized access to get'});
             }
@@ -201,6 +236,7 @@ router.get('/one/:id', async (req, res) => {
         res.status(200).json(resource);
     }
     catch(error){
+        console.error(error)
         helpers.log_request_error(`GET /resources/one/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }

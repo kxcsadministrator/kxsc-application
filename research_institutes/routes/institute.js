@@ -1353,7 +1353,6 @@ router.get("/download-file/:id", async (req, res) => {
     
     try {
         const file_id = req.params.id;
-        
 
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 401: Token not found`)
@@ -1371,7 +1370,7 @@ router.get("/download-file/:id", async (req, res) => {
             return res.status(404).json({message: "file not found"});
         }
 
-        const isMember = await helpers.validateInstituteMembers(req.headers, file.parent.id.toString())
+        const isMember = await helpers.validateInstituteMembers(req.headers, file.parent._id.toString())
         if (!isMember) {
             helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 401: Only institute members can download files`)
             return res.status(401).json({message: "Only institute members can download files"})
@@ -1380,6 +1379,7 @@ router.get("/download-file/:id", async (req, res) => {
         helpers.log_request_info(`GET institutes/download-files/${req.params.id} - 200`)
         res.download(file.path, file.original_name);
     } catch (error) {
+        // console.error(error)
         helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }

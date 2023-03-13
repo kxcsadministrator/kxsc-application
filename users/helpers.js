@@ -136,7 +136,17 @@ const get_log_files = () => {
   return logFiles;
 }
 
+const delete_file = (path) => {
+  fs.unlink(path, (err) => {
+      if (err) {
+        log_request_error(`file unlink: ${err}`)
+        return
+      }
+    }
+  )
+}
+
 module.exports = {
   sendEmail, validateUser, validatePublicResource, validateInstituteAdmin, log_request_error, log_request_info, get_all_logs,
-  prepare_log_response, get_log_files
+  prepare_log_response, get_log_files, delete_file
 };

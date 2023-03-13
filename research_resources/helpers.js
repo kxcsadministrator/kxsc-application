@@ -1,5 +1,6 @@
 const axios = require('axios');
 const repository = require('./db/repository');
+const fs = require('fs');
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
@@ -62,6 +63,16 @@ const log_request_info = async (message) => {
     } catch (error) {
       console.log(error)
     }
-  }
+}
 
-module.exports = {validateArray, validateUser, validateTopicName, log_request_error, log_request_info};
+const delete_file = (path) => {
+  fs.unlink(path, (err) => {
+      if (err) {
+        log_request_error(`file unlink: ${err}`)
+        return
+      }
+    }
+  )
+}
+
+module.exports = {validateArray, validateUser, validateTopicName, log_request_error, log_request_info, delete_file};

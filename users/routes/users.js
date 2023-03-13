@@ -19,8 +19,10 @@ const TEMPLATE_PATH = "./template/requestResetPassword.handlebars"
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
 
 const FILE_PATH = "files/uploads/"
+const maxSize = 2000000
 const storage = multer.diskStorage({
     destination: FILE_PATH,
+    limits: { fileSize: maxSize },
     filename: (req, file, callback) => {
         const date = Date.now()
         callback(null, date.toString() + "-" + file.originalname);
@@ -565,12 +567,49 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
             jwt_token: token,
             superadmin: user.superadmin,
             profile_picture: photo,
-            institutes: user.institutes,
-            resources: user.resources,
-            tasks: user.tasks
         })
     } catch (error) {
         helpers.log_request_error(`POST users/login - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/my-dashboard:
+ *  get:
+ *      summary: Gets a user's dashboard info
+ *      description: |
+ *          The user is obtained from authentication token
+ * 
+ *          Requires a bearer token for authentication.
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/my-dashboard', async (req, res) => {
+    try {
+        
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/my-dashboard/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const result = await repository.get_user_dashboard(auth_user._id.toString())
+        
+        helpers.log_request_info(`GET users/my-dashboard - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`GET users/my-dashboard - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -869,8 +908,9 @@ router.delete('/delete/:id', async (req, res) => {
  *      description: Bad request
 */
 router.post('/change-profile-photo/:id', upload.single("file"), async (req, res) => {
+    const file = req.file;
     try {
-        const file = req.file;
+       
         const id = req.params.id;
 
         if (!file) {
@@ -880,10 +920,12 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: only .png, .jpg and .jpeg format allowed`)
+            helpers.delete_file(file.path)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
 
         if (file.size > 2000000) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: File exceeded 2MB size limit`)
             return res.status(400).json({message: "File exceeded 2MB size limit"});
         }
@@ -925,6 +967,7 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         helpers.log_request_info(`POST users/change-profile-photo/${id} - 200`)
         res.status(201).json(result);        
     } catch (error) {
+        helpers.delete_file(file.path)
         helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
