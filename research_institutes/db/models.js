@@ -108,6 +108,10 @@ const publicationRequestSchema = new mongoose.Schema({
         type: Schema.Types.ObjectId,
         ref: "researchinstitutes",
         required: true
+    },
+    topic: {
+        type: String,
+        required: true
     }
 })
 

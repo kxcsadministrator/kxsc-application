@@ -1,5 +1,6 @@
 /*---------------------------------------- models.js ------------------------------------*/
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 const Schema = mongoose.Schema;
 
 /* --------------------------------------- Profile picture Schema ------------------------------------- */
@@ -10,6 +11,7 @@ const picSchema = new mongoose.Schema({
     user: { required: true, type: Schema.Types.ObjectId, ref: "User" },
     date_created: {type: Date, default: Date.now} 
 })
+
 
 /* --------------------------------------- User Schema ------------------------------------- */
 const userSchema = new mongoose.Schema({
@@ -50,6 +52,7 @@ const userSchema = new mongoose.Schema({
     }],
     date_created: {type: Date, default: Date.now} 
 })
+userSchema.plugin(mongoosePaginate)
 
 /*------------------------------------- publication request schema ----------------------------*/
 const publicationRequestSchema = new mongoose.Schema({
@@ -236,6 +239,10 @@ const messageSchema = new mongoose.Schema({
     body: {
         type: String,
         required: true,
+    },
+    subject: {
+        type: String,
+        required: true
     },
     date_created: {
         type: Date,

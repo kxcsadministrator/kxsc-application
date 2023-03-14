@@ -1,6 +1,7 @@
 const Model = require('./models');
 const fs = require('fs');
 const axios = require('axios');
+const { user } = require('../../users/db/models');
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
 /* 
@@ -111,16 +112,16 @@ const get_institute_data = async (id, headers, user_id='') => {
 }
 
 
-const get_all_institutes = async() => {
-    const result = await Model.institute.find({}, {_id: 1, name: 1}).sort({"date_created": -1});
+const get_all_institutes = async(offset, limit) => {
+    const result = await Model.institute.find({}, {_id: 1, name: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
     return result;
 }
 
-const get_user_institutes = async(user_id) => {
+const get_user_institutes = async(offset, limit, user_id) => {
     const result = await Model.institute.find({$or: [
         {admins: user_id},
         {members: user_id}
-    ]},{_id: 1, name: 1}).sort({"date_created": -1});
+    ]},{_id: 1, name: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
     return result
 }
 
@@ -195,8 +196,8 @@ const remove_resources_from_institute = async (institute_id, resources_idx) => {
 }
 
 
-const get_institute_files = async (id) => {
-    const result = Model.instituteFile.find({parent: id});
+const get_institute_files = async (offset, limit, id) => {
+    const result = Model.instituteFile.find({parent: id}).skip((offset - 1) * limit).limit(limit);
     return result;
 }
 
@@ -245,6 +246,50 @@ const delete_institute = async (id) => {
     await Model.instituteFile.deleteMany({parent: id});
     const result = await Model.institute.findByIdAndDelete(id);
     return result
+}
+
+const search_institute_members = async(institute_id, query, token) => {
+    const res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/search-user?name=${query}`,
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+    const users = res.data
+    if (users.length < 1) return []
+
+    const institute = await Model.institute.findById(institute_id)
+    const members = []
+    users.forEach((item) => {
+        if (institute.members.includes(item._id.toString()) ){
+            members.push(item)
+        }
+    })
+    return members;
+}
+
+const search_institute_resources = async(institute_id, query, token) => {
+    const res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/${institute_id}/resource-search?name=${query}`,
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+    return res.data;
+}
+
+const search_publication_requests = async (query, institute_id, token) => {
+    const res = await axios({
+        method: 'get',
+        url: `${USERS_BASE_URL}/${institute_id}/resource-search?name=${query}`,
+        headers: {'Authorization': `Bearer ${token}`}
+    })
+    const data = res.data
+    const results = []
+    for (let i = 0; i < data.length; i++) {
+        const resource = data[i];
+        const pub_request = await Model.pubRequest.findById(resource._id)
+        if (pub_request) results.push(resource)
+    }
+    return results
 }
 
 /*---------------------------------------- Publication Requests -------------------------------------------------*/
@@ -455,5 +500,6 @@ module.exports = {
     add_task_file, add_task_comment, get_task_comments, edit_task_comment, delete_task_comment, get_comment_by_id, edit_task_name,
     edit_institute_name, add_resources_to_institute, remove_resources_from_institute, request_to_publish, publish, find_request_by_resource,
     get_institute_requests, get_institute_data, get_task_data, mark_task_as_completed, mark_task_as_pending, update_task, update_institute,
-    get_institute_file_by_id, delete_institute_file, get_user_institutes, get_user_tasks_by_institute
+    get_institute_file_by_id, delete_institute_file, get_user_institutes, get_user_tasks_by_institute, search_institute_members,
+    search_institute_resources, search_publication_requests
  };

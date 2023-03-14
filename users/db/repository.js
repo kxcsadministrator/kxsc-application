@@ -1,5 +1,6 @@
 const Model = require('./models');
 const fs = require('fs');
+const { query } = require('express');
 /* ----------------------------------- Users ----------------------------------- */
 const create_new_user = async(data) => {
     const dataToSave = await data.save();
@@ -15,6 +16,7 @@ const get_user_dashboard = async(id) => {
     let institute_resources = []
     let main_institute_name = null
     let user_resources = []
+    let user_tasks = []
 
     if (institutes.length > 0){
         main_institute_name = institutes[0].name
@@ -40,6 +42,10 @@ const get_user_dashboard = async(id) => {
             }
             institute_resources[i] = data
         }
+        user_tasks = await Model.task.find({$or: [
+            {author: id},
+            {collaborators: id}
+        ], institute: institutes[0]._id}, {_id: 1, name: 1, status: 1})
     }
 
     user_resources = await Model.resource.find({author: id}, {_id: 1, topic: 1, rating: 1, institute: 1, date: 1, avatar: 1, author: 1})
@@ -61,11 +67,6 @@ const get_user_dashboard = async(id) => {
         }
         user_resources[i] = data
     }
-
-    let user_tasks = await Model.task.find({$or: [
-        {author: id},
-        {collaborators: id}
-    ]}, {_id: 1, name: 1, status: 1})
 
     return {
         institute_resource: {
@@ -110,8 +111,8 @@ const get_user_by_username_or_email = async (name) => {
     return user;
 }
 
-const get_all_users = async () => {
-    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, date_created: 1});
+const get_all_users = async (offset, limit) => {
+    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, date_created: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit)
     return result;
 }
 
@@ -254,8 +255,8 @@ const find_request_by_resource = async (resource_id) => {
     return data;
 }
 
-const get_all_requests = async () => {
-    const data = await Model.pubRequest.find()
+const get_all_requests = async (offset, limit) => {
+    const data = await Model.pubRequest.find().skip((offset - 1) * limit).limit(limit)
     const resources_idx = []
     const res = []
 
@@ -291,6 +292,32 @@ const get_public_resources = async () => {
     return data;
 }
 
+const search_resource = async (keyword, id) => {
+    const re = new RegExp(keyword, "i")
+    let data = []
+    let result = await Model.resource.find({topic: {$regex: re}, institute: id}, {_id: 1, topic: 1, author: 1, rating: 1})
+    
+    for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        let obj = {
+            _id: item._id,
+            topic: item.topic,
+            author: await Model.user.findById(item.author, {username: 1}),
+            rating: item.rating
+        }
+        data.push(obj)
+    }
+    return data;
+}
+
+const get_main_institute = async(id) => {
+    const res = await Model.institute.find({$or: [
+        {admins: id},
+        {members: id}
+    ]}, {_id: 1, name: 1})
+    return res[0]
+}
+
 /* ------------------------------ Messages ----------------------------- */
 const new_message = async (data) => {
     const result = await data.save();
@@ -319,8 +346,30 @@ const broadcast_message = async(sender_id, message) => {
 }
 
 const get_user_messages = async (user_id) => {
-    const result = await Model.message.find({recipients: user_id});
-    return result;
+    // const result = await Model.message.find({recipients: user_id}, {_id: 1, sender: 1, subject: 1, body: 1, date_created: 1});
+    const result = await Model.message.aggregate([
+        {
+            $lookup: {
+                from: "users",
+                localField: "sender",
+                foreignField: "_id",
+                as: "sender_info"
+            }
+        }
+    ])
+    const messages = []
+    for (let i = 0; i < result.length; i++) {
+        const msg = result[i];
+        let data = {
+            _id: msg._id,
+            sender: {_id: msg.sender_info[0]._id,username: msg.sender_info[0].username},
+            subject: msg.subject,
+            body: msg.body,
+            date_created: new Date(msg.date_created).toDateString()
+        }
+       messages.push(data)
+    }
+    return messages;
 }
 
 const edit_message = async (id, new_body) => {
@@ -334,11 +383,115 @@ const delete_message = async (id) => {
     return result;
 }
 
+/* ------------------------------ Search ----------------------------- */
+const super_admin_search = async (query) => {
+    let data = {}
+    let resource_results = []
+    const resources = await Model.resource.aggregate([
+        {
+            $search: {
+                index: 'default',
+                text: {
+                  query: `${query}`,
+                  path: {
+                    'wildcard': '*'
+                  }
+                }
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "topic": 1,
+                "author": 1,
+                "institute": 1,
+                "rating": 1
+            }
+          }
+    ])
+    resources.forEach(async (item) => {
+        let author_name = await Model.user.findById(item.author, {username: 1})
+        let institute_data = await Model.institute.findById(item.institute, {_id: 1, name: 1})
+        let obj = {
+            _id: item._id,
+            topic: item.topic,
+            author: author_name,
+            institute: institute_data,
+            rating: item.rating
+        }
+        resource_results.push(obj)
+    })
+
+    const institute_results = await Model.institute.aggregate([
+        {
+            $search: {
+                index: 'default',
+                text: {
+                  query: `${query}`,
+                  path: {
+                    'wildcard': '*'
+                  }
+                }
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "name": 1,
+            }
+          }
+    ])
+    // const institute_results = await Model.institute.find({$text: {$search: query}}, {_id: 1, name: 1})
+
+    const user_results = await Model.user.aggregate([
+        {
+            $search: {
+                index: 'default',
+                text: {
+                  query: `${query}`,
+                  path: {
+                    'wildcard': '*'
+                  }
+                }
+            }
+        },
+        {
+            "$project": {
+                "_id": 1,
+                "username": 1,
+                "profile_picture": 1,
+            }
+          }
+    ])
+    // const user_results = await Model.user.find({$text: {$search: query}}, {_id: 1, username: 1, profile_picture: 1})
+    data["resources"] = resource_results
+    data["institutes"] = institute_results
+    data["user_results"] = user_results
+    return data
+
+}
+
+const search_publication_requests = async (query) => {
+    const resource = await Model.resource.find({topic: query})
+    if (resource){
+        const results = await Model.pubRequest.find({resource: resource._id})
+        return results
+    }
+    return null;   
+}
+
+const search_username = async (query) => {
+    const re = new RegExp(query, "i");
+    const user_results = await Model.user.find({username: {$regex: re}}, {_id: 1, username: 1, profile_picture: 1, email: 1})
+    return user_results
+}
+
 module.exports = { 
     create_new_user, get_user_by_id, get_user_by_email, get_user_by_username, get_all_users, edit_username, update_password, 
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
     add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
-    clean_user_by_id, get_resources_readable, get_user_dashboard
+    clean_user_by_id, get_resources_readable, get_user_dashboard, super_admin_search, search_publication_requests,
+    search_username, search_resource, get_main_institute
 }
