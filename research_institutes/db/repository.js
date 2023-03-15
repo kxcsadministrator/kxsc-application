@@ -112,16 +112,38 @@ const get_institute_data = async (id, headers, user_id='') => {
 
 
 const get_all_institutes = async(offset, limit) => {
-    const result = await Model.institute.find({}, {_id: 1, name: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
-    return result;
+    const data = []
+    const result = await Model.institute.find({}, {_id: 1, name: 1, members: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
+
+    for (let i = 0; i < result.length; i++) {
+        const institute = result[i];
+        let r = {
+            _id: institute._id,
+            name: institute.name,
+            member_count: institute.members.length
+        }
+        data.push(r)
+    }
+    return data;
 }
 
 const get_user_institutes = async(offset, limit, user_id) => {
+    const data = []
     const result = await Model.institute.find({$or: [
         {admins: user_id},
         {members: user_id}
     ]},{_id: 1, name: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
-    return result
+    
+    for (let i = 0; i < result.length; i++) {
+        const institute = result[i];
+        let r = {
+            _id: institute._id,
+            name: institute.name,
+            member_count: institute.members.length
+        }
+        data.push(r)
+    }
+    return data;
 }
 
 const add_institute_admins =  async (id, admin_idx) => {
