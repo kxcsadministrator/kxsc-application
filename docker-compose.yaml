@@ -14,7 +14,6 @@ services:
       - EMAIL_USERNAME=timsnoreplyautomatedbot@gmail.com
       - EMAIL_HOST=smtp.gmail.com
       - FROM_EMAIL=Knowledge Exchange System
-      - SERVER_PORT=3000
     ports:
       - "3000:3000"
   institutes:
