@@ -1082,24 +1082,25 @@ router.get('/task-data',
 router.get('/resource-data/:id', async (req, res) => {
     try {
         const id = req.params.id
-        if (!req.headers.authorization) {
-            helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
+        // if (!req.headers.authorization) {
+        //     helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
+        // const token = req.headers.authorization.split(' ')[1];
+        // if (!token) {
+        //     helpers.log_request_error(`GET users/resource-data/${req.params.id} - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
 
-        const decodedToken = jwt.verify(token, SECRET_KEY);
+        // const decodedToken = jwt.verify(token, SECRET_KEY);
 
-        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        // const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const [author, institute] = await repository.get_resource_data(id);
 
         helpers.log_request_info(`GET users/resource-data/${id} - 200`)
         res.status(200).json({"author": author, "institute": institute});
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`GET users/resource-data/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
