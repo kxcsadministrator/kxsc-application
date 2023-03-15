@@ -118,16 +118,16 @@ const get_all_resources = async (offset, limit, category="None", sub_cat="None")
     let data = []
     const results = []
     if (category === "None"){
-        data = await Model.resource.find({}, {_id: 1, topic: 1, date: 1, rating: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
         // return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        data = await Model.resource.find({"category": category}, {_id: 1, topic: 1, date: 1, rating: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({"category": category}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
         // return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1, date: 1, rating: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
         // return data;
     }
     for (let i = 0; i < data.length; i++) {
@@ -139,7 +139,8 @@ const get_all_resources = async (offset, limit, category="None", sub_cat="None")
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date
+            date: resource.date,
+            avatar: resource.avatar
         }
         results.push(r)
     }
@@ -147,7 +148,7 @@ const get_all_resources = async (offset, limit, category="None", sub_cat="None")
 }   
 
 const get_user_resources = async (offset, limit, author_id, institute_id = "None")=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1}
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
     let data = []
     const results = []
 
@@ -168,7 +169,8 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date
+            date: resource.date,
+            avatar: resource.avatar
         }
         results.push(r)
     }
@@ -176,7 +178,7 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
 }
 
 const get_public_resources = async (offset, limit, category="None", sub_cat="None")=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1}
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
     let data = []
     const results = []
 
@@ -202,7 +204,8 @@ const get_public_resources = async (offset, limit, category="None", sub_cat="Non
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date
+            date: resource.date,
+            avatar: resource.avatar
         }
         results.push(r)
     }
