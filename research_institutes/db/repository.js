@@ -1,7 +1,6 @@
 const Model = require('./models');
 const fs = require('fs');
 const axios = require('axios');
-const { user } = require('../../users/db/models');
 const USERS_BASE_URL = process.env.USERS_SERVICE
 
 /* 
