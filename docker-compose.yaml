@@ -14,6 +14,8 @@ services:
       - EMAIL_USERNAME=timsnoreplyautomatedbot@gmail.com
       - EMAIL_HOST=smtp.gmail.com
       - FROM_EMAIL=Knowledge Exchange System
+      - SERVER_PORT=3000
+    ports:
       - "3000:3000"
   institutes:
     build: ./research_institutes
@@ -35,11 +37,11 @@ services:
       - "uploads:/node/uploads"
       - /node/node_modules
     environment:
+      - SERVER_PORT=3002
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - USERS_SERVICE=http://users:3000/users
       - INSTITUTE_SERVICE=http://institutes:3000/institutes
       - LOG_URL=http://users:3000/logs
-      - SERVER_PORT=3002
     ports:
       - "3002:3000"
   frontend:
