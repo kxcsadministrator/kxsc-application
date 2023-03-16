@@ -5,7 +5,7 @@
 .menu {
   display: flex;
   flex-direction: column;
-  gap: px;
+  gap: 10px;
 }
 
 .menu .dropdown_menu {
@@ -28,7 +28,7 @@
     @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[70px] md:mt-0 overflow-y-scroll fixed pb-10 hidden lg:w-[23%] md:w-[29%] w-full;
   }
   .menu_content {
-    @apply flex justify-between items-center px-2 gap-3 cursor-pointer hover:text-white;
+    @apply flex justify-between items-center px-2 gap-5 cursor-pointer hover:text-white;
   }
 
   .toggleImg {
@@ -40,7 +40,7 @@
   }
 
   .dropdown_menu .link {
-    @apply transition-all duration-200  hover:text-white;
+    @apply transition-all duration-200 -mt-2 text-[15px] hover:text-white;
   }
 
   .menu.active .toggleImg {

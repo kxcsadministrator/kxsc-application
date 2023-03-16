@@ -50,7 +50,7 @@ function Resource() {
         url: `http://13.36.208.80:3002/resources/request-institute-publish/${resource.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-      setStates({ loading: false, error: false });
+      setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);
         window.location.reload(false);

@@ -46,8 +46,8 @@ function Sidebar() {
       <div className="sidebar_container">
         {/* Logo Section*/}
         <div className="border-b-2 border-gray-400 pb-3">
-          <div className="w-[60%] mx-auto h-[45px]">
-            <img src="/logo.jpeg" alt="logo" className="w-full h-full" />
+          <div className="w-[60%] mx-auto">
+            <img src="/logo.png" alt="logo" className="w-full h-full" />
           </div>
         </div>
         {/* nav Section*/}

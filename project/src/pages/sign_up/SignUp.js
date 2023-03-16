@@ -40,7 +40,7 @@ function SignUp() {
       <div className="form_container">
         <form className="signIn_form">
           <div className="w-[80%] mx-auto ">
-            <img src="/logo.jpeg" alt="logo" />
+            <img src="/logo.png" alt="logo" />
           </div>
           <div className="w-[80%] mx-auto ">
             <p className="text-2xl font-bold text-green_bg text-center">

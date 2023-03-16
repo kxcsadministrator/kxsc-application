@@ -112,7 +112,7 @@ function PublicResources() {
   };
   return (
     <div>
-      <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+      <div className="base_container">
         <div className="sidebar_content">
           <Sidebar />
         </div>

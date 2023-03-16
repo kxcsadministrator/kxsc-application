@@ -83,8 +83,7 @@ function Panel() {
     sessionStorage.setItem("id", institute);
     navigate(`/admin/institutes/${dashboard?.institute_resource?.name}`);
   };
-  console.log();
-
+  console.log(dashboard);
   return (
     <div className="panel_container">
       <div className="sidebar_content">
@@ -149,6 +148,7 @@ function Panel() {
                     <tr>
                       <th scope="col">s/n</th>
                       <th scope="col">Username</th>
+                      <th scope="col">Registered Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -156,6 +156,7 @@ function Panel() {
                       <tr key={singleUser._id}>
                         <td data-label="s/n">{index + 1}</td>
                         <td data-label="Username">{singleUser.username}</td>
+                        <td data-label="Date">{singleUser.date_registered}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -175,9 +176,7 @@ function Panel() {
                   <p
                     className="link hover:text-black"
                     onClick={() =>
-                      viewInstitute(
-                        dashboard?.institute_resource?.resources[0]?.institute
-                      )
+                      viewInstitute(dashboard?.institute_resource?._id)
                     }
                   >
                     View institute
@@ -215,21 +214,21 @@ function Panel() {
                   </p>
                 </div>
                 {dashboard?.user_resources?.length ? (
-                  <div className="obj_body">
-                    <div className="w-[20%]">
-                      <img src="/default.png" alt="default" />
-                    </div>
-                    <div className="obj_text">
-                      {dashboard?.user_resources?.map((resource, index) => (
+                  dashboard.user_resources.map((resource, index) => (
+                    <div className="obj_body my-2">
+                      <div className="w-[20%]">
+                        <img src="/default.png" alt="default" />
+                      </div>
+                      <div className="obj_text">
                         <ul className="flex flex-col">
                           <li key={index}>{resource.topic}</li>
                           <li>{resource.author}</li>
                           <li>{resource.rating}</li>
                           <li>{resource.date}</li>
                         </ul>
-                      ))}
+                      </div>
                     </div>
-                  </div>
+                  ))
                 ) : (
                   <div className="obj_default">
                     <div className="w-[20%]">
