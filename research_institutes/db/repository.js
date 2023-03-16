@@ -132,7 +132,7 @@ const get_user_institutes = async(offset, limit, user_id) => {
     const result = await Model.institute.find({$or: [
         {admins: user_id},
         {members: user_id}
-    ]},{_id: 1, name: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
+    ]},{_id: 1, name: 1, members: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit);
     
     for (let i = 0; i < result.length; i++) {
         const institute = result[i];
