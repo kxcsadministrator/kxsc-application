@@ -112,8 +112,22 @@ const get_user_by_username_or_email = async (name) => {
 }
 
 const get_all_users = async (offset, limit) => {
-    const result =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, date_created: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit)
-    return result;
+    const data =  await Model.user.find({}, {_id: 1, username: 1, superadmin: 1, date_created: 1}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit)
+    const results = []
+    
+    for (let i = 0; i < data.length; i++) {
+        const user = data[i]
+        
+        let date  = new Date(user.date_created).toDateString()
+        let r = {
+            _id: user._id,
+            username: user.username,
+            superadmin: user.superadmin,
+            date_registered: date,
+        }
+        results.push(r)
+    }
+    return results
 }
 
 const get_institute_members = async(institute_id) => {
