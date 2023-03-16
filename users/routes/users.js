@@ -601,6 +601,8 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
             { expiresIn: "7 days" }
         )
         const photo = await repository.get_profile_photo(user.profile_picture)
+        if (photo) photo.path = 'uploads/' + photo.path.split('/')[2]
+        // console.log('uploads/' + photo.path.split('/')[2])
         const main_institute = await repository.get_main_institute(user._id)
 
         helpers.log_request_info(`POST users/login - 200`)
