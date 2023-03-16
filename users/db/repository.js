@@ -15,11 +15,13 @@ const get_user_dashboard = async(id) => {
 
     let institute_resources = []
     let main_institute_name = null
+    let main_institute_id = null
     let user_resources = []
     let user_tasks = []
 
     if (institutes.length > 0){
         main_institute_name = institutes[0].name
+        main_institute_id = institutes[0]._id
         institute_resources = await Model.resource.find(
             {"_id": {$in: institutes[0].resources}}, 
             {_id: 1, topic: 1, rating: 1, institute: 1, date: 1, author: 1, avatar: 1}
@@ -71,6 +73,7 @@ const get_user_dashboard = async(id) => {
     return {
         institute_resource: {
             name: main_institute_name,
+            _id: main_institute_id,
             resources: institute_resources
         },
         user_resources: user_resources,
