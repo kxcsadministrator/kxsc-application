@@ -40,6 +40,10 @@ function Sidebar() {
     dispatch({ type: "LOGOUT" });
     navigate("/");
   };
+  const viewInstitute = (institute) => {
+    sessionStorage.setItem("id", institute._id);
+    navigate(`/admin/institutes/${institute.name}`);
+  };
 
   return (
     <div className={"sidebar " + (navOpen && "active")}>
@@ -291,6 +295,12 @@ function Sidebar() {
               </div>
               {/* Resource Menu*/}
               <div className="dropdown_menu">
+                <div
+                  className="link"
+                  onClick={() => viewInstitute(user.main_institute)}
+                >
+                  <p>{user.main_institute.name}</p>
+                </div>
                 <Link className="link" to="/admin/institutes">
                   <p>View all institute</p>
                 </Link>
