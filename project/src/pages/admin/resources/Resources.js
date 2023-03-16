@@ -19,7 +19,7 @@ function Resources() {
   const [deleteResourceModal, setDeleteResourceModal] = useState(false);
   const [deleteResource, setdeleteResource] = useState(false);
   const [states, setStates] = useState({
-    loading: false,
+    loading: true,
     error: false,
     errMsg: "",
   });

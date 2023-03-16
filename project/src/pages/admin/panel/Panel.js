@@ -8,12 +8,16 @@ import BarChart from "../../../component/admin/panel/BarChart";
 import PieChart from "../../../component/admin/panel/PieChart";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import { HiUser } from "react-icons/hi";
+import { FaSchool } from "react-icons/fa";
+import { GiBookCover } from "react-icons/gi";
 
 // import image from './image/user2.jpg';
 
 function Panel() {
   const { user } = useContext(Context);
   const [users, setUsers] = useState([]);
+  const [recentUsers, setRecentUsers] = useState({});
   const [institutes, setInstitutes] = useState([]);
   const [resources, setResources] = useState([]);
   const [dashboard, setDashboard] = useState({});
@@ -30,7 +34,6 @@ function Panel() {
             }
           );
           setDashboard(res.data);
-          console.log(res.data);
         } catch (err) {}
       } else {
         try {
@@ -39,6 +42,18 @@ function Panel() {
           });
           setUsers(res.data);
         } catch (err) {}
+
+        try {
+          const res = await axios.get(
+            "http://13.36.208.80:3000/users/all?page=1&limit=3",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setRecentUsers(res.data);
+        } catch (err) {
+          console.log(err);
+        }
 
         try {
           const res = await axios.get(
@@ -68,7 +83,7 @@ function Panel() {
     sessionStorage.setItem("id", institute);
     navigate(`/admin/institutes/${dashboard?.institute_resource?.name}`);
   };
-  console.log(dashboard?.institute_resource?.resources?.institute);
+  console.log();
 
   return (
     <div className="panel_container">
@@ -87,32 +102,32 @@ function Panel() {
               <div className="box_container">
                 {/* user_box */}
                 <div className="box">
-                  <div className="flex justify-between">
-                    <div className="text_container">
-                      <h4>Total User</h4>
-                      <p>{users.length}</p>
-                    </div>
-                    <div className="circle_1" />
+                  <div className="box-col">
+                    <h4>{users.length}</h4>
+                    <p>Total User</p>
+                  </div>
+                  <div className="box-col-2">
+                    <HiUser size="2.5rem" />
                   </div>
                 </div>
                 {/* institute_box */}
-                <div className="box">
-                  <div className="flex justify-between">
-                    <div className="text_container">
-                      <h4>Total Institute</h4>
-                      <p>{institutes.length}</p>
-                    </div>
-                    <div className="circle_2" />
+                <div className="box-2">
+                  <div className="box-col">
+                    <h4>{institutes.length}</h4>
+                    <p>Total Institutes</p>
+                  </div>
+                  <div className="box-col-2">
+                    <FaSchool size="2.5rem" />
                   </div>
                 </div>
                 {/* resource_box */}
-                <div className="box">
-                  <div className="flex justify-between">
-                    <div className="text_container">
-                      <h4>Total Resource</h4>
-                      <p>{resources.length}</p>
-                    </div>
-                    <div className="circle_3" />
+                <div className="box-3">
+                  <div className="box-col">
+                    <h4>{resources.length}</h4>
+                    <p>Total Resources</p>
+                  </div>
+                  <div className="box-col-2">
+                    <GiBookCover size="2.5rem" />
                   </div>
                 </div>
               </div>
@@ -125,6 +140,25 @@ function Panel() {
               <div className="piechart_container">
                 <PieChart />
               </div>
+            </div>
+            <div className="flex flex-col gap-3 px-5 py-5">
+              <h1 className="text-3xl">Recently registered users</h1>
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">s/n</th>
+                    <th scope="col">Username</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentUsers?.map((singleUser, index) => (
+                    <tr key={singleUser._id}>
+                      <td data-label="s/n">{index + 1}</td>
+                      <td data-label="Username">{singleUser.username}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </>
         ) : (

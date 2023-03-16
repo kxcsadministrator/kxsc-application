@@ -91,6 +91,6 @@
     @apply flex;
   }
   .hover_div {
-    @apply hidden flex-col absolute gap-3 rounded-sm p-3 bg-black_bg ml-[-120px] mt-[30px];
+    @apply hidden flex-col absolute gap-3 rounded-sm p-3 bg-[#f5f5f5] ml-[-120px] mt-[30px];
   }
 }

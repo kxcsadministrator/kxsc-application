@@ -37,4 +37,7 @@
   .tabs {
     @apply flex flex-col md:flex-row;
   }
+  .resource_row {
+    @apply flex items-center gap-4 text-gray-500;
+  }
 }

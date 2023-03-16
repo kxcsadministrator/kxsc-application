@@ -17,6 +17,7 @@ function Resource() {
     loading: false,
     error: false,
     errMsg: "",
+    success: false,
   });
 
   //requestModal states
@@ -74,26 +75,31 @@ function Resource() {
           <Topbar />
         </div>
         {resource.id ? (
-          <div className="py-4 px-6 grid gap-3">
-            <div className="flex flex-col gap-0">
-              <h1>{resource.topic}</h1>
-              <div className="flex items-center gap-4">
-                <p>By: {resource.author.username}</p>
-                <p>Institute: {resource.institute.name}</p>
-                <p>
-                  Rating: {resource.number_of_ratings}/{resource.rating}
+          <div className="py-4 px-6 grid gap-12">
+            <div className="flex flex-col">
+              <h1 className="my-2">{resource.topic}</h1>
+              <div>
+                <div className="resource_row">
+                  <p>By: {resource.author.username}</p>
+                  <p>Institute: {resource.institute.name}</p>
+                  <p>
+                    Rating: {resource.rating}/5{" "}
+                    {`(${resource.number_of_ratings})`}
+                  </p>
+                </div>
+                <div className="resource_row -mt-2">
+                  <p>Category: {resource.category}</p>
+                  <p>
+                    Sub-categories:{" "}
+                    {resource.sub_categories.map((sub, index) => (
+                      <span key={index}>{sub}</span>
+                    ))}
+                  </p>
+                </div>
+                <p className="-mt-2 text-gray-500">
+                  Resource type: {resource.resource_type}
                 </p>
               </div>
-              <div className="flex items-center gap-4">
-                <p>Category: {resource.category}</p>
-                <p>
-                  Sub-categories:{" "}
-                  {resource.sub_categories.map((sub, index) => (
-                    <span key={index}>{sub}</span>
-                  ))}
-                </p>
-              </div>
-              <p>Resource type: {resource.resource_type}</p>
               <div>
                 {(user.id === resource.author._id || user.superadmin) && (
                   <button
@@ -108,7 +114,7 @@ function Resource() {
             <div className="flex flex-col gap-0">
               <h1>About Resources</h1>
               <div>
-                <p>By: {resource.description}</p>
+                <p>{resource.description}</p>
               </div>
             </div>
             <div className="flex flex-col gap-0">

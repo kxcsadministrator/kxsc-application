@@ -2,7 +2,7 @@
 
 @layer components {
   .panel_container {
-    @apply max-w-[1560px] mx-auto flex md:w-full bg-gray_bg h-fit lg:min-h-screen lg:overflow-y-hidden;
+    @apply max-w-[1560px] mx-auto flex md:w-full bg-gray_bg h-fit lg:min-h-screen;
   }
   .box_container {
     @apply flex md:flex-row flex-col md:px-2 lg:px-10 md:justify-between gap-3;
@@ -11,31 +11,28 @@
     @apply grid gap-5 my-10 px-6;
   }
   .box {
-    @apply md:w-[30%] w-full mx-auto md:mx-0  max-w-[320px] md:min-h-[150px] h-fit bg-white rounded-md p-4 shadow-md;
+    @apply md:w-[30%] w-full mx-auto md:mx-0  max-w-[320px] h-fit text-white bg-[#eddd2a] rounded-md py-2 shadow-md flex justify-between px-3;
   }
-  .text_container {
-    @apply flex flex-col gap-2;
+  .box-2 {
+    @apply md:w-[30%] w-full mx-auto md:mx-0  max-w-[320px] h-fit text-white bg-[#2ad6ed] rounded-md py-2 shadow-md flex justify-between px-3;
+  }
+  .box-3 {
+    @apply md:w-[30%] w-full mx-auto md:mx-0  max-w-[320px] h-fit text-white bg-[#5cf564] rounded-md py-2 shadow-md flex justify-between px-3;
+  }
+  .box-col {
+    @apply grid;
   }
 
-  .text_container h4 {
+  .box-col h4 {
     @apply lg:text-2xl md:text-lg text-sm;
   }
 
-  .text_container p {
+  .box-col p {
     @apply lg:text-3xl font-bold text-xl;
   }
 
-  .circle_3 {
-    @apply w-[15px] h-[15px] md:w-[20px] md:h-[20px] lg:w-[30px] lg:h-[30px] bg-[#ec3d3d] rounded-[40%];
-  }
-  .circle_2 {
-    @apply w-[15px] h-[15px] lg:w-[30px] md:w-[20px] md:h-[20px] lg:h-[30px] bg-[#3d80ec] rounded-[40%];
-  }
-  .circle_1 {
-    @apply w-[15px] h-[15px] lg:w-[30px] md:w-[20px] md:h-[20px] lg:h-[30px] bg-[#3dec9a] rounded-[40%];
-  }
   .chart_container {
-    @apply flex lg:flex-row flex-col gap-6 px-6 md:px-10 lg:px-6  justify-between lg:h-[55%] mx-auto lg:mx-0;
+    @apply flex lg:flex-row flex-col gap-6 px-6 md:px-10 lg:px-6  justify-between lg:h-[35%] mx-auto lg:mx-0;
   }
   .barchart_container {
     @apply bg-white rounded-md shadow-md lg:w-[60%] p-4 w-full;
