@@ -33,4 +33,33 @@
   .tabs {
     @apply flex flex-col md:flex-row;
   }
+  .institute_form {
+    @apply flex flex-col gap-6 bg-white shadow-md w-[90%] md:w-[80%] mx-auto h-fit pb-5 rounded-md md:mt-10 mt-5;
+  }
+  .form_header {
+    @apply text-2xl text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full;
+  }
+  .institute_input_container {
+    @apply grid gap-4 mx-auto md:w-[70%] w-[90%];
+  }
+  .institute_input_row {
+    @apply flex md:gap-7 items-center w-[90%] mx-auto;
+  }
+  .institute_input_row label {
+    @apply hidden md:block w-[30%];
+  }
+  .institute_input_row input {
+    @apply bg-transparent border-2 border-[#707070] rounded-md px-2 py-2 max-w-[600px] w-full  md:w-[70%];
+  }
+  .institute_delete_btn {
+    @apply p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600;
+  }
+
+  .form_button_btn {
+    @apply flex gap-3 items-center mt-6 justify-between;
+  }
+
+  .institute_submit_button {
+    @apply bg-green_bg py-2 w-[35%]  px-3 text-white;
+  }
 }

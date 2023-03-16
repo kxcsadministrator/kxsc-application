@@ -1,46 +1,46 @@
-/*
-@media screen and (max-width: 600px) {
-  table {
-    border: 0;
-  }
+@tailwind components;
 
-  table caption {
-    font-size: 1.3em;
+@layer components {
+  .container_3 {
+    @apply grid gap-6;
   }
-
-  table thead {
-    border: none;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
+  .user_heading {
+    @apply flex items-center justify-between;
   }
-
-  table tr {
-    border-bottom: 3px solid #ddd;
-    display: block;
-    margin-bottom: 0.625em;
+  .user_heading h1 {
+    @apply md:text-2xl text-base font-bold;
   }
-
-  table td {
-    border-bottom: 1px solid #ddd;
-    display: block;
-    font-size: 0.8em;
-    text-align: right;
+  .user_heading input {
+    @apply rounded-sm py-2 px-4;
   }
-
-  table td::before {
-    content: attr(data-label);
-    float: left;
-    font-weight: bold;
-    text-transform: uppercase;
+  .paginate {
+    @apply flex justify-end;
   }
-
-  table td:last-child {
-    border-bottom: 0;
+  .user_form {
+    @apply flex flex-col gap-6 bg-white shadow-md w-[90%] md:w-[80%] mx-auto h-fit pb-5 rounded-md md:mt-10 mt-5;
+  }
+  .form_header {
+    @apply text-2xl text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full;
+  }
+  .user_input_container {
+    @apply grid gap-4 mx-auto md:w-[70%] w-[90%];
+  }
+  .user_input_row {
+    @apply flex md:gap-7 items-center w-[90%] mx-auto;
+  }
+  .user_input_row label {
+    @apply hidden md:block w-[30%];
+  }
+  .user_input_row input {
+    @apply bg-transparent border-2 border-[#707070] rounded-md px-2 py-2 max-w-[600px] w-full  md:w-[70%];
+  }
+  .user_delete_btn {
+    @apply p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600;
+  }
+  .form_button_btn {
+    @apply flex gap-3 items-center mt-6 justify-between;
+  }
+  .user_submit_button {
+    @apply bg-green_bg py-2 w-[35%]  px-3 text-white;
   }
 }
-*/

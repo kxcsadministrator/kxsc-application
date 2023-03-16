@@ -8,14 +8,15 @@ import axios from "axios";
 function CreateInstitues() {
   const { user } = useContext(Context);
   const [instituteName, setInstituteName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErr(false);
+    setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
         "http://13.36.208.80:3001/institutes/new",
@@ -24,19 +25,19 @@ function CreateInstitues() {
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setLoading(false);
-      console.log(res.data);
+      setStates({ loading: false, error: false });
       navigate("/admin/institutes");
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      setErrMsg(err.response.data.message);
-      console.log(err);
+      setStates({
+        loading: false,
+        error: false,
+        errMsg: err.response.data.message,
+      });
     }
   };
 
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+    <div className="base_container">
       <div className="sidebar_content">
         <Sidebar />
       </div>
@@ -44,48 +45,41 @@ function CreateInstitues() {
         <div>
           <Topbar />
         </div>
-        <div className="py-2 px-5">
-          <form className="flex flex-col items-center gap-6 bg-white shadow-md w-[80%] mx-auto h-fit pb-5 rounded-md">
-            <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
-              Create Institute
-            </h1>
-            <div className="flex flex-col justify-center gap-6">
-              <div className="flex gap-3 items-center">
-                <p className="w-[30%]">Institues Name: </p>
-                <div className="lg:w-[300px] w-[60%] h-[40px]">
-                  <input
-                    placeholder="Username"
-                    className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
-                    value={instituteName}
-                    onChange={(e) => setInstituteName(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div>
-                {loading ? (
-                  <div>
-                    <p>Loading...</p>
-                  </div>
-                ) : err ? (
-                  <div>
-                    <p>{errMsg}</p>
-                  </div>
-                ) : (
-                  <div></div>
-                )}
-              </div>
-              <div className="flex gap-3 items-center mt-6 justify-between">
-                <button
-                  onClick={(e) => handleSubmit(e)}
-                  className="bg-green-600 h-[40px] w-[35%] py-1 px-3"
-                  disabled={loading}
-                >
-                  <p className="text-white">Submit</p>
-                </button>
-              </div>
+        <form className="institute_form">
+          <h1 className="form_header">Create Institute</h1>
+          <div className="institute_input_container">
+            <div className="institute_input_row">
+              <label>Institues Name: </label>
+              <input
+                placeholder="Username"
+                value={instituteName}
+                onChange={(e) => setInstituteName(e.target.value)}
+              />
             </div>
-          </form>
-        </div>
+            <div>
+              {states.loading ? (
+                <div>
+                  <p>Loading...</p>
+                </div>
+              ) : states.err ? (
+                <div>
+                  <p>{states.errMsg}</p>
+                </div>
+              ) : (
+                <div></div>
+              )}
+            </div>
+            <div className="form_button_btn">
+              <button
+                onClick={(e) => handleSubmit(e)}
+                className="institute_submit_button"
+                disabled={states.loading}
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
   );

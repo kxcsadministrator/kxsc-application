@@ -11,16 +11,17 @@ function CreateUser() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (superAdmin) {
-      setLoading(true);
-      setErr(false);
+      setStates({ loading: true, error: false });
       try {
         const res = await axios.post(
           "http://13.36.208.80:3000/users/new/super-admin",
@@ -31,37 +32,36 @@ function CreateUser() {
           },
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
-        setLoading(false);
-        console.log(res.data);
+        setStates({ loading: false, error: false });
         navigate("/admin/users");
       } catch (err) {
-        setLoading(false);
-        setErr(true);
-        setErrMsg(err.response.data.errors);
-        console.log(err);
+        setStates({
+          loading: false,
+          error: false,
+          errMsg: err.response.data.message,
+        });
       }
     } else {
-      setLoading(true);
-      setErr(false);
+      setStates({ loading: true, error: false });
       try {
         const res = await axios.post("http://13.36.208.80:3000/users/new", {
           username: username,
           email: email,
           password: password,
         });
-        setLoading(false);
-        console.log(res.data);
+        setStates({ loading: false, error: false });
         navigate("/admin/users");
       } catch (err) {
-        setLoading(false);
-        setErr(true);
-        setErrMsg(err.response.data.errors);
-        console.log(err);
+        setStates({
+          loading: false,
+          error: false,
+          errMsg: err.response.data.message,
+        });
       }
     }
   };
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+    <div className="base_container">
       <div className="sidebar_content">
         <Sidebar />
       </div>
@@ -69,85 +69,74 @@ function CreateUser() {
         <div>
           <Topbar />
         </div>
-        <div className="py-2 px-5">
-          <form className="flex flex-col items-center gap-6 bg-white shadow-md w-[80%] mx-auto h-fit pb-5 rounded-md">
-            <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
-              Create User
-            </h1>
-            <div className="flex flex-col justify-center gap-6">
-              <div className="flex gap-3 items-center">
-                <p className="w-[30%] hidden md:block">Username: </p>
-                <div className="md:w-[300px] md:h-[40px]">
-                  <input
-                    placeholder="Username"
-                    className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                  />
+
+        <form className="user_form">
+          <h1 className="form_header">Create User</h1>
+          <div className="user_input_container">
+            <div className="user_input_row">
+              <label>Username: </label>
+              <input
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
+            <div className="user_input_row">
+              <label>Email: </label>
+              <input
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="user_input_row">
+              <label>Password: </label>
+              <input
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div>
+              {states.loading ? (
+                <div>
+                  <p>Loading...</p>
                 </div>
-              </div>
-              <div className="flex gap-3 items-center">
-                <p className="w-[30%] hidden md:block">Email: </p>
-                <div className="md:w-[300px] md:h-[40px]">
-                  <input
-                    placeholder="Email"
-                    className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
+              ) : states.err ? (
+                <div>
+                  {states.errMsg.map((msg) => (
+                    <div key={msg.param}>
+                      <p>{msg.msg}</p>
+                    </div>
+                  ))}
                 </div>
-              </div>
-              <div className="flex gap-3 items-center">
-                <p className="w-[30%] hidden md:block">Password: </p>
-                <div className="md:w-[300px] md:h-[40px]">
-                  <input
-                    placeholder="Password"
-                    className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </div>
-              <div>
-                {loading ? (
+              ) : (
+                <div></div>
+              )}
+            </div>
+            <div className="form_button_btn">
+              <button
+                onClick={(e) => handleSubmit(e)}
+                className="user_submit_button"
+                disabled={states.loading}
+              >
+                Submit
+              </button>
+              {user.superadmin && (
+                <div className="flex items-start gap-3">
                   <div>
-                    <p>Loading...</p>
-                  </div>
-                ) : err ? (
-                  <div>
-                    {errMsg.map((msg) => (
-                      <div key={msg.param}>
-                        <p>{msg.msg}</p>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div></div>
-                )}
-              </div>
-              <div className="flex gap-3 items-center mt-6 justify-between">
-                <button
-                  onClick={(e) => handleSubmit(e)}
-                  className="bg-green_bg h-[40px] w-[35%] py-1 px-3"
-                  disabled={loading}
-                >
-                  <p className="text-white">Submit</p>
-                </button>
-                {user.superadmin && (
-                  <div className="flex items-center gap-2">
                     <input
                       type="checkbox"
                       name="superAdmin"
                       onChange={(e) => setSuperAdmin(e.target.checked)}
-                      className="w-4 h-4"
                     />
-                    <p>Make Super Admin</p>
                   </div>
-                )}
-              </div>
+                  <p>Make Super Admin</p>
+                </div>
+              )}
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

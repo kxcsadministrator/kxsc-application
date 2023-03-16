@@ -1,53 +1,110 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useCallback } from "react";
 import Sidebar from "../../../component/admin/Sidebar";
 import Topbar from "../../../component/admin/Topbar";
 import "./users.css";
 import { Context } from "../../../context/Context";
 import axios from "axios";
-import { Link } from "react-router-dom";
 import DeleteModal from "../../../component/admin/users/DeleteModal";
-import EditModal from "../../../component/admin/users/EditModal";
 import { RiDeleteBinLine } from "react-icons/ri";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 function Users() {
+  //useStates
   const { user } = useContext(Context);
   const [allUsers, setAllUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: true,
+    error: false,
+    errMsg: "",
+  });
   const [deleteUser, setDeleteUser] = useState({});
-  const [editUser, setEditUser] = useState({});
   const [deleteModal, setDeleteModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
+  const [value, setValue] = useState("");
+
   useEffect(() => {
     const getUsers = async () => {
+      setStates({ loading: true, error: false });
       try {
         const res = await axios.get("http://13.36.208.80:3000/users/all", {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
-        setLoading(false);
-        setError(false);
+        setStates({ loading: false, error: false });
         setAllUsers(res.data);
-        console.log(res.data);
       } catch (err) {
-        setLoading(false);
-        setError(true);
-        setErrMsg(err.response.data.message);
+        setStates({
+          loading: false,
+          error: false,
+          errMsg: err.response.data.message,
+        });
       }
     };
     getUsers();
   }, [user.jwt_token]);
 
+  //pagination Data
+  const countPerPage = 2;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(allUsers.slice(0, countPerPage))
+  );
+
+  //search function
+  // const searchData = useRef(
+  //   throttle((val) => {
+  //     const query = val.toLowerCase();
+  //     setCurrentPage(1);
+  //     const data = cloneDeep(
+  //       allUsers
+  //         .filter((item) => item.name.toLowerCase().includes(query))
+  //         .slice(0, countPerPage)
+  //     );
+  //     setCollection(data);
+  //   }, 400)
+  // );
+
+  const searchData = useCallback(
+    (value) => {
+      const query = value.toLowerCase();
+      const data = cloneDeep(
+        allUsers
+          .filter((item) => item.username.toLowerCase().indexOf(query) > -1)
+          .slice(0, 2)
+      );
+      setCollection(data);
+      console.log(data);
+    },
+    [allUsers]
+  );
+
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(allUsers.slice(from, to)));
+    },
+    [allUsers]
+  );
+
+  //useEffect Search
+  useEffect(() => {
+    if (!value) {
+      updatePage(1);
+    } else {
+      setCurrentPage(1);
+      searchData(value);
+    }
+  }, [value, updatePage, searchData]);
+
   const handleDelete = (id, username, email) => {
     setDeleteUser({ id, username, email });
     setDeleteModal(true);
   };
-  const handleEdit = (id, username, email) => {
-    setEditUser({ id, username, email });
-    setEditModal(true);
-  };
+
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+    <div className="base_container">
       <div className="sidebar_content">
         <Sidebar />
       </div>
@@ -56,17 +113,26 @@ function Users() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
-          {loading ? (
+          {states.loading ? (
             <div>
               <h1>Loading</h1>
             </div>
-          ) : error ? (
-            <div>{errMsg}</div>
-          ) : (
-            <>
-              <div>
-                <h1 className="text-center my-3">All Users</h1>
-                <table className="bg-white rounded-md shadow-md ">
+          ) : states.error ? (
+            <div>{states.errMsg}</div>
+          ) : allUsers.length > 0 ? (
+            <div className="container_3">
+              <div className="user_heading">
+                <h1>All Users</h1>
+                <div>
+                  <input
+                    placeholder="Search Users"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                  />
+                </div>
+              </div>
+              {collection.length > 0 ? (
+                <table>
                   <thead>
                     <tr>
                       <th scope="col">s/n</th>
@@ -75,52 +141,56 @@ function Users() {
                     </tr>
                   </thead>
                   <tbody>
-                    {allUsers.map((singleUser, index) => (
+                    {collection?.map((singleUser, index) => (
                       <tr key={singleUser._id}>
-                        <td>{index + 1}</td>
-                        <td>{singleUser.username}</td>
-                        <td>
-                          {user.superadmin ? (
-                            <div className="flex gap-4 items-center justify-center">
-                              <button
-                                className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
-                                onClick={() =>
-                                  handleDelete(
-                                    singleUser._id,
-                                    singleUser.username,
-                                    singleUser.email
-                                  )
-                                }
-                              >
-                                <RiDeleteBinLine size="1.2rem" />
-                              </button>
-                            </div>
-                          ) : (
-                            <p>Only super Admin can edit Users</p>
-                          )}
+                        <td data-label="s/n">{index + 1}</td>
+                        <td data-label="Username">{singleUser.username}</td>
+                        <td data-label="Action">
+                          <div>
+                            <button
+                              className="user_delete_btn"
+                              onClick={() =>
+                                handleDelete(
+                                  singleUser._id,
+                                  singleUser.username,
+                                  singleUser.email
+                                )
+                              }
+                            >
+                              <RiDeleteBinLine size="1.2rem" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+              ) : (
+                <div>
+                  <p>No user with the search input found</p>
+                </div>
+              )}
+              <div className="paginate">
+                <Pagination
+                  pageSize={countPerPage}
+                  onChange={updatePage}
+                  current={currentPage}
+                  total={allUsers.length}
+                />
               </div>
-              <div className="relative w-full h-full">
-                {deleteModal && (
-                  <DeleteModal
-                    setDeleteModal={setDeleteModal}
-                    deleteUser={deleteUser}
-                    setDeleteUser={setDeleteUser}
-                  />
-                )}
-                {editModal && (
-                  <EditModal
-                    setEditModal={setEditModal}
-                    editUser={editUser}
-                    setEditUser={setEditUser}
-                  />
-                )}
-              </div>
-            </>
+
+              {deleteModal && (
+                <DeleteModal
+                  setDeleteModal={setDeleteModal}
+                  deleteUser={deleteUser}
+                  setDeleteUser={setDeleteUser}
+                />
+              )}
+            </div>
+          ) : (
+            <div>
+              <p>No users Found</p>
+            </div>
           )}
         </div>
       </div>

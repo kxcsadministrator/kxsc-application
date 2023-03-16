@@ -83,10 +83,10 @@ function Sidebar() {
               </div>
               {/* Msg Menu*/}
               <div className="dropdown_menu">
-                <Link className="link" to="/">
+                <Link className="link" to="/admin/messages">
                   <p>View Messages</p>
                 </Link>
-                <Link className="link" to="/">
+                <Link className="link" to="/admin/create-message">
                   <p>Send Message</p>
                 </Link>
               </div>

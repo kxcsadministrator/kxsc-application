@@ -18,6 +18,8 @@ import PublicResources from "./pages/admin/resources/PublicResources";
 import Categories from "./pages/admin/categories/Categories";
 import Category from "./pages/admin/categories/Category";
 import CreateCategory from "./pages/admin/categories/CreateCategory";
+import Messages from "./pages/admin/messages/Messages";
+import CreateMessage from "./pages/admin/messages/CreateMessage";
 
 function App() {
   const { user } = useContext(Context);
@@ -30,6 +32,8 @@ function App() {
           <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
+          <Route path="/admin/messages" element={<Messages />} />
+          <Route path="/admin/create-message" element={<CreateMessage />} />
           <Route path="/admin/institutes" element={<Institutes />} />
           <Route
             path="/admin/create-institutes"

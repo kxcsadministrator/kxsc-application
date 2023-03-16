@@ -22,6 +22,7 @@
 .sidebar_container::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }
+
 @layer components {
   .sidebar_container {
     @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[70px] md:mt-0 overflow-y-scroll fixed pb-10 hidden lg:w-[23%] md:w-[29%] w-full;
@@ -81,5 +82,15 @@
   }
   .sidebar.active .sidebar_container {
     @apply flex flex-col z-10;
+  }
+  .profile_img {
+    @apply flex flex-col;
+  }
+
+  .profile_img:hover .hover_div {
+    @apply flex;
+  }
+  .hover_div {
+    @apply hidden flex-col absolute gap-3 rounded-sm p-3 bg-black_bg ml-[-120px] mt-[30px];
   }
 }

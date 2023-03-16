@@ -10,6 +10,7 @@ table {
   width: 100%;
   table-layout: fixed;
   margin: 0 auto;
+  background-color: white;
 }
 
 table caption {
@@ -40,6 +41,51 @@ table th {
 
 .link {
   text-decoration: none;
+}
+
+@media screen and (max-width: 600px) {
+  table {
+    border: 0;
+  }
+
+  table caption {
+    font-size: 1.3em;
+  }
+
+  table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.625em;
+  }
+
+  table td {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: 0.8em;
+    text-align: right;
+  }
+
+  table td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+
+  table td:last-child {
+    border-bottom: 0;
+  }
 }
 
 @layer components {
@@ -79,5 +125,20 @@ table th {
   }
   .err_text {
     @apply text-[#d14949] text-sm;
+  }
+  .base_container {
+    @apply max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg;
+  }
+  .all_heading {
+    @apply flex items-center justify-between;
+  }
+  .all_heading h1 {
+    @apply md:text-2xl text-base font-bold;
+  }
+  .all_heading input {
+    @apply rounded-sm py-2 px-4;
+  }
+  .paginate {
+    @apply flex justify-end;
   }
 }
