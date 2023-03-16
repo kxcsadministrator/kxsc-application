@@ -50,20 +50,6 @@ function Users() {
     cloneDeep(allUsers.slice(0, countPerPage))
   );
 
-  //search function
-  // const searchData = useRef(
-  //   throttle((val) => {
-  //     const query = val.toLowerCase();
-  //     setCurrentPage(1);
-  //     const data = cloneDeep(
-  //       allUsers
-  //         .filter((item) => item.name.toLowerCase().includes(query))
-  //         .slice(0, countPerPage)
-  //     );
-  //     setCollection(data);
-  //   }, 400)
-  // );
-
   const searchData = useCallback(
     (value) => {
       const query = value.toLowerCase();
@@ -121,7 +107,7 @@ function Users() {
             <div>{states.errMsg}</div>
           ) : allUsers.length > 0 ? (
             <div className="container_3">
-              <div className="user_heading">
+              <div className="all_heading">
                 <h1>All Users</h1>
                 <div>
                   <input

@@ -161,9 +161,9 @@ function Resources() {
                 <div>
                   {collection.map((resource, index) => (
                     <div className="grid gap-6" key={index}>
-                      <div className="flex gap-3 h-36 w-full">
+                      <div className="flex md:flex-row flex-col gap-3 md:h-36 w-full">
                         {resource.avatar === null ? (
-                          <div className="h-full w-[28%]">
+                          <div className="md:h-full h-36 md:w-[28%] w-[90%]">
                             <img
                               src="/default.png"
                               alt="default"

@@ -130,7 +130,7 @@ table th {
     @apply max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg;
   }
   .all_heading {
-    @apply flex items-center justify-between;
+    @apply flex md:flex-row flex-col md:items-center justify-between;
   }
   .all_heading h1 {
     @apply md:text-2xl text-base font-bold;
