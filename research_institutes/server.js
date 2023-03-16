@@ -8,6 +8,7 @@ const swaggerUi = require('swagger-ui-express');
 
 const task_routes = require('./routes/tasks');
 const institute_routes = require('./routes/institute');
+const institute_admin_routes = require('./routes/admin')
 
 
 const swaggerDefinition = {
@@ -62,6 +63,7 @@ app.use(express.static('uploads'));
 //routes
 app.use('/tasks', task_routes);
 app.use('/institutes', institute_routes);
+app.use('/institutes', institute_admin_routes);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app

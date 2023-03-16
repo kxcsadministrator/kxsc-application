@@ -15,11 +15,11 @@ irrespective of the type of db being used.
 */
 
 //************************ Some helpers added here to prevent circular imports ***********************//
-const get_resource_user_data = async(resource_id, headers) => {
+const get_resource_user_data = async(resource_id, headers='') => {
     const publish_res = await axios({
         method: 'get',
         url: `${USERS_BASE_URL}/resource-data/${resource_id}`,
-        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+        // headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
     })
 
     return publish_res.data;
@@ -114,52 +114,102 @@ const get_resource_by_topic_or_id = async (query)=>{
     return data;
 }
 
-const get_all_resources = async (category="None", sub_cat="None")=>{
+const get_all_resources = async (offset, limit, category="None", sub_cat="None")=>{
+    let data = []
+    const results = []
     if (category === "None"){
-        const data = await Model.resource.find({}, {_id: 1, topic: 1}).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        const data = await Model.resource.find({"category": category}, {_id: 1, topic: 1}).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({"category": category}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        const data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1}).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
-    
-}
+    for (let i = 0; i < data.length; i++) {
+        const resource = data[i]
+        const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource_data.author,
+            institute: resource_data.institute,
+            rating: resource.rating,
+            date: resource.date,
+            avatar: resource.avatar
+        }
+        results.push(r)
+    }
+    return results
+}   
 
-const get_user_resources = async (author_id, institute_id = "None")=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1}
+const get_user_resources = async (offset, limit, author_id, institute_id = "None")=>{
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
+    let data = []
+    const results = []
+
     if (institute_id === "None"){
-        const data = await Model.resource.find({author: author_id}, projection).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({author: author_id}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
     else {
-        const data = await Model.resource.find({author: author_id, institute: institute_id}, projection).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({author: author_id, institute: institute_id}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
-    
+    for (let i = 0; i < data.length; i++) {
+        const resource = data[i]
+        const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource_data.author,
+            institute: resource_data.institute,
+            rating: resource.rating,
+            date: resource.date,
+            avatar: resource.avatar
+        }
+        results.push(r)
+    }
+    return results
 }
 
-const get_public_resources = async (category="None", sub_cat="None")=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1}
+const get_public_resources = async (offset, limit, category="None", sub_cat="None")=>{
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
+    let data = []
+    const results = []
+
     if (category === "None"){
-        const data = await Model.resource.find({visibility: "public"}, projection).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        const data = await Model.resource.find({category: category, visibility: "public"}, projection).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({category: category, visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        const data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}, projection).sort({"date": -1});
-        return data;
+        data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        // return data;
     }
-    
+    for (let i = 0; i < data.length; i++) {
+        const resource = data[i]
+        const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource_data.author,
+            institute: resource_data.institute,
+            rating: resource.rating,
+            date: resource.date,
+            avatar: resource.avatar
+        }
+        results.push(r)
+    }
+    return results
 }
 
 const update_resource_fields = async(id, updateObj) => {

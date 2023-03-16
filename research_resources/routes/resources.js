@@ -255,6 +255,18 @@ router.get('/one/:id', async (req, res) => {
  *           Requires a bearer token for authentication
  *      parameters: 
  *          - in: query
+ *            name: page
+ *            schema:
+ *              type: integer
+ *            required: false
+ *            description: the page to start from. Defaults to first page if not specified
+ *          - in: query
+ *            name: limit
+ *            schema:
+ *              type: integer
+ *            required: true
+ *            description: the page to start from. Defaults to 20 if not specified.
+ *          - in: query
  *            name: institute
  *            schema:
  *              type: UUID/Object ID
@@ -270,6 +282,8 @@ router.get('/one/:id', async (req, res) => {
 */
 router.get('/my-resources', async (req, res) => {
     try{
+        const page = req.query.page || 1
+        const limit = req.query.limit || 20
         // Authorization and validation
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET /resources/my-resources - 401: Token not found`)
@@ -285,10 +299,10 @@ router.get('/my-resources', async (req, res) => {
         let institute_id = req.query.institute;
         let data = []
         if (institute_id){
-            data =  await repository.get_user_resources(user._id.toString(), institute_id);
+            data =  await repository.get_user_resources(page, limit, user._id.toString(), institute_id);
         }
         else {
-            data =  await repository.get_user_resources(user._id.toString());
+            data =  await repository.get_user_resources(page, limit, user._id.toString());
         }
 
         helpers.log_request_info(`GET /resources/my-resources - 200`)
@@ -316,6 +330,18 @@ router.get('/my-resources', async (req, res) => {
  *           Requires a bearer token for authentication
  *      parameters: 
  *          - in: query
+ *            name: page
+ *            schema:
+ *              type: integer
+ *            required: false
+ *            description: the page to start from. Defaults to first page if not specified
+ *          - in: query
+ *            name: limit
+ *            schema:
+ *              type: integer
+ *            required: true
+ *            description: the page to start from. Defaults to 20 if not specified.
+ *          - in: query
  *            name: category
  *            schema:
  *              type: string
@@ -337,6 +363,8 @@ router.get('/my-resources', async (req, res) => {
 */
 router.get('/all', async (req, res) => {
     try{
+        const page = req.query.page || 1
+        const limit = req.query.limit || 20
         // Authorization and validation
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET /resources/all- 401: Token not found`)
@@ -362,11 +390,11 @@ router.get('/all', async (req, res) => {
         let data = null;
         if (category){
             if (sub){
-                data = await repository.get_all_resources(category=category, sub_cat=sub)
+                data = await repository.get_all_resources(page, limit, category=category, sub_cat=sub)
             }
-            else data = await repository.get_all_resources(category=category)
+            else data = await repository.get_all_resources(page, limit, category=category)
         }
-        else data = await repository.get_all_resources()
+        else data = await repository.get_all_resources(page, limit)
 
         helpers.log_request_info(`GET /resources/all - 200`)
 
@@ -391,6 +419,18 @@ router.get('/all', async (req, res) => {
  * 
  *      parameters: 
  *          - in: query
+ *            name: page
+ *            schema:
+ *              type: integer
+ *            required: false
+ *            description: the page to start from. Defaults to first page if not specified
+ *          - in: query
+ *            name: limit
+ *            schema:
+ *              type: integer
+ *            required: true
+ *            description: the page to start from. Defaults to 20 if not specified.
+ *          - in: query
  *            name: category
  *            schema:
  *              type: string
@@ -412,17 +452,20 @@ router.get('/all', async (req, res) => {
 */
 router.get('/public', async (req, res) => {
     try {
+        const page = req.query.page || 1
+        const limit = req.query.limit || 20
+
         let sub = req.query.sub;
         let category = req.query.category;
         let data = null;
         
         if (category){
             if (sub){
-                data = await repository.get_public_resources(category=category, sub_cat=sub)
+                data = await repository.get_public_resources(page, limit, category=category, sub_cat=sub)
             }
-            else data = await repository.get_public_resources(category=category)
+            else data = await repository.get_public_resources(page, limit, category=category)
         }
-        else data = await repository.get_public_resources()
+        else data = await repository.get_public_resources(page, limit)
 
         helpers.log_request_info(`GET /resources/public - 200`)
 

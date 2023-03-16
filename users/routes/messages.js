@@ -20,6 +20,7 @@ const router = express.Router()
  *          Requires a bearer token for authentication.
  *          ## Schema
  *          ### recipient: {required: true, type: Object ID}
+ *          ### subject: {required: true, type: String}
  *          ### body: {required: true, type: String} 
  * responses:
  *    '200':
@@ -33,6 +34,7 @@ const router = express.Router()
 */
 router.post('/new', 
     validator.check("recipient").notEmpty().withMessage("recipient must not be empty"),
+    validator.check("subject").notEmpty().withMessage("subject must not be empty"),
     validator.check("body").notEmpty().withMessage("body must not be empty"),
     async (req, res) => {
         try {
@@ -55,10 +57,10 @@ router.post('/new',
             }
 
             const user = validateUser.data
-            if (!user.superadmin) {
-                helpers.log_request_error(`POST messages/new - 401: Unauthorized access. Only a superadmin can send messages`)
-                return res.status(401).json({message: 'Unauthorized access. Only a superadmin can send messages'});
-            }
+            // if (!user.superadmin) {
+            //     helpers.log_request_error(`POST messages/new - 401: Unauthorized access. Only a superadmin can send messages`)
+            //     return res.status(401).json({message: 'Unauthorized access. Only a superadmin can send messages'});
+            // }
 
             const recipient = await repository.get_user_by_username(req.body.recipient)
             if (!recipient) {
@@ -74,6 +76,7 @@ router.post('/new',
             const data = new Model.message({
                 sender: user._id,
                 recipients: [recipient.id],
+                subject: req.body.subject,
                 body: req.body.body
             });
 
@@ -201,15 +204,21 @@ router.patch('/edit/:id',
         }
 
         const user = validateUser.data
-        if (!user.superadmin) {
-            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 401: Unauthorized access. Only a superadmin can edit messages`)
-            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can edit messages'});
-        }
+        // if (!user.superadmin) {
+        //     helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 401: Unauthorized access. Only a superadmin can edit messages`)
+        //     return res.status(401).json({message: 'Unauthorized access. Only a superadmin can edit messages'});
+        // }
 
         const msg = await repository.get_message_by_id(id);
         if (!msg) {
             helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 404: message ${id} not found`)
             return res.status(404).json({message: `message ${id} not found`});
+        }
+
+        console.log(msg.sender, '---', user._id)
+        if (msg.sender.toString() != user._id.toString()) {
+            helpers.log_request_error(`PATCH messages/edit/${req.params.id} - 401: Unauthorized access. You can only edit your messages`)
+            return res.status(401).json({message: 'Unauthorized access. You can only edit your messages'});
         }
 
         const result = await repository.edit_message(id, req.body.body);
@@ -250,7 +259,6 @@ router.patch('/edit/:id',
  *      description: Bad request
 */
 router.delete('/delete/:id',
-    validator.check('body').notEmpty().withMessage("body must not be empty"), 
     async (req, res) => {
     try {
         // input validation
@@ -262,30 +270,35 @@ router.delete('/delete/:id',
         const id = req.params.id;
         // user validation
         if (!req.headers.authorization) {
-            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 401: Token not found`)
+            helpers.log_request_error(`DELETE messages/delete/${req.params.id} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
-            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            helpers.log_request_error(`DELETE messages/delete/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
             return res.status(validateUser.status).json({message: validateUser.message});
         }
 
         const user = validateUser.data
-        if (!user.superadmin) {
-            helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 401: Unauthorized access. Only a superadmin can delete messages`)
-            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can delete messages'});
-        }
+        // if (!user.superadmin) {
+        //     helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 401: Unauthorized access. Only a superadmin can delete messages`)
+        //     return res.status(401).json({message: 'Unauthorized access. Only a superadmin can delete messages'});
+        // }
 
         const msg = await repository.get_message_by_id(id);
         if (!msg) return res.status(404).json({message: `message ${id} not found`});
 
+        if (msg.sender.toString() != user._id.toString() && user.superadmin == false) {
+            helpers.log_request_error(`DELETE messages/delete/${req.params.id} - 401: Unauthorized access to delete`)
+            return res.status(401).json({message: 'Unauthorized access to delete'});
+        }
+
         const result = await repository.delete_message(id);
 
-        helpers.log_request_info(`PATCH messages/delete/${id} - 200`)
+        helpers.log_request_info(`DELETE messages/delete/${id} - 200`)
         res.status(204).json({result})
     } catch (error) {
-        helpers.log_request_error(`PATCH messages/delete/${req.params.id} - 400: ${error.message}`)
+        helpers.log_request_error(`DELETE messages/delete/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
