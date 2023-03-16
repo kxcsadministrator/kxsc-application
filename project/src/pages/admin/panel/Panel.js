@@ -17,7 +17,7 @@ import { GiBookCover } from "react-icons/gi";
 function Panel() {
   const { user } = useContext(Context);
   const [users, setUsers] = useState([]);
-  const [recentUsers, setRecentUsers] = useState({});
+  const [recentUsers, setRecentUsers] = useState([]);
   const [institutes, setInstitutes] = useState([]);
   const [resources, setResources] = useState([]);
   const [dashboard, setDashboard] = useState({});
@@ -141,25 +141,29 @@ function Panel() {
                 <PieChart />
               </div>
             </div>
-            <div className="flex flex-col gap-3 px-5 py-5">
-              <h1 className="text-3xl">Recently registered users</h1>
-              <table>
-                <thead>
-                  <tr>
-                    <th scope="col">s/n</th>
-                    <th scope="col">Username</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentUsers?.map((singleUser, index) => (
-                    <tr key={singleUser._id}>
-                      <td data-label="s/n">{index + 1}</td>
-                      <td data-label="Username">{singleUser.username}</td>
+            {recentUsers.length > 0 ? (
+              <div className="flex flex-col gap-3 px-5 py-5">
+                <h1 className="text-3xl">Recently registered users</h1>
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">s/n</th>
+                      <th scope="col">Username</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {recentUsers?.map((singleUser, index) => (
+                      <tr key={singleUser._id}>
+                        <td data-label="s/n">{index + 1}</td>
+                        <td data-label="Username">{singleUser.username}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div></div>
+            )}
           </>
         ) : (
           <div className="panel_content">
