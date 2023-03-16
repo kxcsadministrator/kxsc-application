@@ -141,7 +141,7 @@ router.get('/my-institutes', async (req, res) => {
             return res.status(200).json(data)
         }
 
-        const data = await repository.get_user_institutes(offset, limit, user._id.toString());
+        const data = await repository.get_user_institutes(page, limit, user._id.toString());
 
         helpers.log_request_info(`GET institutes/my-institutes - 200`) 
         res.status(200).json(data);
