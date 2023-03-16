@@ -118,52 +118,54 @@ function Users() {
                 </div>
               </div>
               {collection.length > 0 ? (
-                <table>
-                  <thead>
-                    <tr>
-                      <th scope="col">s/n</th>
-                      <th scope="col">Username</th>
-                      <th scope="col">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {collection?.map((singleUser, index) => (
-                      <tr key={singleUser._id}>
-                        <td data-label="s/n">{index + 1}</td>
-                        <td data-label="Username">{singleUser.username}</td>
-                        <td data-label="Action">
-                          <div>
-                            <button
-                              className="user_delete_btn"
-                              onClick={() =>
-                                handleDelete(
-                                  singleUser._id,
-                                  singleUser.username,
-                                  singleUser.email
-                                )
-                              }
-                            >
-                              <RiDeleteBinLine size="1.2rem" />
-                            </button>
-                          </div>
-                        </td>
+                <div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th scope="col">s/n</th>
+                        <th scope="col">Username</th>
+                        <th scope="col">Action</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {collection?.map((singleUser, index) => (
+                        <tr key={singleUser._id}>
+                          <td data-label="s/n">{index + 1}</td>
+                          <td data-label="Username">{singleUser.username}</td>
+                          <td data-label="Action">
+                            <div>
+                              <button
+                                className="user_delete_btn"
+                                onClick={() =>
+                                  handleDelete(
+                                    singleUser._id,
+                                    singleUser.username,
+                                    singleUser.email
+                                  )
+                                }
+                              >
+                                <RiDeleteBinLine size="1.2rem" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className="paginate">
+                    <Pagination
+                      pageSize={countPerPage}
+                      onChange={updatePage}
+                      current={currentPage}
+                      total={allUsers.length}
+                    />
+                  </div>
+                </div>
               ) : (
                 <div>
                   <p>No user with the search input found</p>
                 </div>
               )}
-              <div className="paginate">
-                <Pagination
-                  pageSize={countPerPage}
-                  onChange={updatePage}
-                  current={currentPage}
-                  total={allUsers.length}
-                />
-              </div>
 
               {deleteModal && (
                 <DeleteModal

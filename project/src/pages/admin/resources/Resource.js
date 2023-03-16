@@ -4,21 +4,23 @@ import axios from "axios";
 import Sidebar from "../../../component/admin/Sidebar";
 import Topbar from "../../../component/admin/Topbar";
 import "./resource.css";
-import Details from "../../../component/admin/institutes/resources/Details";
+import RequestModalR from "../../../component/admin/institutes/resources/RequestModalR";
 import ResourceFiles from "../../../component/admin/institutes/resources/resource_files/ResourceFiles";
 
 function Resource() {
+  //states
   const { user } = useContext(Context);
   const id = sessionStorage.getItem("resourceId");
   const [resource, setResource] = useState({});
+  const [requestModal, setRequestModal] = useState(false);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
 
   //requestModal states
 
-  //tab active states
-  const [activeIndex, setActiveIndex] = useState(1);
-  const handleClick = (index) => setActiveIndex(index);
-  const checkActive = (index, className) =>
-    activeIndex === index ? className : "";
   useEffect(() => {
     const getResources = async () => {
       try {
@@ -37,8 +39,33 @@ function Resource() {
     getResources();
   }, [id, user.jwt_token]);
 
+  //publish request
+  const publishRequest = async () => {
+    try {
+      setStates({ loading: true, error: false });
+      setRequestModal(true);
+      const res = await axios({
+        method: "post",
+        url: `http://13.36.208.80:3002/resources/request-institute-publish/${resource.id}`,
+        headers: { Authorization: `Bearer ${user.jwt_token}` },
+      });
+      setStates({ loading: false, error: false });
+      setTimeout(() => {
+        setRequestModal(false);
+        window.location.reload(false);
+      }, 3000);
+    } catch (err) {
+      console.log(err.response);
+      setStates({
+        loading: false,
+        error: false,
+        errMsg: err.response.data.message,
+      });
+    }
+  };
+
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+    <div className="base_container">
       <div className="sidebar_content">
         <Sidebar />
       </div>
@@ -46,30 +73,55 @@ function Resource() {
         <div>
           <Topbar />
         </div>
-        <div className="grid gap-4">
-          <div className="tabs">
-            <button
-              className={`tab ${checkActive(1, "active")}`}
-              onClick={() => handleClick(1)}
-            >
-              details
-            </button>
-            <button
-              className={`tab ${checkActive(2, "active")}`}
-              onClick={() => handleClick(2)}
-            >
-              Manage Files
-            </button>
-          </div>
-          <div className="panels">
-            <div className={`panel ${checkActive(1, "active")}`}>
-              <Details resource={resource} user={user} />
+        {resource.id ? (
+          <div className="py-4 px-6 grid gap-3">
+            <div className="flex flex-col gap-0">
+              <h1>{resource.topic}</h1>
+              <div className="flex items-center gap-4">
+                <p>By: {resource.author.username}</p>
+                <p>Institute: {resource.institute.name}</p>
+                <p>
+                  Rating: {resource.number_of_ratings}/{resource.rating}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <p>Category: {resource.category}</p>
+                <p>
+                  Sub-categories:{" "}
+                  {resource.sub_categories.map((sub, index) => (
+                    <span key={index}>{sub}</span>
+                  ))}
+                </p>
+              </div>
+              <p>Resource type: {resource.resource_type}</p>
+              <div>
+                {(user.id === resource.author._id || user.superadmin) && (
+                  <button
+                    className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                    onClick={() => publishRequest()}
+                  >
+                    Publish
+                  </button>
+                )}
+              </div>
             </div>
-            <div className={`panel ${checkActive(2, "active")}`}>
+            <div className="flex flex-col gap-0">
+              <h1>About Resources</h1>
+              <div>
+                <p>By: {resource.description}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-0">
+              <h1>Files</h1>
               <ResourceFiles resource={resource} />
             </div>
           </div>
-        </div>
+        ) : (
+          <div></div>
+        )}
+        {requestModal && (
+          <RequestModalR states={states} setRequestModal={setRequestModal} />
+        )}
       </div>
     </div>
   );

@@ -190,7 +190,11 @@ function Resources() {
                             By: {resource.author.username}
                           </p>
                           <p className="flex items-center gap-3 text-sm  -mt-2 ">
-                            <span>Rating: {resource.rating}</span>
+                            <span>
+                              {resource.rating === 0
+                                ? "No rating"
+                                : resource.rating + "/5"}
+                            </span>
                             <span>Released: {resource.date}</span>
                           </p>
                           <p className="flex gap-1 items-center -mt-1">
@@ -214,6 +218,14 @@ function Resources() {
                       <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
                     </div>
                   ))}
+                  <div className="paginate my-4">
+                    <Pagination
+                      pageSize={countPerPage}
+                      onChange={updatePage}
+                      current={currentPage}
+                      total={allResourrces.length}
+                    />
+                  </div>
                 </div>
               ) : (
                 <div>
@@ -222,14 +234,6 @@ function Resources() {
               )}
             </div>
           )}
-          <div className="paginate my-4">
-            <Pagination
-              pageSize={countPerPage}
-              onChange={updatePage}
-              current={currentPage}
-              total={allResourrces.length}
-            />
-          </div>
 
           {deleteResourceModal && (
             <DeleteResources

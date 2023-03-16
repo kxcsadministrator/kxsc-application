@@ -33,7 +33,7 @@ function Login() {
       <div className="form_container">
         <form className="login_form" onSubmit={handleSubmit}>
           <div className="w-[80%] mx-auto ">
-            <img src="/logo.png" alt="logo image" />
+            <img src="/logo.jpeg" alt="logo" />
           </div>
           <div className="w-[80%] mx-auto ">
             <p className="text-2xl font-bold text-green_bg text-center">
