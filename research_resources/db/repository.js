@@ -28,7 +28,7 @@ const get_resource_user_data = async(resource_id, headers='') => {
 const clean_resource = async (resource, id, headers) => {
     const resource_data = await get_resource_user_data(id, headers);
     const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
-    // const rating = await get_rating(id);
+    const num_ratings = await Model.rating.find({resource: id})
 
     const result = {
         "id": id,
@@ -43,6 +43,7 @@ const clean_resource = async (resource, id, headers) => {
         "resource_type": resource.resource_type,
         "citations": resource.citations,
         "rating": resource.rating,
+        "number_of_ratings": num_ratings.length,
         "files": files,
         "date_created": resource.date
     }
@@ -133,13 +134,14 @@ const get_all_resources = async (offset, limit, category="None", sub_cat="None")
     for (let i = 0; i < data.length; i++) {
         const resource = data[i]
         const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let date  = new Date(resource.date).toDateString()
         let r = {
             _id: resource._id,
             topic: resource.topic,
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date,
+            date: date,
             avatar: resource.avatar
         }
         results.push(r)
@@ -163,13 +165,14 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
     for (let i = 0; i < data.length; i++) {
         const resource = data[i]
         const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let date  = new Date(resource.date).toDateString()
         let r = {
             _id: resource._id,
             topic: resource.topic,
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date,
+            date: date,
             avatar: resource.avatar
         }
         results.push(r)
@@ -198,13 +201,14 @@ const get_public_resources = async (offset, limit, category="None", sub_cat="Non
     for (let i = 0; i < data.length; i++) {
         const resource = data[i]
         const resource_data = await get_resource_user_data(resource._id, 'foo')
+        let date  = new Date(resource.date).toDateString()
         let r = {
             _id: resource._id,
             topic: resource.topic,
             author: resource_data.author,
             institute: resource_data.institute,
             rating: resource.rating,
-            date: resource.date,
+            date: date,
             avatar: resource.avatar
         }
         results.push(r)
@@ -300,7 +304,7 @@ const rate_resource = async (resource_id, user_id, value) => {
     })
     const result = await data.save();
     const new_rating = await get_rating(resource_id)
-    console.log(new_rating)
+    
     let resource = await Model.resource.findByIdAndUpdate(resource_id, {rating: new_rating});
     resource = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return resource;
