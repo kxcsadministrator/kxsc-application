@@ -40,9 +40,12 @@ function Messages() {
         }
       } else {
         try {
-          const res = await axios.get("http://13.36.208.80:3000/my-messages", {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          });
+          const res = await axios.get(
+            "http://13.36.208.80:3000/messages/my-messages",
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
           setStates({ loading: false, error: false });
           setAllMsg(res.data);
           console.log(res.data);
