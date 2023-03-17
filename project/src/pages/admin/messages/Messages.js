@@ -144,10 +144,10 @@ function Messages() {
                   {collection.map((msg, index) => (
                     <div className="grid gap-6" key={index}>
                       <div className="flex flex-col ">
-                        <p className="text-[13px] text-[#c3c3c3]">
+                        <p className="text-base font-bold text-[#1f1f1f]">
                           {msg.subject}
                         </p>
-                        <p className="font-bold text-base -mt-3">{msg.body}</p>
+                        <p className="text-sm -mt-3">{msg.body}</p>
                         {/* 
                           <p className="flex gap-1 items-center -mt-1">
                             <button
