@@ -30,9 +30,9 @@ function Topbar() {
         </form>
       </div>
       */}
-      <div className="text-gray-600">
+      {/*<div className="text-gray-600">
         <BiSearchAlt size="1.4rem" />
-      </div>
+      </div> */}
 
       <div className="profile_img">
         {user.profile_picture ? (
