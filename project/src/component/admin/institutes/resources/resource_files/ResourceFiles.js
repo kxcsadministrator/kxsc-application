@@ -3,6 +3,7 @@ import { Context } from "../../../../../context/Context";
 import axios from "axios";
 import AddResourceFile from "./AddResourceFile";
 import DeleteResourceFiles from "./DeleteResourceFiles";
+import fileDownload from "js-file-download";
 
 function ResourceFiles({ resource }) {
   const { user } = useContext(Context);
@@ -15,12 +16,16 @@ function ResourceFiles({ resource }) {
     setDeleteFileModal(true);
   };
 
-  const downloadBtn = async (id) => {
+  const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://13.36.208.80:3002/resources/${resource.id}/download-file/${id}`,
-        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        `http://13.36.208.80:3002/resources/download-file/${file._id}`,
+        {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+          responseType: "blob",
+        }
       );
+      fileDownload(res.data, `${file.original_name}`);
       console.log(res.data);
     } catch (err) {
       console.log(err);
@@ -52,7 +57,7 @@ function ResourceFiles({ resource }) {
                   <div className="flex gap-3 items-center">
                     <button
                       className="btn_green"
-                      onClick={() => downloadBtn(file._id)}
+                      onClick={() => downloadBtn(file)}
                     >
                       Download
                     </button>
