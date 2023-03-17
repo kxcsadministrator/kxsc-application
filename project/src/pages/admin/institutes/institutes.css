@@ -6,17 +6,18 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  background: rgb(218, 218, 218);
   padding: 2px 0;
-  border: none;
+  border: 1px solid #a0a0a0;
+  border-left: none;
+  background-color: #ffffff;
 }
 .tab:not(:last-child) {
-  border-right: 1px solid #1b1c1e;
 }
 .tab.active {
-  background: #1b1c1e;
   font-weight: bold;
-  color: white;
+  color: rgb(123, 123, 123);
+  background-color: transparent;
+  border-bottom: none;
 }
 .panel {
   display: none;
@@ -61,5 +62,12 @@
 
   .institute_submit_button {
     @apply bg-green_bg py-2 w-[35%]  px-3 text-white;
+  }
+
+  .institute_name {
+    @apply my-2;
+  }
+  .institute_name p {
+    @apply text-center text-3xl font-bold text-gray-700;
   }
 }

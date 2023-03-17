@@ -139,6 +139,6 @@ table th {
     @apply rounded-sm py-2 px-4;
   }
   .paginate {
-    @apply flex justify-end;
+    @apply flex justify-end my-3;
   }
 }

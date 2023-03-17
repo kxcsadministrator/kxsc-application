@@ -253,6 +253,31 @@ function Sidebar() {
               <BsBarChart />
               <h5 className="text-base md:text-sm lg:text-base">Dashboard</h5>
             </Link>
+            {/* Message Section - text and Menu*/}
+            <div className={"menu  " + (msgMenu && "active")}>
+              <div
+                className="menu_content"
+                onClick={() => setMsgMenu(!msgMenu)}
+              >
+                <div className="content">
+                  <RiMessage2Line />
+                  <h5>Messages</h5>
+                </div>
+                <div className="toggleImg">
+                  <CgChevronDown />
+                </div>
+              </div>
+              {/* Msg Menu*/}
+              <div className="dropdown_menu">
+                <Link className="link" to="/admin/messages">
+                  <p>My Messages</p>
+                </Link>
+                <Link className="link" to="/admin/create-message">
+                  <p>Send Message</p>
+                </Link>
+              </div>
+              <div className="dash" />
+            </div>
 
             <div className={"menu " + (resourceMenu && "active")}>
               <div

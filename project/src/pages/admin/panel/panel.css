@@ -24,11 +24,11 @@
   }
 
   .box-col h4 {
-    @apply lg:text-2xl md:text-lg text-sm;
+    @apply lg:text-3xl md:text-lg text-sm;
   }
 
   .box-col p {
-    @apply lg:text-3xl font-bold text-xl;
+    @apply lg:text-xl font-bold text-lg;
   }
 
   .chart_container {

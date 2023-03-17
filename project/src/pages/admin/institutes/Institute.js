@@ -40,15 +40,20 @@ function Institute() {
     getInstitute();
   }, [id, user.jwt_token, admin, user.id]);
 
+  console.log(institute);
+
   return (
     <>
-      <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+      <div className="base_container">
         <div className="sidebar_content">
           <Sidebar />
         </div>
         <div className="main_content">
           <div>
             <Topbar />
+          </div>
+          <div className="institute_name">
+            <p>{institute.name}</p>
           </div>
           <div className="tabs">
             <button

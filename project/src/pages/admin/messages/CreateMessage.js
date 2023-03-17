@@ -9,6 +9,7 @@ function CreateMessage() {
   const { user } = useContext(Context);
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("");
+  const [subject, setSubject] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
@@ -21,12 +22,17 @@ function CreateMessage() {
     setErr(false);
     try {
       const res = await axios.post(
-        "http://13.36.208.80:3000/users/new/super-admin",
+        "http://13.36.208.80:3000/messages/new/",
+        {
+          body: message,
+          recipient: recipient,
+          subject: subject,
+        },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
       console.log(res.data);
-      navigate("/admin/users");
+      navigate("/admin/messages");
     } catch (err) {
       setLoading(false);
       setErr(true);
@@ -57,6 +63,14 @@ function CreateMessage() {
                   className="w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1"
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
+                />
+              </div>
+              <div className="w-full">
+                <input
+                  placeholder="Subject"
+                  className="w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1"
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
                 />
               </div>
               <div className="w-full">
