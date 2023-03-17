@@ -121,7 +121,11 @@ function Institute() {
               />
             </div>
             <div className={`panel ${checkActive(5, "active")}`}>
-              <Tasks tasks={institute.tasks} instituteId={institute.id} />
+              <Tasks
+                tasks={institute.tasks}
+                instituteId={institute.id}
+                admin={admin}
+              />
             </div>
             <div className={`panel ${checkActive(6, "active")}`}>
               <Request instituteId={institute.id} admin={admin} />

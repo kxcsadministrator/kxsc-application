@@ -61,7 +61,7 @@ function Resources() {
         } catch (err) {
           setStates({
             loading: false,
-            error: false,
+            err: true,
             errMsg: err.response.data.message,
           });
           console.log(err);
@@ -123,6 +123,9 @@ function Resources() {
     setDeleteResourceModal(true);
   };
 
+  console.log(allResourrces);
+  console.log(collection);
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -143,7 +146,7 @@ function Resources() {
             </div>
           ) : allResourrces.length === 0 ? (
             <div>
-              <p>{states.errMsg}</p>
+              <p>No Resource</p>
             </div>
           ) : (
             <div className="flex flex-col gap-8">

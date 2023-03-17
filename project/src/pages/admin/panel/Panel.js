@@ -172,7 +172,7 @@ function Panel() {
             <div className="obj_container">
               <div className="obj_content">
                 <div className="obj_heading">
-                  <p>Publish Resources</p>
+                  <p>{user.main_institute.name} Resources</p>
                   <p
                     className="link hover:text-black"
                     onClick={() =>
@@ -189,12 +189,22 @@ function Panel() {
                   <div className="obj_text">
                     {dashboard?.institute_resource?.resources?.map(
                       (resource, index) => (
-                        <ul className="flex flex-col">
-                          <li key={index}>{resource.topic}</li>
-                          <li>{resource.author}</li>
-                          <li>{resource.rating}</li>
-                          <li>{resource.date}</li>
-                        </ul>
+                        <div key={index}>
+                          <p className="text-[13px] text-[#c3c3c3]">
+                            {dashboard.institute_resource.name}
+                          </p>
+                          <p className="font-bold text-lg -mt-3">
+                            {resource.topic}
+                          </p>
+                          <p className="flex items-center gap-3 text-sm  -mt-2 ">
+                            <span>
+                              {resource.rating === 0
+                                ? "No rating"
+                                : resource.rating + "/5"}
+                            </span>
+                            <span>Released: {resource.date}</span>
+                          </p>
+                        </div>
                       )
                     )}
                   </div>
@@ -220,12 +230,22 @@ function Panel() {
                         <img src="/default.png" alt="default" />
                       </div>
                       <div className="obj_text">
-                        <ul className="flex flex-col">
-                          <li key={index}>{resource.topic}</li>
-                          <li>{resource.author}</li>
-                          <li>{resource.rating}</li>
-                          <li>{resource.date}</li>
-                        </ul>
+                        <div className="flex flex-col">
+                          <p className="font-bold text-lg -mt-3">
+                            {resource.topic}
+                          </p>
+                          <p className="font-bold text-lg -mt-3">
+                            {resource.author}
+                          </p>
+                          <p className="flex items-center gap-3 text-sm  -mt-2 ">
+                            <span>
+                              {resource.rating === 0
+                                ? "No rating"
+                                : resource.rating + "/5"}
+                            </span>
+                            <span>Released: {resource.date}</span>
+                          </p>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -247,7 +267,7 @@ function Panel() {
                   <p>
                     <Link
                       className="link hover:text-black"
-                      to="/admin/resources"
+                      to="/admin/institute"
                     >
                       View all institutes
                     </Link>

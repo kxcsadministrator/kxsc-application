@@ -40,7 +40,7 @@ function PendingResources() {
     getRequest();
   }, [user.jwt_token]);
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 1;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(pendingResources.slice(0, countPerPage))
@@ -102,6 +102,7 @@ function PendingResources() {
         error: false,
         errMsg: err.response.data.message,
       });
+      console.log(err.data);
     }
   };
 
@@ -122,7 +123,6 @@ function PendingResources() {
             </div>
           ) : (
             <>
-              (
               <div className="flex flex-col gap-8">
                 <div className="all_heading">
                   <h1>All Resources</h1>
@@ -136,59 +136,36 @@ function PendingResources() {
                 </div>
                 {collection.length > 0 ? (
                   <div>
-                    {collection.map((resource, index) => (
-                      <div className="grid gap-6" key={index}>
-                        <div className="flex md:flex-row flex-col gap-3 md:h-36 w-full">
-                          {resource.avatar === null ? (
-                            <div className="md:h-full h-36 md:w-[28%] w-[90%]">
-                              <img
-                                src="/default.png"
-                                alt="default"
-                                className="object-cover h-full w-full"
-                              />
-                            </div>
-                          ) : (
-                            <div className="h-full w-[28%]">
-                              <img
-                                src={`http://13.36.208.80:3002/${resource.avatar}`}
-                                alt="default"
-                                className="object-cover h-full w-full"
-                              />
-                            </div>
-                          )}
-                          <div className="flex flex-col ">
-                            <p className="text-[13px] text-[#c3c3c3]">
-                              {resource.institute.name}
-                            </p>
-                            <p className="font-bold text-lg -mt-3">
-                              {resource.topic}
-                            </p>
-                            <p className=" -mt-4 ">
-                              By: {resource.author.username}
-                            </p>
-                            <p className="flex items-center gap-3 text-sm  -mt-2 ">
-                              <span>
-                                {resource.rating === 0
-                                  ? "No rating"
-                                  : resource.rating + "/5"}
-                              </span>
-                              <span>Released: {resource.date}</span>
-                            </p>
-                            <p className="flex gap-1 items-center -mt-1">
-                              <button
-                                className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-                                onClick={() => publish(resource._id)}
-                              >
-                                Publish
-                              </button>
-                              ;
-                            </p>
-                          </div>
-                        </div>
-                        <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
-                      </div>
-                    ))}
-                    <div className="paginate my-4">
+                    <table>
+                      <thead>
+                        <tr>
+                          <th scope="col">s/n</th>
+                          <th scope="col">Resource Topic</th>
+                          <th scope="col">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {collection.map((resource, index) => (
+                          <tr key={resource._id}>
+                            <td data-label="s/n">{index + 1}</td>
+                            <td data-label="Topic">
+                              {resource.resource.topic}
+                            </td>
+                            <td data-label="Action">
+                              <div>
+                                <button
+                                  className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                                  onClick={() => publish(resource.resource._id)}
+                                >
+                                  Publish
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <div className="paginate">
                       <Pagination
                         pageSize={countPerPage}
                         onChange={updatePage}
@@ -199,11 +176,10 @@ function PendingResources() {
                   </div>
                 ) : (
                   <div>
-                    <p>No resource</p>
+                    <p>No user with the search input found</p>
                   </div>
                 )}
               </div>
-              )
             </>
           )}
         </div>

@@ -30,7 +30,7 @@ function ResourceFiles({ resource }) {
   return (
     <div>
       <button
-        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+        className="p-2 my-2 bg-[#52cb83] rounded-md w-44 text-white"
         onClick={() => setAddFileModal(true)}
       >
         Add files

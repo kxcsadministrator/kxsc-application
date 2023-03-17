@@ -18,14 +18,16 @@ function RequestModalR({ states, setRequestModal }) {
 
   return (
     <div className="modal_container">
-      <div className="modal_content min-h-[25%]" ref={menuRef}>
+      <div className="modal_content min-h-[25%] p-3" ref={menuRef}>
         {states.loading ? (
           <div>
             <p className="text-gray-400 text-3xl text-center">Loading...</p>
           </div>
-        ) : states.err ? (
+        ) : states.error ? (
           <div>
-            <p className="text-red-400 text-3xl text-center">{states.errMsg}</p>
+            <p className="text-red-400 text-3xl text-center">
+              User already published
+            </p>
           </div>
         ) : states.success ? (
           <div>

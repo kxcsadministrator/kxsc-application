@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import AddTaskModal from "./AddTaskModal";
 import DeleteTaskModal from "./DeleteTaskModal";
+import { Context } from "../../../../context/Context";
 
-function Tasks({ tasks, instituteId }) {
+function Tasks({ tasks, instituteId, admin }) {
   const [taskModal, setTaskModal] = useState(false);
   const [deleteTaskModal, setDeleteTaskModal] = useState(false);
   const [task, setTask] = useState([]);
+  const { user } = useContext(Context);
 
   const deleteBtn = (task) => {
     setTask(task);
@@ -13,12 +15,15 @@ function Tasks({ tasks, instituteId }) {
   };
   return (
     <div>
-      <button
-        className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-        onClick={() => setTaskModal(true)}
-      >
-        Add Tasks
-      </button>
+      {(user.superadmin || admin) && (
+        <button
+          className="p-2 my-2 bg-[#52cb83] rounded-md w-44 text-white"
+          onClick={() => setTaskModal(true)}
+        >
+          Add Tasks
+        </button>
+      )}
+
       {tasks?.length ? (
         <table className="bg-white rounded-md shadow-md">
           <thead>

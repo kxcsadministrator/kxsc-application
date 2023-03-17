@@ -39,7 +39,10 @@ function Files({ files, instituteId, admin }) {
   return (
     <div>
       {(user.superadmin || admin) && (
-        <button className="btn_green_h" onClick={() => setAddFileModal(true)}>
+        <button
+          className="btn_green_h my-2"
+          onClick={() => setAddFileModal(true)}
+        >
           Add files
         </button>
       )}

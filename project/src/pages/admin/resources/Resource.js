@@ -59,7 +59,7 @@ function Resource() {
       console.log(err.response);
       setStates({
         loading: false,
-        error: false,
+        error: true,
         errMsg: err.response.data.message,
       });
     }
