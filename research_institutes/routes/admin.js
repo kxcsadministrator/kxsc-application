@@ -659,7 +659,7 @@ router.post('/institute-publish-request/:id/:resource_id', async(req, res) => {
                 { message:`resource ${resource_id} already published under institute ${institute_id}` }
             )
         }
-
+       
         const isOwner = helpers.validateUserResource(user, resource_id);
         if (!isOwner) {
             helpers.log_request_error(
@@ -668,16 +668,19 @@ router.post('/institute-publish-request/:id/:resource_id', async(req, res) => {
             return res.status(401).json({message: `User ${user._id} is not the owner of resource ${resource_id}`});
         }
 
+       
         const data = new Model.pubRequest({
             resource: resource_id,
-            institute: institute_id
+            institute: institute_id,
         });
         const result = await repository.request_to_publish(data);
+        console.log('bar')
 
         helpers.log_request_info(`POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 200`)
         res.status(200).json(result);
 
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(
             `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 400: ${error.message}`
         )
