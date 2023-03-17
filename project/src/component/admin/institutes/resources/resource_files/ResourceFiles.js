@@ -32,14 +32,18 @@ function ResourceFiles({ resource }) {
     }
   };
 
+  console.log(file);
+
   return (
     <div>
-      <button
-        className="p-2 my-2 bg-[#52cb83] rounded-md w-44 text-white"
-        onClick={() => setAddFileModal(true)}
-      >
-        Add files
-      </button>
+      {(user.superadmin || user.id === resource.author._id) && (
+        <button
+          className="p-2 my-2 bg-[#52cb83] rounded-md w-44 text-white"
+          onClick={() => setAddFileModal(true)}
+        >
+          Add files
+        </button>
+      )}
       {resource?.files?.length ? (
         <table className="bg-white rounded-md shadow-md">
           <thead>
