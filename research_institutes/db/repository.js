@@ -94,7 +94,18 @@ const get_institute_data = async (id, headers, user_id='') => {
     const files = await Model.instituteFile.find({ "_id": {$in: institute.files} }, {_id: 1, original_name: 1, date_created: 1})
 
     if (user_id === ''){
-        tasks = await Model.task.find({ "_id": {$in: institute.tasks} }, {_id: 1, name: 1})
+        const data = []
+        tasks = await Model.task.find({ "_id": {$in: institute.tasks} }, {_id: 1, name: 1, date_created: 1, status: 1})
+        tasks.forEach((task) => {
+            let r = {
+                _id: task._id,
+                name: task.name,
+                status: task.status,
+                date_created: new Date(task.date_created).toDateString()
+            }
+            data.push(r)
+        })
+        tasks = data
     }
     else tasks = await get_user_tasks_by_institute(id, user_id);
     
@@ -400,8 +411,17 @@ const get_user_tasks_by_institute = async(institute_id, user_id) => {
             {author: user_id},
             {collaborators: user_id}
         ]
-    }).sort({"date_created": -1});
-    return result
+    }, {_id: 1, name: 1, status: 1, date_created: 1}).sort({"date_created": -1});
+    for (let i = 0; i < result.length; i++) {
+        let r = {
+            _id: result[i]._id,
+            name: result[i].name,
+            status: result[i].status,
+            date: new Date(result[i].date_created).toDateString()
+        }
+        data.push(r)
+    }
+    return data
 } 
 
 const update_task = async(id, updateObj) => {
