@@ -1,52 +1,107 @@
 import Topbar from "../../../component/admin/Topbar";
 import Sidebar from "../../../component/admin/Sidebar";
 import { Context } from "../../../context/Context";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
-
 import DeleteCategory from "../../../component/admin/categories/DeleteCategory";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 function Categories() {
+  //states
   const { user } = useContext(Context);
   const navigate = useNavigate();
   const [allCat, setAllCat] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
   const [deleteCatModal, setDeleteCatModal] = useState(false);
   const [deleteCat, setdeleteCat] = useState(false);
+  const [value, setValue] = useState("");
 
+  //get categories
   useEffect(() => {
     const getCategories = async () => {
-      setLoading(true);
-      setError(false);
+      setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get("http://13.36.208.80:3002/categories/all", {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
-        });
-        setLoading(false);
+        const res = await axios.get(
+          `${process.env.REACT_APP_PORT}:3002/categories/all`,
+          {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          }
+        );
+        setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);
       } catch (err) {
-        setLoading(false);
-        setError(true);
-        setErrMsg(err.response.data.message);
-        console.log(err);
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
       }
     };
     getCategories();
   }, [user.jwt_token]);
 
+  //pagination Data
+  const countPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(allCat.slice(0, countPerPage))
+  );
+
+  const searchData = useCallback(
+    (value) => {
+      const query = value.toLowerCase();
+      const data = cloneDeep(
+        allCat
+          .filter((item) => item.name.toLowerCase().indexOf(query) > -1)
+          .slice(0, 2)
+      );
+      setCollection(data);
+      console.log(data);
+    },
+    [allCat]
+  );
+
+  //updatePage Function
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(allCat.slice(from, to)));
+    },
+    [allCat]
+  );
+
+  //useEffect Search
+  useEffect(() => {
+    if (!value) {
+      updatePage(1);
+    } else {
+      setCurrentPage(1);
+      searchData(value);
+    }
+  }, [value, updatePage, searchData]);
+
+  //delete category
   const deleteBtn = (cat) => {
     setdeleteCat(cat);
     setDeleteCatModal(true);
   };
+
+  //view category
   const viewCat = (cat) => {
-    sessionStorage.setItem("cat", cat.name);
+    sessionStorage.setItem("catId", cat._id);
     navigate(`/admin/category/${cat.name}`);
   };
 
@@ -60,54 +115,73 @@ function Categories() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
-          {loading ? (
+          {states.loading ? (
             <div>
               <h1>Loading</h1>
             </div>
-          ) : error ? (
-            <div>{errMsg}</div>
+          ) : states.error ? (
+            <div>{states.errMsg}</div>
           ) : (
-            <>
-              {allCat?.length === 0 ? (
+            <div className="flex flex-col gap-8">
+              <div className="all_heading">
+                <h1>All Category</h1>
                 <div>
-                  <h1>No resource</h1>
+                  <input
+                    placeholder="Search Resources"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                  />
                 </div>
-              ) : (
-                <table className="bg-white rounded-md shadow-md">
-                  <thead>
-                    <tr>
-                      <th scope="col">s/n</th>
-                      <th scope="col">Categories</th>
-                      <th scope="col">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allCat.map((cat, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{cat.name}</td>
-                        <td>
-                          <div className="flex gap-3 items-center justify-center">
+              </div>
+              {collection.length > 0 ? (
+                <div>
+                  {collection?.map((cat, index) => (
+                    <div className="grid gap-6" key={index}>
+                      <div className="flex flex-col ">
+                        <p className="text-base font-bold text-[#1f1f1f]">
+                          {cat.name}
+                        </p>
+                        {cat?.sub_categories.map((sub, index) => (
+                          <p className="text-sm -mt-3" key={index}>
+                            {sub}
+                          </p>
+                        ))}
+
+                        <p className="flex gap-1 items-center -mt-1">
+                          <button
+                            onClick={() => viewCat(cat)}
+                            className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
+                          >
+                            <FaEye />
+                          </button>
+                          {user.superadmin && (
                             <button
-                              onClick={() => viewCat(cat)}
-                              className="hover:text-green_bg p-2 border-gray_bg bg-gray_bg rounded-sm"
-                            >
-                              <FaEye size="1.2rem" />
-                            </button>
-                            <button
-                              className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
+                              className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
                               onClick={() => deleteBtn(cat)}
                             >
-                              <RiDeleteBinLine size="1.2rem" />
+                              <RiDeleteBinLine />
                             </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                          )}
+                        </p>
+                      </div>
+                      <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
+                    </div>
+                  ))}
+                  <div className="paginate my-4">
+                    <Pagination
+                      pageSize={countPerPage}
+                      onChange={updatePage}
+                      current={currentPage}
+                      total={allCat.length}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <p>No Category</p>
+                </div>
               )}
-            </>
+            </div>
           )}
         </div>
         <div>

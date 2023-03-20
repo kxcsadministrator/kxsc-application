@@ -21,7 +21,7 @@ function CreateCategory() {
     setErr(false);
     try {
       const res = await axios.post(
-        "http://13.36.208.80:3002/categories/new",
+        `${process.env.REACT_APP_PORT}:3002/categories/new`,
         {
           name: cat,
           sub_categories: [subCat],

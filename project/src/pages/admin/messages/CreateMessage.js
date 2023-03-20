@@ -1,28 +1,60 @@
 import Sidebar from "../../../component/admin/Sidebar";
 import Topbar from "../../../component/admin/Topbar";
 import { Context } from "../../../context/Context";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function CreateMessage() {
+  //states
   const { user } = useContext(Context);
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
-
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+  const [members, setMembers] = useState([]);
   const navigate = useNavigate();
 
+  //ueseffect function to get members
+  useEffect(() => {
+    const getMembers = async () => {
+      if (user.superadmin) {
+        try {
+          const res = await axios.get(
+            `${process.env.REACT_APP_PORT}:3000/users/search-user?name=${recipient}`,
+            { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+          );
+          setMembers(res.data);
+        } catch (err) {
+          console.log(err);
+        }
+      } else {
+        try {
+          const res = await axios.get(
+            `${process.env.REACT_APP_PORT}:3001/institutes/${user.main_institute._id}/search-member?name=${recipient}`,
+            { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+          );
+          setMembers(res.data);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+    };
+
+    getMembers();
+  }, [recipient, user.jwt_token, user.main_institute?._id, user.superadmin]);
+
+  //submit message
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErr(false);
+    setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        "http://13.36.208.80:3000/messages/new/",
+        `${process.env.REACT_APP_PORT}:3000/messages/new/`,
         {
           body: message,
           recipient: recipient,
@@ -30,19 +62,20 @@ function CreateMessage() {
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setLoading(false);
+      setStates({ loading: false, error: false });
       console.log(res.data);
       navigate("/admin/messages");
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      setErrMsg(err.response.data.errors);
-      console.log(err);
+      setStates({
+        loading: false,
+        error: false,
+        errMsg: err.response.data.message,
+      });
     }
   };
 
   return (
-    <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
+    <div className="base_container">
       <div className="sidebar_content">
         <Sidebar />
       </div>
@@ -51,24 +84,28 @@ function CreateMessage() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
-          <form className="flex flex-col items-center gap-6 bg-white shadow-md w-[80%] mx-auto h-fit pb-5 rounded-md">
-            <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
-              Send Message
-            </h1>
+          <form className="form_message">
+            <h1 className="message_heading">Send Message</h1>
 
             <div className="flex flex-col w-[90%] mx-auto gap-6">
               <div className="w-full">
                 <input
                   placeholder="Recipient"
-                  className="w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1"
+                  list="members"
+                  className="message_input"
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
                 />
+                <datalist id="members">
+                  {members.map((member, index) => (
+                    <option key={index}>{member.username}</option>
+                  ))}
+                </datalist>
               </div>
               <div className="w-full">
                 <input
                   placeholder="Subject"
-                  className="w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1"
+                  className="message_input"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                 />
@@ -76,24 +113,20 @@ function CreateMessage() {
               <div className="w-full">
                 <textarea
                   placeholder="Message"
-                  className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
+                  className="message_input"
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                 />
               </div>
 
               <div>
-                {loading ? (
+                {states.loading ? (
                   <div>
                     <p>Loading...</p>
                   </div>
-                ) : err ? (
+                ) : states.error ? (
                   <div>
-                    {errMsg.map((msg) => (
-                      <div key={msg.param}>
-                        <p>{msg.msg}</p>
-                      </div>
-                    ))}
+                    <p>{states.errMsg}</p>
                   </div>
                 ) : (
                   <div></div>
@@ -102,10 +135,10 @@ function CreateMessage() {
               <div className="relative">
                 <button
                   onClick={(e) => handleSubmit(e)}
-                  className="bg-green_bg h-[40px] w-[35%] py-1 px-3"
-                  disabled={loading}
+                  className="btn_green"
+                  disabled={states.loading}
                 >
-                  <p className="text-white">Submit</p>
+                  Send
                 </button>
               </div>
             </div>

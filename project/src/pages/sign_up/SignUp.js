@@ -17,11 +17,14 @@ function SignUp() {
     setLoading(true);
     setErr(false);
     try {
-      const res = await axios.post("http://13.36.208.80:3000/users/new", {
-        username: username,
-        email: email,
-        password: password,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_PORT}:3000/users/new`,
+        {
+          username: username,
+          email: email,
+          password: password,
+        }
+      );
       setLoading(false);
       console.log(res.data);
       navigate("/login");

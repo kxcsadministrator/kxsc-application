@@ -15,7 +15,7 @@ import "./resource.css";
 function Resources() {
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const [allResourrces, setAllResources] = useState([]);
+  const [allResources, setAllResources] = useState([]);
   const [deleteResourceModal, setDeleteResourceModal] = useState(false);
   const [deleteResource, setdeleteResource] = useState(false);
   const [states, setStates] = useState({
@@ -31,7 +31,7 @@ function Resources() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3002/resources/all",
+            `${process.env.REACT_APP_PORT}:3002/resources/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -42,7 +42,7 @@ function Resources() {
         } catch (err) {
           setStates({
             loading: false,
-            error: false,
+            error: true,
             errMsg: err.response.data.message,
           });
           console.log(err);
@@ -50,7 +50,7 @@ function Resources() {
       } else {
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3002/resources/my-resources",
+            `${process.env.REACT_APP_PORT}:3002/resources/my-resources`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -75,21 +75,21 @@ function Resources() {
   const countPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
-    cloneDeep(allResourrces.slice(0, countPerPage))
+    cloneDeep(allResources.slice(0, countPerPage))
   );
 
   const searchData = useCallback(
     (value) => {
       const query = value.toLowerCase();
       const data = cloneDeep(
-        allResourrces
+        allResources
           .filter((item) => item.topic.toLowerCase().indexOf(query) > -1)
           .slice(0, 2)
       );
       setCollection(data);
       console.log(data);
     },
-    [allResourrces]
+    [allResources]
   );
 
   //updatePage Function
@@ -98,9 +98,9 @@ function Resources() {
       setCurrentPage(p);
       const to = countPerPage * p;
       const from = to - countPerPage;
-      setCollection(cloneDeep(allResourrces.slice(from, to)));
+      setCollection(cloneDeep(allResources.slice(from, to)));
     },
-    [allResourrces]
+    [allResources]
   );
 
   //useEffect Search
@@ -123,9 +123,6 @@ function Resources() {
     setDeleteResourceModal(true);
   };
 
-  console.log(allResourrces);
-  console.log(collection);
-
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -144,7 +141,7 @@ function Resources() {
             <div>
               <p>{states.errMsg}</p>
             </div>
-          ) : allResourrces.length === 0 ? (
+          ) : allResources.length === 0 ? (
             <div>
               <p>No Resource</p>
             </div>
@@ -226,7 +223,7 @@ function Resources() {
                       pageSize={countPerPage}
                       onChange={updatePage}
                       current={currentPage}
-                      total={allResourrces.length}
+                      total={allResources.length}
                     />
                   </div>
                 </div>

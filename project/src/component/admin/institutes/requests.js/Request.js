@@ -1,23 +1,31 @@
-import { useEffect, useContext, useState } from "react";
+import { useState, useContext, useCallback, useEffect } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import RequestModal from "./RequestModal";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 function Request({ instituteId, admin }) {
+  //states
   const [request, setRequest] = useState([]);
   const { user } = useContext(Context);
   const id = sessionStorage.getItem("id");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
   const [requestModal, setRequestModal] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+  const [value, setValue] = useState("");
 
+  //calling all request
   useEffect(() => {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `http://13.36.208.80:3001/institutes/publish-requests/${id}`,
+          `${process.env.REACT_APP_PORT}:3001/institutes/publish-requests/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -31,59 +39,127 @@ function Request({ instituteId, admin }) {
     getRequest();
   }, [user.jwt_token, id]);
 
+  //pagination Data
+  const countPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(request?.slice(0, countPerPage))
+  );
+
+  //search content
+  const searchData = useCallback(
+    (value) => {
+      const query = value.toLowerCase();
+      const data = cloneDeep(
+        request
+          .filter(
+            (item) => item.resource.topic.toLowerCase().indexOf(query) > -1
+          )
+          .slice(0, 2)
+      );
+      setCollection(data);
+      console.log(data);
+    },
+    [request]
+  );
+
+  //updatePage Function
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(request?.slice(from, to)));
+    },
+    [request]
+  );
+
+  //useEffect search value
+  useEffect(() => {
+    if (!value) {
+      updatePage(1);
+    } else {
+      setCurrentPage(1);
+      searchData(value);
+    }
+  }, [value, updatePage, searchData]);
+
+  //publish request
   const publish = async (resourceId) => {
-    setErr(false);
-    setLoading(true);
+    setStates({ loading: true, error: false });
     setRequestModal(true);
     try {
       const res = await axios({
         method: "post",
-        url: `http://13.36.208.80:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
+        url: `${process.env.REACT_APP_PORT}:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);
-      setLoading(false);
-      setSuccess(true);
+      setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      setErrMsg(err.response.data);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.message,
+        success: false,
+      });
     }
   };
   return (
     <div>
-      {request?.length ? (
-        <table className="bg-white rounded-md shadow-md">
-          <thead>
-            <tr>
-              <th scope="col">s/n</th>
-              <th scope="col">Request</th>
-              {(user.superadmin || admin) && <th>Action</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {request?.map((request, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{request.resource.topic}</td>
-                <td>
-                  {(user.superadmin || admin) && (
-                    <button
-                      className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
-                      onClick={() => publish(request.resource._id)}
-                    >
-                      Publish
-                    </button>
-                  )}
-                </td>
+      <div className="all_heading my-3">
+        <div>
+          <input
+            placeholder="Search Members"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </div>
+      </div>
+      {collection?.length ? (
+        <div>
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">s/n</th>
+                <th scope="col">Request</th>
+                {(user.superadmin || admin) && <th scope="col">Action</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {collection?.map((request, index) => (
+                <tr key={index}>
+                  <td data-label="s/n">{index + 1}</td>
+                  <td data-label="Resource">{request.resource.topic}</td>
+                  <td data-label="Action">
+                    {(user.superadmin || admin) && (
+                      <div className="flex gap-3 items-center md:justify-center justify-end">
+                        <button
+                          className="btn_green"
+                          onClick={() => publish(request.resource._id)}
+                        >
+                          Publish
+                        </button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="paginate my-4">
+            <Pagination
+              pageSize={countPerPage}
+              onChange={updatePage}
+              current={currentPage}
+              total={request?.length}
+            />
+          </div>
+        </div>
       ) : (
         <div>
           <p>No Request</p>
@@ -91,13 +167,7 @@ function Request({ instituteId, admin }) {
       )}
       <div className="relative w-full h-full">
         {requestModal && (
-          <RequestModal
-            setRequestModal={setRequestModal}
-            loading={loading}
-            success={success}
-            err={err}
-            errMsg={errMsg}
-          />
+          <RequestModal setRequestModal={setRequestModal} states={states} />
         )}
       </div>
     </div>

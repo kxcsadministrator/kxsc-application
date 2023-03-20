@@ -19,7 +19,7 @@ function CreateInstitues() {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        "http://13.36.208.80:3001/institutes/new",
+        `${process.env.REACT_APP_PORT}:3001/institutes/new`,
         {
           name: instituteName,
         },

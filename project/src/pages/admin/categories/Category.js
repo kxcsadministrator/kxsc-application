@@ -6,41 +6,49 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { RiDeleteBinLine } from "react-icons/ri";
 import SubCatModal from "../../../component/admin/categories/SubCatModal";
+import { FaRegEdit } from "react-icons/fa";
+import AddSubCat from "../../../component/admin/categories/AddSubCat";
+import EditCatModal from "../../../component/admin/categories/EditCatModal";
 function Category() {
-  const cat = sessionStorage.getItem("cat");
+  //states
+  const catId = sessionStorage.getItem("catId");
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const [allSubCat, setAllSubCat] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [category, setCategory] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
   const [subCatModal, setSubCatModal] = useState(false);
   const [deleteSubCat, setdeleteSubCat] = useState(false);
+  const [addSubCatModal, setAddSubCatModal] = useState(false);
+  const [editCatModal, setEditCatModal] = useState(false);
 
+  //get categories
   useEffect(() => {
-    const getCategories = async () => {
-      setLoading(true);
-      setError(false);
+    const getCategory = async () => {
+      setStates({ loading: true, error: false });
 
       try {
         const res = await axios.get(
-          `http://13.36.208.80:3002/categories/subs?name=${cat}`,
+          `${process.env.REACT_APP_PORT}:3002/categories/category/${catId}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
         );
-        setLoading(false);
-        setAllSubCat(res.data);
-        console.log(res.data);
+        setStates({ loading: false, error: false });
+        setCategory(res.data);
       } catch (err) {
-        setLoading(false);
-        setError(true);
-        setErrMsg(err.response.data.message);
-        console.log(err);
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
       }
     };
-    getCategories();
-  }, [user.jwt_token]);
+    getCategory();
+  }, [catId, user.jwt_token]);
 
   const deleteBtn = (cat) => {
     setdeleteSubCat(cat);
@@ -57,46 +65,53 @@ function Category() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
-          {loading ? (
+          {states.loading ? (
             <div>
-              <h1>Loading</h1>
+              <p>Loading</p>
             </div>
-          ) : error ? (
-            <div>{errMsg}</div>
           ) : (
             <>
-              {allSubCat?.length === 0 ? (
+              {category?.length === 0 ? (
                 <div>
                   <h1>No SubCat</h1>
                 </div>
               ) : (
-                <table className="bg-white rounded-md shadow-md">
-                  <thead>
-                    <tr>
-                      <th scope="col">s/n</th>
-                      <th scope="col">Sub-Categories</th>
-                      <th scope="col">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {allSubCat.map((subCat, index) => (
-                      <tr key={index}>
-                        <td>{index + 1}</td>
-                        <td>{subCat}</td>
-                        <td>
-                          <div className="flex gap-3 items-center justify-center">
-                            <button
-                              className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
-                              onClick={() => deleteBtn(subCat)}
-                            >
-                              <RiDeleteBinLine size="1.2rem" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <h4 className="text-gray-500">Category Name:</h4>
+                    <div className="flex gap-4 items-center">
+                      <p className="text-lg font-bold">{category.name}</p>
+                      <button
+                        className="p-2 border-gray_bg bg-gray-600 text-white rounded-sm -mt-2"
+                        onClick={() => setEditCatModal(true)}
+                      >
+                        <FaRegEdit />
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex gap-4 items-center">
+                      <h4 className="text-gray-500">sub_categories:</h4>
+                      <button
+                        className="btn_green lg:w-20"
+                        onClick={() => setAddSubCatModal(true)}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {category.sub_categories.map((sub, index) => (
+                      <div className="flex gap-4 items-center" key={index}>
+                        <p className="text-lg font-bold">{sub}</p>
+                        <button
+                          className="p-2 border-gray_bg bg-gray-200 text-red-500 rounded-sm -mt-2"
+                          onClick={() => deleteBtn(sub)}
+                        >
+                          <RiDeleteBinLine />
+                        </button>
+                      </div>
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                </div>
               )}
             </>
           )}
@@ -106,6 +121,22 @@ function Category() {
             <SubCatModal
               setSubCatModal={setSubCatModal}
               deleteSubCat={deleteSubCat}
+            />
+          )}
+        </div>
+        <div>
+          {addSubCatModal && (
+            <AddSubCat
+              setAddSubCatModal={setAddSubCatModal}
+              category={category}
+            />
+          )}
+        </div>
+        <div>
+          {editCatModal && (
+            <EditCatModal
+              setEditCatModal={setEditCatModal}
+              category={category}
             />
           )}
         </div>

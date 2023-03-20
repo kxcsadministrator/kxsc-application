@@ -1,10 +1,9 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
-import { Context } from "../../../../context/Context";
+import { Context } from "../../../context/Context";
 
-function AddTaskModal({ setTaskModal, instituteId }) {
+function AddSubCat({ setAddSubCatModal, category }) {
   //states
-  const [name, setName] = useState("");
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -12,14 +11,14 @@ function AddTaskModal({ setTaskModal, instituteId }) {
     errMsg: "",
     success: false,
   });
-
+  const [sub, setSub] = useState("");
   let menuRef = useRef();
 
-  //function removes modal when dom is clicked
+  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setTaskModal(false);
+        setAddSubCatModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -27,24 +26,20 @@ function AddTaskModal({ setTaskModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setTaskModal]);
+  }, [setAddSubCatModal]);
 
-  const submitTask = async (e) => {
-    e.preventDefault();
+  //submit subCat
+  const submitSubCat = async () => {
     setStates({ loading: true, error: false });
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_PORT}:3001/tasks/new/${instituteId}`,
-        {
-          name: name,
-          author: user._id,
-          institute: instituteId,
-        },
+      const res = await axios.patch(
+        `${process.env.REACT_APP_PORT}:3002/categories/add-subcategories/${category._id}`,
+        { sub_categories: [sub] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setTaskModal(false);
+        setAddSubCatModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -54,20 +49,23 @@ function AddTaskModal({ setTaskModal, instituteId }) {
         errMsg: err.response.data.message,
         success: false,
       });
+
+      console.log(err);
     }
   };
+
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="modal_heading">Add Member</h1>
+        <h1 className="modal_heading">Add Sub-categories</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <form>
             <input
-              placeholder="Task name"
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={name}
+              placeholder="Sub-category"
+              className="single_input"
+              value={sub}
               onChange={(e) => {
-                setName(e.target.value);
+                setSub(e.target.value);
               }}
             />
           </form>
@@ -87,21 +85,15 @@ function AddTaskModal({ setTaskModal, instituteId }) {
             ) : (
               <div></div>
             )}
-            <div>
-              <button
-                onClick={(e) => submitTask(e)}
-                className="bg-green-600 h-[35px] w-full py-1 px-2"
-                disabled={states.loading}
-              >
-                <p className="text-white">Submit</p>
-              </button>
-            </div>
+
+            <button onClick={() => submitSubCat()} className="btn_green">
+              submit
+            </button>
           </div>
-          <div></div>
         </div>
       </div>
     </div>
   );
 }
 
-export default AddTaskModal;
+export default AddSubCat;

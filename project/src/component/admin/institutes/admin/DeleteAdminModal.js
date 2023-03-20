@@ -31,7 +31,7 @@ function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.patch(
-        `http://13.36.208.80:3001/institutes/remove-admins/${instituteId}`,
+        `${process.env.REACT_APP_PORT}:3001/institutes/remove-admins/${instituteId}`,
         {
           admins: [admin.username],
         },

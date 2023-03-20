@@ -86,6 +86,9 @@ table th {
   table td:last-child {
     border-bottom: 0;
   }
+  table tr:last-child {
+    border-bottom: none;
+  }
 }
 
 @layer components {
@@ -112,16 +115,17 @@ table th {
     @apply lg:w-[82%] md:w-[74%] w-full;
   }
   .btn_green {
-    @apply p-2 bg-[#52cb83] rounded-md lg:w-36 text-white my-3 w-[40%] text-sm md:text-base;
+    @apply p-2 bg-[#52cb83]  md:max-w-[128px] text-white rounded-md lg:w-36 w-[35%] text-sm md:text-base;
   }
+
   .btn_green_h {
-    @apply p-2 my-2 bg-[#52cb83] rounded-md w-36 text-white my-3 text-sm md:text-base;
+    @apply p-2 bg-[#52cb83] rounded-md w-36 text-white my-3 text-sm md:text-base;
   }
   .btn_red {
-    @apply bg-[#d14949] text-white p-2 rounded-md lg:w-36 w-[40%] text-sm md:text-base;
+    @apply bg-[#d14949] md:max-w-[128px] text-white p-2 rounded-md lg:w-36 w-[35%] text-sm md:text-base;
   }
   .btn_gray {
-    @apply bg-[#cccccc] text-white p-2 rounded-md lg:w-36 w-[40%] text-sm md:text-base;
+    @apply bg-[#cccccc] md:max-w-[128px] text-white p-2 rounded-md lg:w-36 w-[35%] text-sm md:text-base;
   }
   .err_text {
     @apply text-[#d14949] text-sm;
@@ -140,5 +144,29 @@ table th {
   }
   .paginate {
     @apply flex justify-end my-3;
+  }
+
+  .first_head {
+    @apply flex flex-col md:flex-row md:justify-between items-center;
+  }
+  .top_btn {
+    @apply p-2 bg-green_bg rounded-md  text-white my-2 w-[33%] text-sm md:text-base md:max-w-[150px];
+  }
+
+  .form_message {
+    @apply flex flex-col items-center gap-6 bg-white shadow-md md:w-[80%] mx-auto h-fit pb-5 rounded-md w-full;
+  }
+  .message_heading {
+    @apply md:text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full text-[18px];
+  }
+
+  .text_h1_heading {
+    @apply md:text-[20px] text-center w-full text-[18px];
+  }
+  .message_input {
+    @apply w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1 text-sm md:text-base;
+  }
+  .single_input {
+    @apply w-[90%] h-10 bg-gray_bg px-3 py-1;
   }
 }

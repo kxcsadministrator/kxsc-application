@@ -20,6 +20,7 @@ import Category from "./pages/admin/categories/Category";
 import CreateCategory from "./pages/admin/categories/CreateCategory";
 import Messages from "./pages/admin/messages/Messages";
 import CreateMessage from "./pages/admin/messages/CreateMessage";
+import Task from "./pages/task/Task";
 
 function App() {
   const { user } = useContext(Context);
@@ -40,6 +41,7 @@ function App() {
             element={<CreateInstitutes />}
           />
           <Route path="/admin/institutes/:name" element={<Institute />} />
+          <Route path="/admin/tasks/:name" element={<Task />} />
           <Route path="/admin/resources/:name" element={<Resource />} />
           <Route path="/admin/resources" element={<Resources />} />
           <Route

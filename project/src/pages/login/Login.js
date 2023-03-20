@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useRef, useContext } from "react";
+import { useRef, useContext, React } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./login.css";
@@ -13,10 +13,13 @@ function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post("http://13.36.208.80:3000/users/login", {
-        username: userRef.current.value,
-        password: passwordRef.current.value,
-      });
+      const res = await axios.post(
+        `${process.env.REACT_APP_PORT}:3000/users/login`,
+        {
+          username: userRef.current.value,
+          password: passwordRef.current.value,
+        }
+      );
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
       console.log(res.data);
       navigate("/admin");

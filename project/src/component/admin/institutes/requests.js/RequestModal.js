@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-function RequestModal({ setRequestModal, loading, errMsg, err, success }) {
+function RequestModal({ setRequestModal, states }) {
   let menuRef = useRef();
   //function removes modal when dom is clicked
   useEffect(() => {
@@ -19,15 +19,15 @@ function RequestModal({ setRequestModal, loading, errMsg, err, success }) {
   return (
     <div className="modal_container">
       <div className="modal_content min-h-[25%]" ref={menuRef}>
-        {loading ? (
+        {states.loading ? (
           <div>
             <p className="text-gray-400 text-3xl text-center">Loading...</p>
           </div>
-        ) : err ? (
+        ) : states.error ? (
           <div>
-            <p className="text-red-400 text-3xl text-center">{errMsg}</p>
+            <p className="text-red-400 text-3xl text-center">{states.errMsg}</p>
           </div>
-        ) : success ? (
+        ) : states.success ? (
           <div>
             <p className="text-green-400 text-3xl text-center">Success</p>
           </div>

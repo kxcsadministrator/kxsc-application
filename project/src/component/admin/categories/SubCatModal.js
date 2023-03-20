@@ -3,12 +3,17 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 
 function SubCatModal({ deleteSubCat, setSubCatModal }) {
+  //states
   const { user } = useContext(Context);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
   let menuRef = useRef();
+
+  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
@@ -22,25 +27,26 @@ function SubCatModal({ deleteSubCat, setSubCatModal }) {
     };
   }, [setSubCatModal]);
 
+  //submit subCat
   const submitSubCat = async () => {
-    setLoading(true);
-    setSuccess(false);
-    setErr(false);
+    setStates({ loading: true, error: false });
     try {
-      const res = await axios.delete(
-        `http://13.36.208.80:3002/catgories/remove-subcategories/${deleteSubCat.id}`,
+      const res = await axios.patch(
+        `${process.env.REACT_APP_PORT}:3002/catgories/remove-subcategories/${deleteSubCat.id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setLoading(false);
-      setSuccess(true);
+      setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setSubCatModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      setSuccess(false);
-      setLoading(false);
-      setErr(true);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.message,
+        success: false,
+      });
 
       console.log(err);
     }
@@ -57,15 +63,15 @@ function SubCatModal({ deleteSubCat, setSubCatModal }) {
             </p>
           </div>
           <div>
-            {loading ? (
+            {states.loading ? (
               <div>
                 <p className="text-gray-400">Loading...</p>
               </div>
-            ) : err ? (
+            ) : states.error ? (
               <div>
-                <p className="text-red-400">{errMsg}</p>
+                <p className="text-red-400">{states.errMsg}</p>
               </div>
-            ) : success ? (
+            ) : states.success ? (
               <div>
                 <p className="text-green-400">Success</p>
               </div>
@@ -83,7 +89,7 @@ function SubCatModal({ deleteSubCat, setSubCatModal }) {
               <button
                 onClick={() => submitSubCat()}
                 className="bg-[#d14949] rounded-sm h-[35px] w-full py-1 px-2 text-white"
-                disabled={loading}
+                disabled={states.loading}
               >
                 continue
               </button>

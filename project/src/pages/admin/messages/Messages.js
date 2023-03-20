@@ -11,6 +11,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 
 function Messages() {
+  //states
   const { user } = useContext(Context);
   const [allMsg, setAllMsg] = useState([]);
   const [states, setStates] = useState({
@@ -25,23 +26,8 @@ function Messages() {
       setStates({ loading: true, error: false });
       if (user.superadmin) {
         try {
-          const res = await axios.get("http://13.36.208.80:3000/messages/all", {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          });
-          setStates({ loading: false, error: false });
-          setAllMsg(res.data);
-          console.log(res.data);
-        } catch (err) {
-          setStates({
-            loading: false,
-            error: false,
-            errMsg: err.response.data.message,
-          });
-        }
-      } else {
-        try {
           const res = await axios.get(
-            "http://13.36.208.80:3000/messages/my-messages",
+            `${process.env.REACT_APP_PORT}:3000/messages/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -55,7 +41,24 @@ function Messages() {
             error: false,
             errMsg: err.response.data.message,
           });
-          console.log(err);
+        }
+      } else {
+        try {
+          const res = await axios.get(
+            `${process.env.REACT_APP_PORT}:3000/messages/my-messages`,
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
+          setStates({ loading: false, error: false });
+          setAllMsg(res.data);
+          console.log(res.data);
+        } catch (err) {
+          setStates({
+            loading: false,
+            error: false,
+            errMsg: err.response.data.message,
+          });
         }
       }
     };

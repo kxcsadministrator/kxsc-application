@@ -38,7 +38,7 @@ function Topbar() {
         {user.profile_picture ? (
           <div className="md:w-8 w-7 cursor-pointer">
             <img
-              src={`http://13.36.208.80:3000/uploads/1678629738131-IMG_1234.jpg`}
+              src={`${process.env.REACT_APP_PORT}:3000/uploads/1678629738131-IMG_1234.jpg`}
               alt="profile_picture"
               className="w-full  rounded-full"
             />

@@ -33,7 +33,7 @@
 
 @layer components {
   .sidebar_container {
-    @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[70px] md:mt-0 overflow-y-scroll fixed pb-10 hidden lg:w-[23%] md:w-[29%] w-full;
+    @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[55px] md:mt-0 overflow-y-scroll fixed pb-10 hidden md:max-w-[350px] lg:w-[23%] md:w-[29%] w-full;
   }
   .menu_content {
     @apply flex justify-between items-center px-2 gap-5 cursor-pointer hover:text-white;

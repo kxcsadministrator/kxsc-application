@@ -1,18 +1,24 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
-import { useNavigate } from "react-router-dom";
 
 function MakeAdminModal({ setAdminModal, instituteId }) {
+  //states declaration
   const [username, setUsername] = useState("");
   const { user } = useContext(Context);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
-  const [success, setSuccess] = useState(false);
-  const navigate = useNavigate();
+  const [members, setMembers] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+
   let menuRef = useRef();
+
+  //useEffect functions
   useEffect(() => {
+    //function to set modal false when outside modal is clicked
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
         setAdminModal(false);
@@ -25,31 +31,51 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     };
   }, [setAdminModal]);
 
+  //function to request admin
+
+  //ueseffect function to get members
+  useEffect(() => {
+    const getMembers = async () => {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_PORT}:3001/institutes/${instituteId}/search-member?name=${username}`,
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
+        setMembers(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getMembers();
+  }, [instituteId, user.jwt_token, username]);
+
   const submitAdmin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setSuccess(false);
-    setErr(false);
+
+    setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://13.36.208.80:3001/institutes/add-admins/${instituteId}`,
+        `${process.env.REACT_APP_PORT}:3001/institutes/add-admins/${instituteId}`,
         { admins: [username] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setLoading(false);
-      setSuccess(true);
+      setStates({ loading: false, error: false, success: true });
+
+      //timeout function thats closes modal on sucess
       setTimeout(() => {
         setAdminModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      setSuccess(false);
-      setLoading(false);
-      setErr(true);
-      setErrMsg(err.response.data.message);
-      console.log(err);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.message,
+        success: false,
+      });
     }
   };
+  console.log(members);
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
@@ -60,23 +86,29 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
           <div>
             <input
               placeholder="Username"
+              list="members"
               className="w-[90%] h-10 bg-gray_bg px-3 py-1 rounded-sm"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
               }}
             />
+            <datalist id="members">
+              {members.map((member, index) => (
+                <option key={index}>{member.username}</option>
+              ))}
+            </datalist>
           </div>
           <div>
-            {loading ? (
+            {states.loading ? (
               <div>
                 <p className="text-gray-400">Loading...</p>
               </div>
-            ) : err ? (
+            ) : states.error ? (
               <div>
-                <p className="err_text">{errMsg}</p>
+                <p className="err_text">{states.errMsg}</p>
               </div>
-            ) : success ? (
+            ) : states.success ? (
               <div>
                 <p className="text-green-400">Success</p>
               </div>
@@ -87,7 +119,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
               <button
                 onClick={(e) => submitAdmin(e)}
                 className="bg-green_bg  w-full text-white p-2 rounded-sm"
-                disabled={loading}
+                disabled={states.loading}
               >
                 Make Admin
               </button>

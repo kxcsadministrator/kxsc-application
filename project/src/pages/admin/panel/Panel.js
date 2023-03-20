@@ -29,7 +29,7 @@ function Panel() {
       if (!user.superadmin) {
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3000/users/my-dashboard",
+            `${process.env.REACT_APP_PORT}:3000/users/my-dashboard`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -38,15 +38,18 @@ function Panel() {
         } catch (err) {}
       } else {
         try {
-          const res = await axios.get("http://13.36.208.80:3000/users/all", {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          });
+          const res = await axios.get(
+            `${process.env.REACT_APP_PORT}:3000/users/all`,
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
           setUsers(res.data);
         } catch (err) {}
 
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3000/users/all?page=1&limit=3",
+            `${process.env.REACT_APP_PORT}:3000/users/all?page=1&limit=3`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -58,7 +61,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3001/institutes/all",
+            `${process.env.REACT_APP_PORT}:3001/institutes/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -68,7 +71,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            "http://13.36.208.80:3002/resources/all",
+            `${process.env.REACT_APP_PORT}:3002/resources/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }

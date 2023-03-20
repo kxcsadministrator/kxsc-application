@@ -1,98 +1,171 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useCallback, useEffect } from "react";
 import CreateResource from "./CreateResource";
 import { Context } from "../../../../context/Context";
 import axios from "axios";
 import RequestModal from "../requests.js/RequestModal";
 import { useNavigate } from "react-router-dom";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 function Resources({ resources, instituteId, admin }) {
+  //states
   const { user } = useContext(Context);
   const [createResourceModal, setCreateResourceModal] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
   const [requestModal, setRequestModal] = useState(false);
-  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+  const [value, setValue] = useState("");
 
+  //publish function
   const publish = async (id) => {
-    setErr(false);
-    setLoading(true);
+    setStates({ loading: true, error: false });
     setRequestModal(true);
     try {
       const res = await axios({
         method: "post",
-        url: `http://13.36.208.80:3001/institutes/request-to-publish/${instituteId}/${id}`,
+        url: `${process.env.REACT_APP_PORT}:3001/institutes/request-to-publish/${instituteId}/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);
-      setLoading(false);
-      setSuccess(true);
+      setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      setErrMsg(err.response.data);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.message,
+        success: false,
+      });
     }
   };
 
+  //pagination Data
+  const countPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(resources?.slice(0, countPerPage))
+  );
+
+  //search content
+  const searchData = useCallback(
+    (value) => {
+      const query = value.toLowerCase();
+      const data = cloneDeep(
+        resources
+          .filter((item) => item.topic.toLowerCase().indexOf(query) > -1)
+          .slice(0, 2)
+      );
+      setCollection(data);
+      console.log(data);
+    },
+    [resources]
+  );
+
+  //updatePage Function
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(resources?.slice(from, to)));
+    },
+    [resources]
+  );
+
+  //useEffect search value
+  useEffect(() => {
+    if (!value) {
+      updatePage(1);
+    } else {
+      setCurrentPage(1);
+      searchData(value);
+    }
+  }, [value, updatePage, searchData]);
+
+  //view resource
   const viewResource = (resource) => {
     sessionStorage.setItem("resourceId", resource._id);
     navigate(`/admin/resources/${resource.topic}`);
   };
   return (
     <div>
-      <button
-        className="p-2 bg-[#52cb83] rounded-md w-44 text-white my-2"
-        onClick={() => setCreateResourceModal(true)}
-      >
-        Add resource
-      </button>
+      <div className="all_heading my-3">
+        <button
+          className="top_btn"
+          onClick={() => setCreateResourceModal(true)}
+        >
+          Add resource
+        </button>
+        <div>
+          <input
+            placeholder="Search Resources"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+          />
+        </div>
+      </div>
 
-      {resources?.length ? (
-        <table className="bg-white rounded-md shadow-md">
-          <thead>
-            <tr>
-              <th scope="col">s/n</th>
-              <th scope="col">Resources</th>
-              {admin && <th>Action</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {resources?.map((resource, index) => (
-              <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{resource.topic}</td>
-                <td>
-                  <div className="flex items-between gap-3">
-                    <button
-                      className="p-2 bg-[#b2b2b2] rounded-md w-32 text-white"
-                      onClick={() => viewResource(resource)}
-                    >
-                      view
-                    </button>
-                    {(user.superadmin || admin) && (
-                      <button
-                        className="p-2 bg-[#52cb83] rounded-md w-32 text-white"
-                        onClick={() => publish(resource._id)}
-                      >
-                        publish
-                      </button>
-                    )}
-                  </div>
-                </td>
+      {collection?.length > 0 ? (
+        <div>
+          <table className="bg-white rounded-md shadow-md">
+            <thead>
+              <tr>
+                <th scope="col">s/n</th>
+                <th scope="col">Resources</th>
+                {(admin || user.superadmin) && <th>Action</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {collection.map((resource, index) => (
+                <tr key={index}>
+                  <td data-label="s/n">{index + 1}</td>
+                  <td data-label="Topic">{resource.topic}</td>
+                  <td data-label="Action">
+                    <div className="flex justify-end md:justify-center items-between gap-3">
+                      <button
+                        className="btn_gray"
+                        onClick={() => viewResource(resource)}
+                      >
+                        view
+                      </button>
+                      {(user.superadmin || admin) && (
+                        <button
+                          className="btn_green"
+                          onClick={() => publish(resource._id)}
+                        >
+                          publish
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="paginate my-4">
+            <Pagination
+              pageSize={countPerPage}
+              onChange={updatePage}
+              current={currentPage}
+              total={resources?.length}
+            />
+          </div>
+        </div>
       ) : (
         <div>
           <p>No Resources</p>
         </div>
       )}
+
       <div className="relative w-full h-full">
         {createResourceModal && (
           <CreateResource
@@ -103,13 +176,7 @@ function Resources({ resources, instituteId, admin }) {
       </div>
       <div className="relative w-full h-full">
         {requestModal && (
-          <RequestModal
-            setRequestModal={setRequestModal}
-            loading={loading}
-            success={success}
-            err={err}
-            errMsg={errMsg}
-          />
+          <RequestModal setRequestModal={setRequestModal} states={states} />
         )}
       </div>
     </div>

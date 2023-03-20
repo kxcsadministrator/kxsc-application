@@ -5,6 +5,7 @@ import { Context } from "../../../../context/Context";
 import "./resources.css";
 
 function CreateResource({ setCreateResourceModal, instituteId }) {
+  //sates
   const { user } = useContext(Context);
   const [allCat, setAllCat] = useState([]);
   const [topic, setTopic] = useState("");
@@ -14,18 +15,26 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   const [citation, setCitation] = useState("");
   const [type, setType] = useState("");
   const [description, setDescription] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [avatar, setAvatar] = useState();
+  const [file, setFile] = useState();
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
   const navigate = useNavigate();
   let menuRef = useRef();
 
+  //call categories
   useEffect(() => {
     const getCat = async () => {
       try {
-        const res = await axios.get("http://13.36.208.80:3002/categories/all", {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
-        });
+        const res = await axios.get(
+          `${process.env.REACT_APP_PORT}:3002/categories/all`,
+          {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          }
+        );
         setAllCat(res.data);
       } catch (err) {
         console.log(err);
@@ -33,6 +42,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     };
     getCat();
 
+    //set modal to false when clicked
     function handler(e) {
       if (!menuRef.current.contains(e.target)) {
         setCreateResourceModal(false);
@@ -45,23 +55,24 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     };
   }, [user.jwt_token, setCreateResourceModal]);
 
+  //get sub categories
   const getSub = async (e) => {
     setCategory(e.target.value);
     try {
       const res = await axios.get(
-        `http://13.36.208.80:3002/categories/subs?name=${e.target.value}`
+        `${process.env.REACT_APP_PORT}:3002/categories/subs?name=${e.target.value}`
       );
       setSelectedCat(res.data);
     } catch (err) {}
   };
 
+  //handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErr(false);
+    setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        "http://13.36.208.80:3002/resources/new",
+        `${process.env.REACT_APP_PORT}:3002/resources/new`,
         {
           topic: topic,
           description: description,
@@ -71,30 +82,38 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
           citations: [citation],
           resource_type: type,
           institute: instituteId,
+          avatar: avatar,
+          file: file,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setLoading(false);
+      setStates({ loading: false, error: false });
       navigate("/admin/resources");
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      console.log(err);
+      setStates({
+        loading: false,
+        error: false,
+        errMsg: err.response.data.message,
+      });
     }
   };
 
   return (
     <div className="modal_container">
       <div className="ml-[24%] w-full">
-        <div className="modal_content w-[80%]" ref={menuRef}>
+        <div
+          className="modal_content md:w-[80%] ml-[-20px] md:ml-0 mt-10 md:mt-0 "
+          ref={menuRef}
+        >
           <div className="resource_heading">
-            <h1 className="text-center text-3xl">Create Resource</h1>
+            <h1 className="text_h1_heading">Create Resource</h1>
           </div>
           <form className="create_form">
             <div className="input_content">
               <label>Topic :</label>
               <input
                 type="text"
+                placeholder="Topic"
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
               />
@@ -138,6 +157,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
               <input
                 type="text"
                 value={citation}
+                placeholder="citation"
                 onChange={(e) => setCitation(e.target.value)}
               />
             </div>
@@ -150,23 +170,44 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
                 <option value="education">education</option>
               </select>
             </div>
+            <div className="input_content_files">
+              <label for="img">Select Avatar:</label>
+              <input
+                placeholder="Upload Avatar"
+                type="file"
+                id="img"
+                name="img"
+                accept="image/*"
+                onChange={(e) => setAvatar(e.target.files)}
+              />
+            </div>
+            <div className="input_content_files">
+              <label>Select files:</label>
+              <input
+                placeholder="Upload File"
+                type="file"
+                multiple="multiple"
+                onChange={(e) => setFile(e.target.files)}
+              />
+            </div>
             <div className="input_content">
               <label>Description:</label>
               <textarea
                 type="text"
                 value={description}
+                placeholder="Description"
                 onChange={(e) => setDescription(e.target.value)}
               />
             </div>
 
             <div>
-              {loading ? (
+              {states.loading ? (
                 <div>
                   <p>Loading...</p>
                 </div>
-              ) : err ? (
+              ) : states.err ? (
                 <div>
-                  <p>{errMsg}</p>
+                  <p>{states.errMsg}</p>
                 </div>
               ) : (
                 <div></div>
@@ -175,8 +216,8 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
             <div className="input_content justify-center">
               <button
                 onClick={(e) => handleSubmit(e)}
-                className="bg-green-600 h-[40px] w-[30%] py-1 px-3 text-white"
-                disabled={loading}
+                className="btn_green"
+                disabled={states.loading}
               >
                 Submit
               </button>
