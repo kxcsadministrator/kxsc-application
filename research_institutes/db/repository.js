@@ -29,7 +29,6 @@ const get_task_member_data = async(author_id, collab_idx, headers) => {
         data: {"author": author_id, "collabs": collab_idx},
         headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
     })
-
     return publish_res.data;
 }
 
@@ -385,7 +384,6 @@ const get_task_by_name = async (name, institute_id) => {
 
 const get_task_data = async(id, header) => {
     const task = await Model.task.findById(id);
-    
     const result = await get_task_readable(task, header)
     return result;
 }
