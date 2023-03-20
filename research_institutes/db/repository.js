@@ -406,6 +406,7 @@ const get_all_tasks = async() => {
 }
 
 const get_user_tasks_by_institute = async(institute_id, user_id) => {
+    const data = []
     const result = await Model.task.find({institute: institute_id, 
         $or: [
             {author: user_id},
