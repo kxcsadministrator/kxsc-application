@@ -237,12 +237,12 @@ router.get('/one/:id', async (req, res) => {
             helpers.log_request_error(`GET tasks/one/${req.params.id} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
+        
         const isMember = await helpers.validateTaskMembers(req.headers, id);
         if (!isMember) {
             helpers.log_request_error(`GET tasks/one/${req.params.id} - 401: Unauthorized access. User not a collaborator`)
             return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
         }
-
         if (!result) {
             helpers.log_request_error(`GET tasks/one/${req.params.id} - 404: task with id ${id} not found`)
             return res.status(404).json({message: `task with id ${id} not found`});

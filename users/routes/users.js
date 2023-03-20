@@ -1044,8 +1044,8 @@ router.get('/institute-data/:id', async (req, res) => {
  *      description: Bad request
 */
 router.get('/task-data',
-    validator.check("author").notEmpty().withMessage("author field must not be empty"), 
-    validator.check("collabs").notEmpty().withMessage("collabs field must not be a non-empty list"),
+    // validator.check("author").notEmpty().withMessage("author field must not be empty"), 
+    // validator.check("collabs").notEmpty().withMessage("collabs field must not be a non-empty list"),
     async (req, res) => {
     try {
         const errors = validator.validationResult(req);
@@ -1053,18 +1053,17 @@ router.get('/task-data',
             helpers.log_request_error(`GET users/task-data/ - 400: validation errors`)
             return res.status(400).json({ errors: errors.array() });
         }
-
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET users/task-data/ - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            helpers.log_request_error(`GET users/task-data/ - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
+        // const token = req.headers.authorization.split(' ')[1];
+        // if (!token) {
+        //     helpers.log_request_error(`GET users/task-data/ - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
 
-        const decodedToken = jwt.verify(token, SECRET_KEY);
+        // const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const author_id = req.body.author;
         const collab_idx = req.body.collabs
@@ -1075,6 +1074,7 @@ router.get('/task-data',
         helpers.log_request_info(`GET users/task-data/ - 200`)
         res.status(200).json(result);
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`GET users/task-data/ - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
