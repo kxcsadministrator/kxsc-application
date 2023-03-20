@@ -33,7 +33,7 @@ function EditCatModal({ setEditCatModal, category }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `${process.env.REACT_APP_PORT}:3002/catgories/rename/${category._id}`,
+        `${process.env.REACT_APP_PORT}:3002/categories/rename/${category._id}`,
         { name: newCat },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

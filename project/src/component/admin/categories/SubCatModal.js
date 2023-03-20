@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
 
-function SubCatModal({ deleteSubCat, setSubCatModal }) {
+function SubCatModal({ deleteSubCat, setSubCatModal, category }) {
   //states
   const { user } = useContext(Context);
   const [states, setStates] = useState({
@@ -32,7 +32,8 @@ function SubCatModal({ deleteSubCat, setSubCatModal }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `${process.env.REACT_APP_PORT}:3002/catgories/remove-subcategories/${deleteSubCat.id}`,
+        `${process.env.REACT_APP_PORT}:3002/categories/remove-subcategories/${category._id}`,
+        { sub_categories: [deleteSubCat] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
@@ -59,7 +60,7 @@ function SubCatModal({ deleteSubCat, setSubCatModal }) {
           <div>
             <p>
               Are you sure you want to delete
-              <span className="font-bold">{deleteSubCat}</span>
+              <span className="font-bold ml-2">{deleteSubCat}</span>
             </p>
           </div>
           <div>

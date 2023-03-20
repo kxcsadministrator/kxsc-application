@@ -50,8 +50,8 @@ function Category() {
     getCategory();
   }, [catId, user.jwt_token]);
 
-  const deleteBtn = (cat) => {
-    setdeleteSubCat(cat);
+  const deleteBtn = (sub) => {
+    setdeleteSubCat(sub);
     setSubCatModal(true);
   };
 
@@ -121,6 +121,7 @@ function Category() {
             <SubCatModal
               setSubCatModal={setSubCatModal}
               deleteSubCat={deleteSubCat}
+              category={category}
             />
           )}
         </div>

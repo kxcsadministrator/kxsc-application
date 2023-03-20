@@ -29,7 +29,7 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `${process.env.REACT_APP_PORT}:3002/catgories/delete/${deleteCat.id}`,
+        `${process.env.REACT_APP_PORT}:3002/catgories/delete/${deleteCat._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
@@ -54,7 +54,7 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
           <div>
             <p>
               Are you sure you want to delete
-              <span className="font-bold">{deleteCat.name}</span>
+              <span className="font-bold ml-2">{deleteCat.name}</span>
             </p>
           </div>
           <div>
