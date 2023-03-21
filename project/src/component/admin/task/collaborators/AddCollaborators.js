@@ -3,21 +3,25 @@ import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
 
-function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
+function AddCollaborators({ setAddCollaboratorsModal }) {
+  const [username, setUsername] = useState("");
   const { user } = useContext(Context);
+  const [members, setMembers] = useState([]);
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
     success: false,
   });
-
+  const id = sessionStorage.getItem("taskId");
+  const instituteId = sessionStorage.getItem("id");
   let menuRef = useRef();
 
+  //function removes modal when dom is clicked
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setDeleteModal(false);
+        setAddCollaboratorsModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -25,21 +29,39 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setDeleteModal]);
+  }, [setAddCollaboratorsModal]);
 
-  const submitDeleteMember = async () => {
+  //ueseffect function to get members
+  useEffect(() => {
+    const getMembers = async () => {
+      try {
+        const res = await axios.get(
+          `http://52.47.163.4:3001/institutes/${instituteId}/search-member?name=${username}`,
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
+        setMembers(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getMembers();
+  }, [instituteId, user.jwt_token, username]);
+
+  //submit member
+  const submitMember = async (e) => {
+    e.preventDefault();
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://52.47.163.4:3001/institutes/remove-members/${instituteId}`,
+        `http://52.47.163.4:3001/tasks/add-collabs/${id}`,
         {
-          members: [member],
+          collaborators: [username],
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setDeleteModal(false);
+        setAddCollaboratorsModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -49,17 +71,31 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
         errMsg: err.response.data.message,
         success: false,
       });
+      console.log(err);
     }
   };
 
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Add Member
-        </h1>
+        <h1 className="text_h1_heading">Add Collaborators</h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <p className="font-bold">Are you sure you want to delete {member}</p>
+          <form>
+            <input
+              placeholder="Username"
+              list="members"
+              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+            />
+            <datalist id="members">
+              {members.map((member, index) => (
+                <option key={index}>{member.username}</option>
+              ))}
+            </datalist>
+          </form>
           <div>
             {states.loading ? (
               <div>
@@ -76,19 +112,13 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
             ) : (
               <div></div>
             )}
-            <div className="flex items-center gap-3">
+            <div>
               <button
-                onClick={() => setDeleteModal(false)}
-                className="btn_green"
-              >
-                back
-              </button>
-              <button
-                onClick={() => submitDeleteMember()}
-                className="btn_red"
+                onClick={(e) => submitMember(e)}
+                className="bg-green-600 h-[35px] w-full py-1 px-2"
                 disabled={states.loading}
               >
-                continue
+                <p className="text-white">Submit</p>
               </button>
             </div>
           </div>
@@ -99,4 +129,4 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
   );
 }
 
-export default DeleteMemberModal;
+export default AddCollaborators;

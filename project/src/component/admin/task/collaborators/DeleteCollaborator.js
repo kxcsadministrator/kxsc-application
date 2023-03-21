@@ -1,9 +1,9 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
-import { useNavigate } from "react-router-dom";
 
-function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
+function DeleteCollaborator({ setDeleteCollabModal, member }) {
+  //   states
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -11,13 +11,15 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
     errMsg: "",
     success: false,
   });
+  const id = sessionStorage.getItem("taskId");
 
   let menuRef = useRef();
 
+  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setDeleteModal(false);
+        setDeleteCollabModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -25,21 +27,22 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setDeleteModal]);
+  }, [setDeleteCollabModal]);
 
+  //remove collab function
   const submitDeleteMember = async () => {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://52.47.163.4:3001/institutes/remove-members/${instituteId}`,
+        `http://52.47.163.4:3001/tasks/remove-collab/${id}`,
         {
-          members: [member],
+          collaborators: [member],
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setDeleteModal(false);
+        setDeleteCollabModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -51,7 +54,6 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
       });
     }
   };
-
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
@@ -78,7 +80,7 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
             )}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDeleteModal(false)}
+                onClick={() => setDeleteCollabModal(false)}
                 className="btn_green"
               >
                 back
@@ -92,11 +94,10 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
               </button>
             </div>
           </div>
-          <div></div>
         </div>
       </div>
     </div>
   );
 }
 
-export default DeleteMemberModal;
+export default DeleteCollaborator;

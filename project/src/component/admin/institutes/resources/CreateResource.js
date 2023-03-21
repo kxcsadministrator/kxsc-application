@@ -16,7 +16,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   const [type, setType] = useState("");
   const [description, setDescription] = useState("");
   const [avatar, setAvatar] = useState();
-  const [file, setFile] = useState();
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -80,7 +79,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
           resource_type: type,
           institute: instituteId,
           avatar: avatar,
-          file: file,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
@@ -176,15 +174,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
                 name="img"
                 accept="image/*"
                 onChange={(e) => setAvatar(e.target.files)}
-              />
-            </div>
-            <div className="input_content_files">
-              <label>Select files:</label>
-              <input
-                placeholder="Upload File"
-                type="file"
-                multiple="multiple"
-                onChange={(e) => setFile(e.target.files)}
               />
             </div>
             <div className="input_content">

@@ -170,7 +170,7 @@ function Resources() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://13.36.208.80:3002/${resource.avatar}`}
+                              src={`http://52.47.163.4:3002/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />

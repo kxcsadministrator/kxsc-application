@@ -4,13 +4,15 @@ import { Context } from "../../context/Context";
 import axios from "axios";
 import Sidebar from "../../component/admin/Sidebar";
 import Topbar from "../../component/admin/Topbar";
+import Collaborators from "../../component/admin/task/collaborators/Collaborators";
+import Files from "../../component/admin/task/files/Files";
 
 function Task() {
   //states
   const { user } = useContext(Context);
   const id = sessionStorage.getItem("taskId");
   const [task, setTask] = useState([]);
-
+  const [admin, setAdmin] = useState(false);
   //tab active states
   const [activeIndex, setActiveIndex] = useState(1);
   const handleClick = (index) => setActiveIndex(index);
@@ -26,12 +28,17 @@ function Task() {
         });
         console.log(res.data);
         setTask(res.data);
+        if (user.id === res.data.id) {
+          setAdmin(true);
+        }
       } catch (err) {
         console.log(err);
       }
     };
     getTask();
-  }, [id, user.jwt_token, task]);
+  }, [id, user.jwt_token, admin, user.id]);
+
+  console.log(user.id);
 
   return (
     <>
@@ -46,7 +53,7 @@ function Task() {
           <div className="institute_name">
             <div className="flex justify-between items-center px-5">
               <h3>{task?.institute}</h3>
-              <h3>Author: {task?.author.username}</h3>
+              <h3>Author: {task?.author?.username}</h3>
             </div>
           </div>
           <div className="tabs">
@@ -70,8 +77,16 @@ function Task() {
             </button>
           </div>
           <div className="panels">
-            <div className={`panel ${checkActive(1, "active")}`}></div>
-            <div className={`panel ${checkActive(2, "active")}`}></div>
+            <div className={`panel ${checkActive(1, "active")}`}>
+              <Collaborators
+                collaborators={task.collaborators}
+                admin={admin}
+                instituteId={task.id}
+              />
+            </div>
+            <div className={`panel ${checkActive(2, "active")}`}>
+              <Files files={task.files} admin={admin} />
+            </div>
             <div className={`panel ${checkActive(3, "active")}`}></div>
           </div>
         </div>

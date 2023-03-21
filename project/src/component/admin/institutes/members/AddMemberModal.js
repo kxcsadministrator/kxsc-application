@@ -37,7 +37,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `http://52.47.163.4:3000/users/search-user?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -54,7 +54,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://13.36.208.80:3001/institutes/add-members/${instituteId}`,
+        `http://52.47.163.4:3001/institutes/add-members/${instituteId}`,
         {
           members: [username],
         },
@@ -72,6 +72,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
         errMsg: err.response.data.message,
         success: false,
       });
+      console.log(err);
     }
   };
   return (
@@ -114,10 +115,10 @@ function AddMemberModal({ setMemberModal, instituteId }) {
             <div>
               <button
                 onClick={(e) => submitMember(e)}
-                className="bg-green-600 h-[35px] w-full py-1 px-2"
+                className="btn_green py-1"
                 disabled={states.loading}
               >
-                <p className="text-white">Submit</p>
+                Submit
               </button>
             </div>
           </div>
