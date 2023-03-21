@@ -47,6 +47,8 @@ services:
     volumes:
       - ./project:/app
       - /app/node_modules
+    environment:
+      - REACT_APP_PORT=http://52.47.163.4
     ports:
       - "3003:80"
 volumes:
