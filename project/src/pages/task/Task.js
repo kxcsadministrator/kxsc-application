@@ -21,10 +21,11 @@ function Task() {
       try {
         const res = await axios({
           method: "get",
-          url: `${process.env.REACT_APP_PORT}:3001/tasks/one/${id}`,
+          url: `http://52.47.163.4:3001/tasks/one/${id}`,
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         console.log(res.data);
+        setTask(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -43,7 +44,10 @@ function Task() {
             <Topbar />
           </div>
           <div className="institute_name">
-            <p>{task.name}</p>
+            <div className="flex justify-between items-center px-5">
+              <h3>{task?.institute}</h3>
+              <h3>Author: {task?.author.username}</h3>
+            </div>
           </div>
           <div className="tabs">
             <button
@@ -58,10 +62,17 @@ function Task() {
             >
               Files
             </button>
+            <button
+              className={`tab ${checkActive(3, "active")}`}
+              onClick={() => handleClick(3)}
+            >
+              Comments
+            </button>
           </div>
           <div className="panels">
             <div className={`panel ${checkActive(1, "active")}`}></div>
             <div className={`panel ${checkActive(2, "active")}`}></div>
+            <div className={`panel ${checkActive(3, "active")}`}></div>
           </div>
         </div>
       </div>

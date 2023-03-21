@@ -30,12 +30,9 @@ function Resources() {
       setStates({ loading: true, error: false });
       if (user.superadmin) {
         try {
-          const res = await axios.get(
-            `${process.env.REACT_APP_PORT}:3002/resources/all`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`http://52.47.163.4:3002/resources/all`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
           console.log(res.data);
@@ -50,7 +47,7 @@ function Resources() {
       } else {
         try {
           const res = await axios.get(
-            `${process.env.REACT_APP_PORT}:3002/resources/my-resources`,
+            `http://52.47.163.4:3002/resources/my-resources`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }

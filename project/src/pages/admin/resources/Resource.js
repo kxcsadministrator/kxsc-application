@@ -26,7 +26,7 @@ function Resource() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3002/resources/one/${id}`,
+          `http://52.47.163.4:3002/resources/one/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -47,7 +47,7 @@ function Resource() {
       setRequestModal(true);
       const res = await axios({
         method: "post",
-        url: `${process.env.REACT_APP_PORT}:3002/resources/request-institute-publish/${resource.id}`,
+        url: `http://52.47.163.4:3002/resources/request-institute-publish/${resource.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });

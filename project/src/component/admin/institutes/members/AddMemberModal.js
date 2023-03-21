@@ -37,7 +37,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `http://52.47.163.4:3001/institutes/${instituteId}/search-member?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);

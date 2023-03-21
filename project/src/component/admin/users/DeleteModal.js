@@ -33,7 +33,7 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `${process.env.REACT_APP_PORT}:3000/users/delete/${deleteUser.id}`,
+        `http://52.47.163.4:3000/users/delete/${deleteUser.id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

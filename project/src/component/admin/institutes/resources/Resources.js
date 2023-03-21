@@ -29,7 +29,7 @@ function Resources({ resources, instituteId, admin }) {
     try {
       const res = await axios({
         method: "post",
-        url: `${process.env.REACT_APP_PORT}:3001/institutes/request-to-publish/${instituteId}/${id}`,
+        url: `http://52.47.163.4:3001/institutes/request-to-publish/${instituteId}/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

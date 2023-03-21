@@ -13,13 +13,10 @@ function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post(
-        `${process.env.REACT_APP_PORT}:3000/users/login`,
-        {
-          username: userRef.current.value,
-          password: passwordRef.current.value,
-        }
-      );
+      const res = await axios.post(`http://52.47.163.4:3000/users/login`, {
+        username: userRef.current.value,
+        password: passwordRef.current.value,
+      });
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
       console.log(res.data);
       navigate("/admin");

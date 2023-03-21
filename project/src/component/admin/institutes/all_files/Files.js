@@ -70,7 +70,7 @@ function Files({ files, instituteId, admin }) {
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_PORT}:3001/institutes/download-file/${file._id}`,
+        `http://52.47.163.4:3001/institutes/download-file/${file._id}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,

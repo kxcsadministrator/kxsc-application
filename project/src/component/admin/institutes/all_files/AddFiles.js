@@ -41,7 +41,7 @@ function AddFiles({ setAddFileModal, instituteId }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_PORT}:3001/institutes/upload-files/${instituteId}`,
+        `http://52.47.163.4:3001/institutes/upload-files/${instituteId}`,
         formData,
         {
           headers: {

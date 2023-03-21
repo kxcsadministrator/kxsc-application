@@ -36,7 +36,7 @@ function AddResourceFile({ setAddFileModal, resourceId }) {
 
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_PORT}:3002/resources/upload-files/${resourceId}`,
+        `http://52.47.163.4:3002/resources/upload-files/${resourceId}`,
         formData,
         {
           headers: {

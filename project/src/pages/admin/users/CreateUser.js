@@ -24,7 +24,7 @@ function CreateUser() {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.post(
-          `${process.env.REACT_APP_PORT}:3000/users/new/super-admin`,
+          `http://52.47.163.4:3000/users/new/super-admin`,
           {
             username: username,
             email: email,
@@ -44,14 +44,11 @@ function CreateUser() {
     } else {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.post(
-          `${process.env.REACT_APP_PORT}:3000/users/new`,
-          {
-            username: username,
-            email: email,
-            password: password,
-          }
-        );
+        const res = await axios.post(`http://52.47.163.4:3000/users/new`, {
+          username: username,
+          email: email,
+          password: password,
+        });
         setStates({ loading: false, error: false });
         navigate("/admin/users");
       } catch (err) {

@@ -26,7 +26,7 @@ function PendingResources() {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3000/users/admin-publish-requests`,
+          `http://52.47.163.4:3000/users/admin-publish-requests`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -87,7 +87,7 @@ function PendingResources() {
     try {
       const res = await axios({
         method: "post",
-        url: `${process.env.REACT_APP_PORT}:3000/users/admin-publish/${id}`,
+        url: `http://52.47.163.4:3000/users/admin-publish/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

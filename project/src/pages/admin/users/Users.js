@@ -27,12 +27,9 @@ function Users() {
     const getUsers = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3000/users/all`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`http://52.47.163.4:3000/users/all`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setAllUsers(res.data);
       } catch (err) {

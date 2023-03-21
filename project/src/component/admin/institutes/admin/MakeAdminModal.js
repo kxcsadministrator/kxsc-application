@@ -38,7 +38,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `http://52.47.163.4:3001/institutes/${instituteId}/search-member?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -55,7 +55,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `${process.env.REACT_APP_PORT}:3001/institutes/add-admins/${instituteId}`,
+        `http://52.47.163.4:3001/institutes/add-admins/${instituteId}`,
         { admins: [username] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

@@ -33,7 +33,7 @@ function AddSubCat({ setAddSubCatModal, category }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `${process.env.REACT_APP_PORT}:3002/categories/add-subcategories/${category._id}`,
+        `http://52.47.163.4:3002/categories/add-subcategories/${category._id}`,
         { sub_categories: [sub] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

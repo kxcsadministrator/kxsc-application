@@ -25,7 +25,7 @@ function CreateMessage() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `${process.env.REACT_APP_PORT}:3000/users/search-user?name=${recipient}`,
+            `http://52.47.163.4:3000/users/search-user?name=${recipient}`,
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
@@ -35,7 +35,7 @@ function CreateMessage() {
       } else {
         try {
           const res = await axios.get(
-            `${process.env.REACT_APP_PORT}:3001/institutes/${user.main_institute._id}/search-member?name=${recipient}`,
+            `http://52.47.163.4:3001/institutes/${user.main_institute._id}/search-member?name=${recipient}`,
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
@@ -54,7 +54,7 @@ function CreateMessage() {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `${process.env.REACT_APP_PORT}:3000/messages/new/`,
+        `http://52.47.163.4:3000/messages/new/`,
         {
           body: message,
           recipient: recipient,

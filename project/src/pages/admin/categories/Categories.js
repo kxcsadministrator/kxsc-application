@@ -31,12 +31,9 @@ function Categories() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3002/categories/all`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`http://52.47.163.4:3002/categories/all`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);

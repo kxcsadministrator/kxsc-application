@@ -25,7 +25,7 @@ function PieChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_PORT}:3002/resources/group-stats`,
+          `http://52.47.163.4:3002/resources/group-stats`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
