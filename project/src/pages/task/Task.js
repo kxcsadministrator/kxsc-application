@@ -5,7 +5,7 @@ import axios from "axios";
 import Sidebar from "../../component/admin/Sidebar";
 import Topbar from "../../component/admin/Topbar";
 import Collaborators from "../../component/admin/task/collaborators/Collaborators";
-import Files from "../../component/admin/task/files/Files";
+import Files from "../../component/admin/task/task_files/Files";
 
 function Task() {
   //states

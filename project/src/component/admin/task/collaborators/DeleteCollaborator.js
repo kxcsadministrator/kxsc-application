@@ -34,7 +34,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://52.47.163.4:3001/tasks/remove-collab/${id}`,
+        `http://52.47.163.4:3001/tasks/remove-collabs/${id}`,
         {
           collaborators: [member],
         },
@@ -58,7 +58,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Add Member
+          Delete collaborator
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <p className="font-bold">Are you sure you want to delete {member}</p>

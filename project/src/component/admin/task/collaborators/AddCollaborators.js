@@ -78,7 +78,9 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="text_h1_heading">Add Collaborators</h1>
+        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center pb-2">
+          Add Collaborators
+        </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <form>
             <input

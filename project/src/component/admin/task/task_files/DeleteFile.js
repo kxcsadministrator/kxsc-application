@@ -1,24 +1,24 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
-import { useForm } from "react-hook-form";
 
-function AddFiles({ setAddFileModal, instituteId }) {
+function DeleteFile({ setDeleteFileModal, file }) {
+  //   states
   const { user } = useContext(Context);
-  const [file, setFile] = useState([]);
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
     success: false,
   });
+  const id = sessionStorage.getItem("taskId");
   let menuRef = useRef();
 
-  //
+  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setAddFileModal(false);
+        setDeleteFileModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -26,33 +26,22 @@ function AddFiles({ setAddFileModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setAddFileModal]);
+  }, [setDeleteFileModal]);
 
-  const submit = async (event) => {
-    event.preventDefault();
+  //remove collab function
+  const deleteFile = async () => {
     setStates({ loading: true, error: false });
-    const formData = new FormData();
-
-    for (let i = 0; i < file.length; i++) {
-      formData.append("files", file[i]);
-    }
-
     try {
-      const res = await axios.post(
-        `http://52.47.163.4:3001/institutes/upload-files/${instituteId}`,
-        formData,
+      const res = await axios.patch(
+        `http://52.47.163.4:3001/tasks/remove-collabs/${id}`,
         {
-          headers: {
-            "Context-Type": "multipart/form-data",
-            Authorization: `Bearer ${user.jwt_token}`,
-          },
-        }
+          collaborators: [file],
+        },
+        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-
       setStates({ loading: false, error: false, success: true });
-      console.log(res.data);
       setTimeout(() => {
-        setAddFileModal(false);
+        setDeleteFileModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -62,28 +51,16 @@ function AddFiles({ setAddFileModal, instituteId }) {
         errMsg: err.response.data.message,
         success: false,
       });
-      console.log(err);
     }
   };
-
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Add Files
+          Delete collaborator
         </h1>
-        <form
-          className="flex flex-col items-center w-full gap-3"
-          onSubmit={submit}
-        >
-          <div>
-            <input
-              placeholder="Upload File"
-              type="file"
-              multiple="multiple"
-              onChange={(e) => setFile(e.target.files)}
-            />
-          </div>
+        <div className="flex flex-col items-center w-full gap-3">
+          <p className="font-bold">Are you sure you want to delete {file}</p>
           <div>
             {states.loading ? (
               <div>
@@ -91,7 +68,7 @@ function AddFiles({ setAddFileModal, instituteId }) {
               </div>
             ) : states.error ? (
               <div>
-                <p className="err_text">{states.errMsg}</p>
+                <p className="text-red-400">{states.errMsg}</p>
               </div>
             ) : states.success ? (
               <div>
@@ -100,20 +77,26 @@ function AddFiles({ setAddFileModal, instituteId }) {
             ) : (
               <div></div>
             )}
-            <div>
+            <div className="flex items-center gap-3">
               <button
-                type="submit"
-                className="p-2 bg-[#52cb83] rounded-md w-36 text-white my-3 text-sm md:text-base"
+                onClick={() => setDeleteFileModal(false)}
+                className="btn_green"
+              >
+                back
+              </button>
+              <button
+                onClick={() => deleteFile()}
+                className="btn_red"
                 disabled={states.loading}
               >
-                Add file
+                continue
               </button>
             </div>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
 }
 
-export default AddFiles;
+export default DeleteFile;

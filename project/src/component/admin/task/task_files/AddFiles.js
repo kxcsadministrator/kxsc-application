@@ -1,9 +1,8 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
-import { useForm } from "react-hook-form";
 
-function AddFiles({ setAddFileModal, instituteId }) {
+function AddFiles({ setAddFileModal }) {
   const { user } = useContext(Context);
   const [file, setFile] = useState([]);
   const [states, setStates] = useState({
@@ -12,6 +11,7 @@ function AddFiles({ setAddFileModal, instituteId }) {
     errMsg: "",
     success: false,
   });
+  const id = sessionStorage.getItem("taskId");
   let menuRef = useRef();
 
   //
@@ -36,10 +36,9 @@ function AddFiles({ setAddFileModal, instituteId }) {
     for (let i = 0; i < file.length; i++) {
       formData.append("files", file[i]);
     }
-
     try {
       const res = await axios.post(
-        `http://52.47.163.4:3001/institutes/upload-files/${instituteId}`,
+        `http://52.47.163.4:3001/tasks/upload-files/${id}`,
         formData,
         {
           headers: {

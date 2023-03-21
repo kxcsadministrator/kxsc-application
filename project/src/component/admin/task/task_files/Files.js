@@ -1,20 +1,18 @@
-import { useState, useContext, useCallback, useEffect } from "react";
+import { useContext, useState, useEffect, useCallback } from "react";
 import { Context } from "../../../../context/Context";
 import axios from "axios";
-import AddFiles from "./AddFiles";
-import DeleteFileModal from "./DeleteFileModal";
 import fileDownload from "js-file-download";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import AddFiles from "./AddFiles";
 
-function Files({ files, instituteId, admin }) {
+function Files({ files, admin }) {
   //states
   const { user } = useContext(Context);
   const [addFileModal, setAddFileModal] = useState(false);
-  const [deleteFileModal, setDeleteFileModal] = useState(false);
-  const [file, setFile] = useState();
   const [value, setValue] = useState("");
+  const id = sessionStorage.getItem("taskId");
 
   //pagination Data
   const countPerPage = 3;
@@ -61,20 +59,13 @@ function Files({ files, instituteId, admin }) {
     }
   }, [value, updatePage, searchData]);
 
-  //delete button
-  const deleteBtn = (file) => {
-    setFile(file);
-    setDeleteFileModal(true);
-  };
-
+  //download files
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://52.47.163.4:3001/institutes/download-file/${file._id}`,
+        `http://52.47.163.4:3001/tasks/${id}/download-file/${file._id}`,
         {
-          headers: {
-            Authorization: `Bearer ${user.jwt_token}`,
-          },
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
           responseType: "blob",
         }
       );
@@ -131,12 +122,7 @@ function Files({ files, instituteId, admin }) {
                         Download
                       </button>
                       {(user.superadmin || admin) && (
-                        <button
-                          className="btn_red"
-                          onClick={() => deleteBtn(file)}
-                        >
-                          Delete
-                        </button>
+                        <button className="btn_red">Delete</button>
                       )}
                     </div>
                   </td>
@@ -158,23 +144,8 @@ function Files({ files, instituteId, admin }) {
           <p>No files found</p>
         </div>
       )}
-
-      <div className="relative w-full h-full">
-        {addFileModal && (
-          <AddFiles
-            setAddFileModal={setAddFileModal}
-            instituteId={instituteId}
-          />
-        )}
-      </div>
-      <div className="relative w-full h-full">
-        {deleteFileModal && (
-          <DeleteFileModal
-            setDeleteFileModal={setDeleteFileModal}
-            instituteId={instituteId}
-            file={file}
-          />
-        )}
+      <div>
+        {addFileModal && <AddFiles setAddFileModal={setAddFileModal} />}
       </div>
     </div>
   );
