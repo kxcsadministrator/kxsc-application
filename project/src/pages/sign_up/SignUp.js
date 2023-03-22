@@ -96,7 +96,7 @@ function SignUp() {
           </div>
           <p className="text-center text-sm">
             <Link
-              to="/"
+              to="/admin/forgot-password"
               className="link text-center text-gray-400 hover:text-green_bg"
             >
               Forgot password?
