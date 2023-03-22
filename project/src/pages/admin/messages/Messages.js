@@ -150,12 +150,7 @@ function Messages() {
                         <p className="text-sm -mt-3">{msg.body}</p>
                         {/* 
                           <p className="flex gap-1 items-center -mt-1">
-                            <button
-                              onClick={() => viewMsg(msg)}
-                              className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
-                            >
-                              <FaEye />
-                            </button>
+                        
                             {user.superadmin && (
                               <button
                                 className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"

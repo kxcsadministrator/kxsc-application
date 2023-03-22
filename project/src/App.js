@@ -21,6 +21,8 @@ import CreateCategory from "./pages/admin/categories/CreateCategory";
 import Messages from "./pages/admin/messages/Messages";
 import CreateMessage from "./pages/admin/messages/CreateMessage";
 import Task from "./pages/task/Task";
+import ResetEmail from "./pages/admin/password-reset/ResetEmail";
+import Reset from "./pages/admin/password-reset/Reset";
 
 function App() {
   const { user } = useContext(Context);
@@ -52,6 +54,8 @@ function App() {
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/category/:name" element={<Category />} />
           <Route path="/admin/create-category" element={<CreateCategory />} />
+          <Route path="/admin/forgot-password" element={<ResetEmail />} />
+          <Route path="/admin/password-reset" element={<Reset />} />
         </Routes>
       </div>
     </BrowserRouter>

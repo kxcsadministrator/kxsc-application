@@ -1,8 +1,8 @@
 import { useEffect, useRef, useContext, useState } from "react";
-import axios from "axios";
 import { Context } from "../../../../context/Context";
+import axios from "axios";
 
-function DeleteCollaborator({ setDeleteCollabModal, member }) {
+function DeleteComment({ setDeleteComModal, comment }) {
   //   states
   const { user } = useContext(Context);
   const [states, setStates] = useState({
@@ -19,7 +19,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setDeleteCollabModal(false);
+        setDeleteComModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -27,22 +27,22 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setDeleteCollabModal]);
+  }, [setDeleteComModal]);
 
   //remove collab function
-  const submitDeleteMember = async () => {
+  const submitDeleteComment = async () => {
     setStates({ loading: true, error: false });
     try {
-      const res = await axios.patch(
-        `http://52.47.163.4:3001/tasks/remove-collabs/${id}`,
+      const res = await axios.delete(
+        `http://52.47.163.4:3001/tasks/comments/delete/${comment._id}`,
         {
-          collaborators: [member],
+          body: comment.body,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setDeleteCollabModal(false);
+        setDeleteComModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -63,7 +63,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
         <div className="flex flex-col items-center w-full gap-3">
           <p>
             Are you sure you want to delete{" "}
-            <span className="font-bold">{member}</span>
+            <span className="font-bold">{comment.body}</span>
           </p>
           <div>
             {states.loading ? (
@@ -83,13 +83,13 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
             )}
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setDeleteCollabModal(false)}
+                onClick={() => setDeleteComModal(false)}
                 className="btn_green"
               >
                 back
               </button>
               <button
-                onClick={() => submitDeleteMember()}
+                onClick={() => submitDeleteComment()}
                 className="btn_red"
                 disabled={states.loading}
               >
@@ -103,4 +103,4 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
   );
 }
 
-export default DeleteCollaborator;
+export default DeleteComment;

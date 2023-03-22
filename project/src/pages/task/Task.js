@@ -6,6 +6,7 @@ import Sidebar from "../../component/admin/Sidebar";
 import Topbar from "../../component/admin/Topbar";
 import Collaborators from "../../component/admin/task/collaborators/Collaborators";
 import Files from "../../component/admin/task/task_files/Files";
+import Comments from "../../component/admin/task/comments/Comments";
 
 function Task() {
   //states
@@ -87,7 +88,9 @@ function Task() {
             <div className={`panel ${checkActive(2, "active")}`}>
               <Files files={task.files} admin={admin} />
             </div>
-            <div className={`panel ${checkActive(3, "active")}`}></div>
+            <div className={`panel ${checkActive(3, "active")}`}>
+              <Comments comments={task.comments} />
+            </div>
           </div>
         </div>
       </div>
