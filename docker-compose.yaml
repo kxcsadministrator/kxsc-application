@@ -6,7 +6,7 @@ services:
       - "uploads:/node/files"
       - /node/node_modules
     environment:
-      - BASE_URL=http://52.47.163.4:3000
+      - BASE_URL=http://52.47.163.4
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - SECRET_KEY=9mODTPQzQz-zlXxU9RPwfg
