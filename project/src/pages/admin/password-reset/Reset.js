@@ -1,5 +1,6 @@
 import axios from "axios";
-import { useRef, useContext, useState } from "react";
+import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./reset.css";
 
 function Reset() {
@@ -7,6 +8,10 @@ function Reset() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [queryParameters] = useSearchParams();
+
+  const token = queryParameters.get("token");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -16,6 +21,7 @@ function Reset() {
         `http://52.47.163.4:3000/users/password-reset`,
         {
           new_password: password,
+          token: token,
         }
       );
       setLoading(false);

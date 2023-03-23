@@ -55,7 +55,7 @@ function App() {
           <Route path="/admin/category/:name" element={<Category />} />
           <Route path="/admin/create-category" element={<CreateCategory />} />
           <Route path="/admin/forgot-password" element={<ResetEmail />} />
-          <Route path="/admin/password-reset" element={<Reset />} />
+          <Route path="/password-reset" element={<Reset />} />
         </Routes>
       </div>
     </BrowserRouter>
