@@ -787,13 +787,13 @@ router.get("/:task_id/download-file/:file_id", async (req, res) => {
         const file = await repository.get_one_task_file(file_id);
         if (!file) {
             helpers.log_request_error(`GET tasks/download-file/${req.params.file_id} - 404: File not found`)
-            return res.status(404).json({message: `file ${file_name} not found`});
+            return res.status(404).json({message: `file ${file_id} not found`});
         }
 
         const task = await repository.get_task_by_id(task_id);
         if (!task) {
             helpers.log_request_error(`GET tasks/download-file/${req.params.file_id} - 404: Task not found`)
-            return res.status(400).json({message: `task with id: ${id} not found`});
+            return res.status(400).json({message: `task with id: ${task_id} not found`});
         }
 
         const isMember = await helpers.validateTaskMembers(req.headers, task_id);
@@ -802,10 +802,10 @@ router.get("/:task_id/download-file/:file_id", async (req, res) => {
             return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
         }
         
-        helpers.log_request_info(`GET tasks/download-file/${req.params.file_id} - 200`)
+        helpers.log_request_info(`GET tasks/download-file/${file_id} - 200`)
         res.download(file.path, file.original_name);
     } catch (error) {
-        helpers.log_request_error(`GET tasks/download-file/${req.params.file_id} - 400: ${error.message}`)
+        helpers.log_request_error(`GET tasks/download-file/${file_id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
