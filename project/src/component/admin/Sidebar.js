@@ -324,7 +324,7 @@ function Sidebar() {
                   className="link"
                   onClick={() => viewInstitute(user.main_institute)}
                 >
-                  <p>{user.main_institute.name}</p>
+                  <p>{user?.main_institute?.name}</p>
                 </div>
                 <Link className="link" to="/admin/institutes">
                   <p>View all institute</p>

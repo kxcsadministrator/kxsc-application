@@ -24,7 +24,7 @@ function SignUp() {
       });
       setLoading(false);
       console.log(res.data);
-      navigate("/login");
+      navigate("/");
     } catch (err) {
       setLoading(false);
       setErr(true);

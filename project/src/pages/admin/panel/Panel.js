@@ -174,7 +174,7 @@ function Panel() {
             <div className="obj_container">
               <div className="obj_content">
                 <div className="obj_heading">
-                  <p>{user.main_institute.name} Resources</p>
+                  <p>{user?.main_institute?.name} Resources</p>
                   <p
                     className="link hover:text-black"
                     onClick={() =>

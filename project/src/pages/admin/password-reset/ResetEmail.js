@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useRef, useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./reset.css";
 
 function ResetEmail() {
@@ -7,6 +8,7 @@ function ResetEmail() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);

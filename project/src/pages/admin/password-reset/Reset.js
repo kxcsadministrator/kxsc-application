@@ -13,7 +13,7 @@ function Reset() {
     setErr(false);
     try {
       const res = await axios.post(
-        `http://52.47.163.4:3000/users/reset-password-request`,
+        `http://52.47.163.4:3000/users/password-reset`,
         {
           new_password: password,
         }
