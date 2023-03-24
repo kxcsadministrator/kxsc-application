@@ -98,6 +98,15 @@ const get_user_by_id =  async (id) => {
     return result
 }
 
+const get_user_password = async(id) => {
+    const result = await Model.user.findById(id);
+    if (result) {
+        return result.password 
+    } else {
+        return null
+    }
+}
+
 const get_user_by_email = async (user_email) => {
     const result = await Model.user.findOne({email: user_email});
     return result;
@@ -510,5 +519,5 @@ module.exports = {
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
     clean_user_by_id, get_resources_readable, get_user_dashboard, super_admin_search, search_publication_requests,
-    search_username, search_resource, get_main_institute
+    search_username, search_resource, get_main_institute, get_user_password
 }
