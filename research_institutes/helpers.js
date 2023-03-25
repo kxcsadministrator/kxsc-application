@@ -3,6 +3,7 @@ const repository = require('./db/repository');
 
 const LOG_BASE_URL = process.env.LOG_URL
 const USERS_BASE_URL = process.env.USERS_SERVICE
+const MESSAGE_URL = process.env.MESSAGE_URL
 
 
 const validateUser = async (headers) => {
@@ -124,7 +125,18 @@ const log_request_error = async (message) => {
     }
 }
 
+const notify_institute = async (institute_id, headers) => {
+    const res = await axios({
+        method: 'post',
+        url: `${MESSAGE_URL}/send-institute-notification/${institute_id}`,
+        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+    })
+    if (res.status != 200) return {status: 400, message: "something went wrong"};
+
+    return {status: 200, data: res.data};
+}
+
 module.exports = {
     validateUser, validateInstituteAdmin, validateInstituteMembers, validateUserResource, validateUserdata, admin_publish_request,
-    validateTaskMembers, validateCollabs, log_request_error, log_request_info
+    validateTaskMembers, validateCollabs, log_request_error, log_request_info, notify_institute
 };

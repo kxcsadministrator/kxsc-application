@@ -111,11 +111,91 @@ const publicationRequestSchema = new mongoose.Schema({
     }
 })
 
+/* ---------------------------------- Resource Schema ---------------------------------- */
+const resourceSchema = new mongoose.Schema({
+    topic: {
+        required: true,
+        type: String
+    },
+
+    description: {
+        type: String
+    },
+
+    author: {
+        // validate: v => Array.isArray(v) && v.length > 0,
+        type: String,
+        required: true
+    },
+
+    institute: {
+        type: Schema.Types.ObjectId,
+        ref: "researchinstitutes",
+        required: true
+    },
+
+    category: {
+        required: true,
+        type: String
+    },
+
+    sub_categories: {
+        validate: v => Array.isArray(v) && v.length > 0,
+        type: [String]
+    },
+
+    visibility: {
+        type: String,
+        default: "private"
+    },
+
+    resource_type: {
+        required: true,
+        type: String
+    },
+
+    citations: {
+        type: [String],
+        validate: v => Array.isArray(v) && v.length > 0
+    },
+
+    date: {
+        type: Date,
+        default: Date.now
+    },
+
+    rating: {
+        type: Number,
+        default: 0
+    },
+
+    files: {
+        required: false,
+        type: [String]
+    },
+
+    avatar: {
+        type: String,
+        required: false
+    }
+});
+
+const resourceFileSchema =  new mongoose.Schema({
+    original_name: { required: true, type: String },
+    name: { required: true, type: String },
+    path: { required: true, type: String },
+    parent: { required: true, type: Schema.Types.ObjectId, ref: "resources" },
+    date_created: {type: Date, default: Date.now} 
+});
+
 const taskFile = mongoose.model("TaskFile", taskFileSchema);
 const instituteFile = mongoose.model("instituteFile",  instituteFileSchema);
 const comment = mongoose.model("Comment", commentSchema);
 const task = mongoose.model("Task", taskSchema);
 const institute = mongoose.model("ResearchInstitute", instituteSchema);
 const pubRequest = mongoose.model("InstitutePublishRequest", publicationRequestSchema)
+// --------------- Only needed for deletions ------------------------
+const resource = mongoose.model('Resource', resourceSchema);
+const resourceFile = mongoose.model("resourcefile", resourceFileSchema);
 
-module.exports = { taskFile, instituteFile, comment, task, institute, pubRequest };
+module.exports = { taskFile, instituteFile, comment, task, institute, pubRequest, resource, resourceFile};

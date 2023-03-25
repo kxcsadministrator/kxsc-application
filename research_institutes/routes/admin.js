@@ -660,13 +660,13 @@ router.post('/institute-publish-request/:id/:resource_id', async(req, res) => {
             )
         }
        
-        const isOwner = helpers.validateUserResource(user, resource_id);
-        if (!isOwner) {
-            helpers.log_request_error(
-                `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 401: unauthorized owner`
-            )
-            return res.status(401).json({message: `User ${user._id} is not the owner of resource ${resource_id}`});
-        }
+        // const isOwner = helpers.validateUserResource(user, resource_id);
+        // if (!isOwner) {
+        //     helpers.log_request_error(
+        //         `POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 401: unauthorized owner`
+        //     )
+        //     return res.status(401).json({message: `User ${user._id} is not the owner of resource ${resource_id}`});
+        // }
 
        
         const data = new Model.pubRequest({
@@ -674,8 +674,8 @@ router.post('/institute-publish-request/:id/:resource_id', async(req, res) => {
             institute: institute_id,
         });
         const result = await repository.request_to_publish(data);
-        console.log('bar')
 
+        helpers.notify_institute(institute_id, req.headers)
         helpers.log_request_info(`POST institutes/institute-publish-request/${req.params.id}/${req.params.resource_id} - 200`)
         res.status(200).json(result);
 

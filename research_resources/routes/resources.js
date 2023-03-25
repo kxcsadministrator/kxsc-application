@@ -81,13 +81,13 @@ router.post('/new',
 
         // Authorization
         if (!req.headers.authorization) {
-            helpers.delete_file(file.path)
+            helpers.delete_file(file)
             helpers.log_request_error('POST /resources/new - 401: Token not found')
             return res.status(401).json({message: "Token not found"});
         }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
-            helpers.delete_file(file.path)
+            helpers.delete_file(file)
             helpers.log_request_error(`POST /resources/new - ${validateUser.status}: ${validateUser.message}`)
             return res.status(validateUser.status).json({message: validateUser.message});
         }
@@ -95,14 +95,14 @@ router.post('/new',
 
         const category = await repository.get_category_by_name(req.body.category);
         if (!category) {
-            helpers.delete_file(file.path)
+            helpers.delete_file(file)
             helpers.log_request_error(`POST /resources/new - 404: Category: ${req.body.category} not found`)
             return res.status(404).json({message: `Category: ${req.body.category} not found`});
         }
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
         if (unknown_cats.length !== 0) {
-            helpers.delete_file(file.path)
+            helpers.delete_file(file)
             helpers.log_request_error(`POST /resources/new - 404: Unkown sub-categories`)
 
             return res.status(404).json({
@@ -120,7 +120,7 @@ router.post('/new',
 
         const validateTopic = await helpers.validateTopicName(req.body.topic, req.body.institute,  user._id.toString());
         if (!validateTopic) {
-            helpers.delete_file(file.path)
+            helpers.delete_file(file)
             helpers.log_request_error(`POST /resources/new - 409: Duplicate resouce`)
 
             return res.status(409).json(
@@ -143,12 +143,12 @@ router.post('/new',
         if (file){ // if a file is sent
             if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")) {
                 helpers.log_request_error(`POST resources/new - 400: only .png, .jpg and .jpeg format allowed`)
-                helpers.delete_file(file.path)
+                helpers.delete_file(file)
                 return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
             }
             if (file.size > maxSize) {
                 helpers.log_request_error(`POST resources/new - 400: File exceeded 2MB size limit`)
-                helpers.delete_file(file.path)
+                helpers.delete_file(file)
                 return res.status(400).json({message: "File exceeded 2MB size limit"});
             }
             avatar_path = `${FILE_PATH}${file.filename}`
@@ -172,7 +172,8 @@ router.post('/new',
         helpers.log_request_info(`POST /resources/new - 201`)
         res.status(201).json(dataToSave);
     } catch (error) {
-        helpers.delete_file(file.path)
+        console.error(error)
+        helpers.delete_file(file)
         helpers.log_request_error(`POST /resources/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }

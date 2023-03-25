@@ -228,7 +228,7 @@ const taskSchema = new mongoose.Schema({
 const messageSchema = new mongoose.Schema({
     sender: {
         type: Schema.Types.ObjectId,
-        required: true,
+        required: false,
         ref: "user",
     },
     recipients: [{
@@ -250,6 +250,27 @@ const messageSchema = new mongoose.Schema({
     }
 })
 
+/* ---------------------------------- Notification Schema ---------------------------------- */
+const notificationSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        required: true
+    },
+    message: {
+        type: String,
+        required: false
+    },
+    owner: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        ref: "user",
+    },
+    date_created: {
+        type: Date,
+        default: Date.now,
+    }
+})
+
 const profilePic = mongoose.model("profilePicture", picSchema);
 const user = mongoose.model("user", userSchema);
 const token = mongoose.model("token", tokenSchema);
@@ -258,5 +279,6 @@ const resource = mongoose.model('Resource', resourceSchema);
 const institute = mongoose.model("ResearchInstitute", instituteSchema);
 const task = mongoose.model("Task", taskSchema);
 const message = mongoose.model("Message", messageSchema)
+const notification = mongoose.model("Notification", notificationSchema)
 
-module.exports = { profilePic, user, token, pubRequest, resource, institute, task, message};
+module.exports = { profilePic, user, token, pubRequest, resource, institute, task, message, notification};

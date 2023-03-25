@@ -12,10 +12,13 @@ const logger = require('./logger')
 
 
 const repository = require('./db/repository')
+const Model = require('./db/models')
 
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests';
 
 const LOG_BASE_URL = process.env.LOG_URL
+
+const clients = {}
 
 const sendEmail = async (email, subject, payload, template) => {
   try {
@@ -146,7 +149,53 @@ const delete_file = (path) => {
   )
 }
 
+const send_request_notification = async() => {
+  const recipients = await repository.get_super_admins()
+  if (recipients.length < 1) {
+    return null 
+  }
+
+  const recipient_idx = []
+  for (let i = 0; i < recipients.length; i++) {
+      recipient_idx.push(recipients[i]._id)
+  }
+
+for (let i = 0; i < recipient_idx.length; i++) {
+  const owner = recipient_idx;
+  const notification = new Model.notification({
+      type: "request",
+      owner: owner
+  })
+  const notify_res = repository.create_new_notification(notification);
+  if (owner in clients)
+      clients[owner].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+  }
+}
+
+const send_instiute_notification = async(id) => {
+  const recipients = await repository.get_institute_admins(id)
+  if (recipients.length < 1) {
+    return null 
+  }
+
+  const recipient_idx = []
+  for (let i = 0; i < recipients.length; i++) {
+      recipient_idx.push(recipients[i]._id)
+  }
+
+for (let i = 0; i < recipient_idx.length; i++) {
+  const owner = recipient_idx;
+  const notification = new Model.notification({
+      type: "request",
+      owner: owner
+  })
+  const notify_res = await repository.create_new_notification(notification);
+  if (owner in clients)
+      clients[owner].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+  }
+}
+
 module.exports = {
   sendEmail, validateUser, validatePublicResource, validateInstituteAdmin, log_request_error, log_request_info, get_all_logs,
-  prepare_log_response, get_log_files, delete_file
+  prepare_log_response, get_log_files, delete_file, clients, send_request_notification, send_instiute_notification
 };

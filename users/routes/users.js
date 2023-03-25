@@ -658,6 +658,7 @@ router.get('/my-dashboard', async (req, res) => {
         helpers.log_request_info(`GET users/my-dashboard - 200`)
         res.status(200).json(result);
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`GET users/my-dashboard - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
