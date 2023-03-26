@@ -254,8 +254,26 @@ const update_institute = async(id, updateObj) => {
     return res
 }
 
+const delete_resource_by_id = async (id) => {
+    const files = await Model.resourceFile.find({parent: id});
+    if (files){
+        files.map(p => {
+            fs.unlink(p.path, (err) => {
+                    if (err) {
+                        log_request_error(`file unlink: ${err}`)
+                    return
+                    }
+                }
+            )
+        })
+    }
+    await Model.resourceFile.deleteMany({parent: id});
+    const data = await Model.resource.findByIdAndDelete(id);
+    return data;
+}
+
 const delete_institute = async (id) => {
-    const files = await Model.instituteFile.find({parent: id});
+    let files = await Model.instituteFile.find({parent: id});
     if (files){
         files.map(p => {
             fs.unlink(p.path, (err) => {
@@ -271,10 +289,15 @@ const delete_institute = async (id) => {
     const tasks = institute.tasks;
     
     for (let i = 0; i < tasks.length; i++){
-        await delete_task(tasks[i]._id.toString());
+        delete_task(tasks[i]._id.toString());
     }
 
     await Model.instituteFile.deleteMany({parent: id});
+    let resources = await Model.resource.find({institute: id})
+    for (let i = 0; i < resources.length; i++) {
+        const resource = resources[i];
+        delete_resource_by_id(resource._id)
+    }
     const result = await Model.institute.findByIdAndDelete(id);
     return result
 }

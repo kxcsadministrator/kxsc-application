@@ -379,13 +379,13 @@ router.patch('/change-password',
         // const user = await repository.get_user_by_id(id);
         // if (!user) return res.status(404).json({message: `user with id ${id} not found`});
 
-        const data = await repository.get_user_by_id(id);
+        const data = await repository.get_user_password(id);
         if(!data) {
             helpers.log_request_error(`PATCH users/change-password - 404: user with id ${id} not found`)
             return res.status(404).json({message: `user with id ${id} not found`});
         }
 
-        const verify = await bcrypt.compare(req.body.old_password, data.password);
+        const verify = await bcrypt.compare(req.body.old_password, data);
         if (!verify) {
             helpers.log_request_error(`PATCH users/change-password - 401: Incorrect password`)
             return res.status(401).json({message: `Incorrect password`});
@@ -397,6 +397,7 @@ router.patch('/change-password',
         helpers.log_request_info(`PATCH users/change-password - 200`)
         res.status(201).json(result);
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`PATCH users/change-password - 400: ${error.message}`)
         res.status(400).json({message: error.message});   
     }
@@ -657,6 +658,7 @@ router.get('/my-dashboard', async (req, res) => {
         helpers.log_request_info(`GET users/my-dashboard - 200`)
         res.status(200).json(result);
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`GET users/my-dashboard - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }

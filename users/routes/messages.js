@@ -15,8 +15,6 @@ const router = express.Router()
  *      description: |
  *          A recipient (User's Username) and a message body must be provided.
  *          
- *          Only the superadmin can send a message
- *          
  *          Requires a bearer token for authentication.
  *          ## Schema
  *          ### recipient: {required: true, type: Object ID}
@@ -83,8 +81,57 @@ router.post('/new',
             const result = await repository.new_message(data);
 
             helpers.log_request_info(`POST messages/new - 200`)
+            const notification = new Model.notification({
+                type: "message",
+                owner: recipient._id
+            })
+            const notify_res = await repository.create_new_notification(notification);
+            
+            // clients is a list of response objects
+            if (recipient._id.toString() in helpers.clients){
+                helpers.clients[recipient._id.toString()].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+            }
             res.status(200).json(result);
 
+        } catch (error) {
+            helpers.log_request_error(`POST messages/new - 400: ${error.message}`)
+            res.status(400).json({message: error.message});
+        }
+    }
+)
+
+/** 
+ * @swagger
+ * /messages/send-institute-notification/{id}:
+ *  post:
+ *      summary: Creates a notification for an institute admin       
+ * responses:
+ *    '200':
+ *      description: Sent 
+ *    '401':
+ *      description: Unauthorized
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+*/
+router.post('/send-institute-notification/:id', 
+    async (req, res) => {
+        try {
+            const id = req.params.id
+            // user validation
+            if (!req.headers.authorization) {
+                helpers.log_request_error(`POST messages/new - 401: Token not found`)
+                return res.status(401).json({message: "Token not found"});
+            }
+            const validateUser = await helpers.validateUser(req.headers);
+            if (validateUser.status !== 200) {
+                helpers.log_request_error(`POST messages/new - ${validateUser.status}: ${validateUser.message}`)
+                return res.status(validateUser.status).json({message: validateUser.message});
+            }
+
+            helpers.send_instiute_notification(id);
+            res.status(200).json({message: 'Successful'});
         } catch (error) {
             helpers.log_request_error(`POST messages/new - 400: ${error.message}`)
             res.status(400).json({message: error.message});
@@ -386,6 +433,114 @@ router.get('/my-messages', async (req, res) => {
     } catch (error) {
         helpers.log_request_error(`GET messages/my-messages - 400: ${error.message}`)
         res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /sent-messages:
+ *  get:
+ *      summary: Gets all the messages the requester is a sender of.
+ *      description: |
+ *          Requires a bearer token for authentication. The results depend on the user decoded from the bearer token.
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/sent-messages', async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET messages/my-messages - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET messages/my-messages - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data
+
+        const result = await repository.get_user_sent_messages(user._id);
+
+        helpers.log_request_info(`GET messages/my-messages - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`GET messages/my-messages - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /notifications/{id}:
+ *  get:
+ *      summary: A long-lived connection for recieving SSEs.
+ *      description: |
+ *          Use for getting notifications in real-time
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '500':
+ *      description: Internal Server Error
+*/
+router.get('/notifications/:id', async(req, res) => {
+    try {
+        const headers = {
+            'Content-Type': 'text/event-stream',
+            'Connection': 'keep-alive',
+            'Cache-Control': 'no-cache'
+        };
+        const user_id = req.params.id
+        helpers.log_request_info(`${user_id} Connection opened`)
+        res.writeHead(200, headers);
+        
+        const data = await repository.get_user_notifications(user_id)
+        const result = `data: ${JSON.stringify(data)}\n\n`;
+        
+        res.write(result);
+        
+        helpers.clients[user_id] = res;
+        
+        req.on('close', () => {
+            // console.log(`${user_id} Connection closed`);
+            helpers.log_request_info(`${user_id} Connection closed`)
+            delete helpers.clients[user_id]
+        });
+    } catch (error) {
+        console.error(error)
+        helpers.log_request_error(`GET messages/notifications - 500: ${error.message}`)
+        res.status(500).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /notifications/{id}:
+ *  delete:
+ *      summary: Delete read notifications
+ *      description: |
+ *          Use for deleting notifications that have been seen
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '500':
+ *      description: Internal Server Error
+*/
+router.delete('/notifications/:id', async(req, res) => {
+    try {
+        const user_id = req.params.id
+        console.log(user_id)
+        
+        await repository.delete_user_notification(user_id)
+        return res.status(204).json({message: "successful"})
+    } catch (error) {
+        helpers.log_request_error(`GET messages/notifications - 500: ${error.message}`)
+        res.status(500).json({message: error.message});
     }
 })
 

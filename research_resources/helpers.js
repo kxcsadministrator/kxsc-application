@@ -65,8 +65,10 @@ const log_request_info = async (message) => {
     }
 }
 
-const delete_file = (path) => {
-  fs.unlink(path, (err) => {
+const delete_file = (file) => {
+  if (!file) return
+
+  fs.unlink(file.path, (err) => {
       if (err) {
         log_request_error(`file unlink: ${err}`)
         return

@@ -324,7 +324,8 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
         });
         const result = await repository.request_to_publish(data);
 
-        helpers.log_request_info(`POST users/admin-publish-request/${institute_id}/${resource_id} - 200`)
+        helpers.log_request_info(`POST users/admin-publish-request/${institute_id}/${resource_id} - 200`);
+        helpers.send_request_notification()
         res.status(200).json(result);
     } catch (error) {
         helpers.log_request_error(

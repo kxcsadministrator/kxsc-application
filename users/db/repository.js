@@ -1,6 +1,6 @@
 const Model = require('./models');
 const fs = require('fs');
-const { query } = require('express');
+
 /* ----------------------------------- Users ----------------------------------- */
 const create_new_user = async(data) => {
     const dataToSave = await data.save();
@@ -55,6 +55,12 @@ const get_user_dashboard = async(id) => {
         const resource = user_resources[i];
         const author = await Model.user.findById(resource.author, {_id: 1, username: 1})
         const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1})
+        if (!institute) {
+            console.log('-------------')
+            console.log(resource)
+            Model.resource.findByIdAndDelete(resource._id)
+            continue
+        }
         resource.author = author.username
         resource.institute = institute.name
         let date  = new Date(resource.date).toDateString()
@@ -98,6 +104,15 @@ const get_user_by_id =  async (id) => {
     return result
 }
 
+const get_user_password = async(id) => {
+    const result = await Model.user.findById(id);
+    if (result) {
+        return result.password 
+    } else {
+        return null
+    }
+}
+
 const get_user_by_email = async (user_email) => {
     const result = await Model.user.findOne({email: user_email});
     return result;
@@ -106,6 +121,11 @@ const get_user_by_email = async (user_email) => {
 const get_user_by_username = async (_username_) => {
     const result = await Model.user.findOne({username: _username_});
     return result;
+}
+
+const get_super_admins = async () => {
+    const result = await Model.user.find({superadmin: true})
+    return result
 }
 
 const get_user_by_username_or_email = async (name) => {
@@ -335,6 +355,13 @@ const get_main_institute = async(id) => {
     return res[0]
 }
 
+const get_institute_admins = async(id) => {
+    const institute = await Model.institute.findById(id)
+    if (!institute) return []
+
+    return institute.admins;
+}
+
 /* ------------------------------ Messages ----------------------------- */
 const new_message = async (data) => {
     const result = await data.save();
@@ -363,23 +390,47 @@ const broadcast_message = async(sender_id, message) => {
 }
 
 const get_user_messages = async (user_id) => {
-    // const result = await Model.message.find({recipients: user_id}, {_id: 1, sender: 1, subject: 1, body: 1, date_created: 1});
-    const result = await Model.message.aggregate([
-        {
-            $lookup: {
-                from: "users",
-                localField: "sender",
-                foreignField: "_id",
-                as: "sender_info"
-            }
-        }
-    ])
+    const result = await Model.message.find({recipients: user_id}, {_id: 1, sender: 1, subject: 1, body: 1, date_created: 1});
+    // const result = await Model.message.aggregate([
+    //     {
+    //         $lookup: {
+    //             from: "users",
+    //             localField: "sender",
+    //             foreignField: "_id",
+    //             as: "sender_info"
+    //         }
+    //     }
+    // ])
     const messages = []
     for (let i = 0; i < result.length; i++) {
         const msg = result[i];
+        let sender_info = await Model.user.findById(msg.sender)
         let data = {
             _id: msg._id,
-            sender: {_id: msg.sender_info[0]._id,username: msg.sender_info[0].username},
+            sender: {_id: sender_info._id,username:sender_info.username},
+            subject: msg.subject,
+            body: msg.body,
+            date_created: new Date(msg.date_created).toDateString()
+        }
+       messages.push(data)
+    }
+    return messages;
+}
+
+const get_user_sent_messages = async (user_id) => {
+    const result = await Model.message.find({sender: user_id}, {_id: 1, recipients: 1, subject: 1, body: 1, date_created: 1});
+    const messages = []
+    for (let i = 0; i < result.length; i++) {
+        const recipients = []
+        const msg = result[i];
+        for (let j = 0; j < msg.recipients.length; j++) {
+            const r_idx = msg.recipients[j];
+            let recipient_info = await Model.user.findById(r_idx)
+            recipients.push({id: recipient_info._id, username: recipient_info.username})
+        }
+        let data = {
+            _id: msg._id,
+            recipients: recipients,
             subject: msg.subject,
             body: msg.body,
             date_created: new Date(msg.date_created).toDateString()
@@ -503,6 +554,22 @@ const search_username = async (query) => {
     return user_results
 }
 
+//------------------------------------ Notifications -------------------------------------------
+const create_new_notification = async (data) => {
+    const result = await data.save();
+    return result
+}
+
+const get_user_notifications = async (id) => {
+    const result = await Model.notification.find({owner: id})
+    return result
+}
+
+const delete_user_notification = async (id) => {
+    await Model.notification.deleteMany({owner: id})
+}
+
+
 module.exports = { 
     create_new_user, get_user_by_id, get_user_by_email, get_user_by_username, get_all_users, edit_username, update_password, 
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
@@ -510,5 +577,6 @@ module.exports = {
     get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
     clean_user_by_id, get_resources_readable, get_user_dashboard, super_admin_search, search_publication_requests,
-    search_username, search_resource, get_main_institute
+    search_username, search_resource, get_main_institute, get_user_password, get_user_sent_messages, create_new_notification,
+    get_user_notifications, delete_user_notification, get_super_admins, get_institute_admins
 }
