@@ -333,12 +333,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
 
-            {/* Blog Items 
-            <Link to="/admin" className="content_1 link">
+            {/* Profile */}
+            <Link to="/admin/profile" className="content_1 link">
               <FaUserAlt />
               <h5>My profile</h5>
-              </Link>
-                  */}
+            </Link>
+
             <div className="content_1 link" onClick={() => logout()}>
               <AiOutlineLogout />
               <h5>Log Out</h5>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { GrStatusGood } from "react-icons/gr";
 
 function RequestModalR({ states, setRequestModal }) {
   let menuRef = useRef();
@@ -30,8 +31,9 @@ function RequestModalR({ states, setRequestModal }) {
             </p>
           </div>
         ) : states.success ? (
-          <div>
-            <p className="text-green-400 text-3xl text-center">Success</p>
+          <div className="flex items-center gap-4 text-green-400 ">
+            <GrStatusGood />
+            <p className="text-3xl text-center">Success</p>
           </div>
         ) : (
           <div></div>

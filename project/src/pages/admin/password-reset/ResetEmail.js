@@ -1,18 +1,21 @@
 import axios from "axios";
-import { useRef, useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./reset.css";
 
 function ResetEmail() {
   const [username, setUsername] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState(false);
-  const [errMsg, setErrMsg] = useState("");
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErr(false);
+    setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.post(
         `http://52.47.163.4:3000/users/reset-password-request`,
@@ -20,15 +23,18 @@ function ResetEmail() {
           username: username,
         }
       );
-      setLoading(false);
-      console.log(res.data);
+      setStates({ loading: false, error: false, success: true });
+      setTimeout(() => {
+        navigate("/");
+      }, 3000);
     } catch (err) {
-      setLoading(false);
-      setErr(true);
-      err.response
-        ? setErrMsg(err.response.data.errors[0].msg)
-        : setErrMsg(err.message);
-      console.log(err);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
+      });
     }
   };
   return (
@@ -52,15 +58,19 @@ function ResetEmail() {
               />
 
               <div>
-                {loading ? (
+                {states.loading ? (
                   <div>
                     <p>Loading...</p>
                   </div>
-                ) : err ? (
+                ) : states.error ? (
                   <div>
                     <div>
-                      <p className="text-red-500">{errMsg}</p>
+                      <p className="text-red-500">{states.errMsg}</p>
                     </div>
+                  </div>
+                ) : states.success ? (
+                  <div className="text-green-400">
+                    <p>Sucess</p>
                   </div>
                 ) : (
                   <div></div>
@@ -68,7 +78,7 @@ function ResetEmail() {
               </div>
               <button
                 onClick={(e) => handleSubmit(e)}
-                disabled={loading}
+                disabled={states.loading}
                 className="text-white"
               >
                 Submit

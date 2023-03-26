@@ -82,7 +82,7 @@ function PendingResources() {
   }, [value, updatePage, searchData]);
 
   const publish = async (id) => {
-    setStates({ loading: true, error: false });
+    setStates({ loading: true, error: false, success: false });
     setRequestModal(true);
     try {
       const res = await axios({
@@ -99,8 +99,10 @@ function PendingResources() {
     } catch (err) {
       setStates({
         loading: false,
-        error: false,
-        errMsg: err.response.data.message,
+        error: true,
+        errMsg: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
       });
       console.log(err.data);
     }

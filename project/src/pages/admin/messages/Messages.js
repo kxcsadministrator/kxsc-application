@@ -3,17 +3,19 @@ import Topbar from "../../../component/admin/Topbar";
 import Sidebar from "../../../component/admin/Sidebar";
 import { Context } from "../../../context/Context";
 import axios from "axios";
-import DeleteResources from "../../../component/admin/institutes/resources/DeleteResources";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import { Link } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
+import DeleteMsg from "../../../component/admin/users/DeleteMsg";
 
 function Messages() {
   //states
   const { user } = useContext(Context);
   const [allMsg, setAllMsg] = useState([]);
+  const [message, setMessage] = useState();
+  const [deleteMsgModal, setDeleteMsgModal] = useState(false);
   const [states, setStates] = useState({
     loading: true,
     error: false,
@@ -24,43 +26,27 @@ function Messages() {
   useEffect(() => {
     const getMessages = async () => {
       setStates({ loading: true, error: false });
-      if (user.superadmin) {
-        try {
-          const res = await axios.get(`http://52.47.163.4:3000/messages/all`, {
+
+      try {
+        const res = await axios.get(
+          `http://52.47.163.4:3000/messages/my-messages`,
+          {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
-          });
-          setStates({ loading: false, error: false });
-          setAllMsg(res.data);
-          console.log(res.data);
-        } catch (err) {
-          setStates({
-            loading: false,
-            error: false,
-            errMsg: err.response.data.message,
-          });
-        }
-      } else {
-        try {
-          const res = await axios.get(
-            `http://52.47.163.4:3000/messages/my-messages`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
-          setStates({ loading: false, error: false });
-          setAllMsg(res.data);
-          console.log(res.data);
-        } catch (err) {
-          setStates({
-            loading: false,
-            error: false,
-            errMsg: err.response.data.message,
-          });
-        }
+          }
+        );
+        setStates({ loading: false, error: false });
+        setAllMsg(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: false,
+          errMsg: err.response.data.message,
+        });
       }
     };
     getMessages();
-  }, [user.jwt_token]);
+  }, [user.jwt_token, user.superadmin]);
   //pagination Data
   const countPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
@@ -103,7 +89,10 @@ function Messages() {
     }
   }, [value, updatePage, searchData]);
 
-  const handleDelete = () => {};
+  const deleteMsg = (msg) => {
+    setMessage(msg);
+    setDeleteMsgModal(true);
+  };
 
   return (
     <div className="base_container">
@@ -144,23 +133,25 @@ function Messages() {
                   {collection.map((msg, index) => (
                     <div className="grid gap-6" key={index}>
                       <div className="flex flex-col ">
-                        <p className="text-base font-bold text-[#1f1f1f]">
-                          {msg.subject}
-                        </p>
-                        <p className="text-sm -mt-3">{msg.body}</p>
-                        {/* 
-                          <p className="flex gap-1 items-center -mt-1">
-                        
-                            {user.superadmin && (
-                              <button
-                                className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
-                                onClick={() => deleteMsg(msg)}
-                              >
-                                <RiDeleteBinLine />
-                              </button>
-                            )}
+                        <div className="flex justify-between items-center">
+                          <p className="text-base font-bold text-[#1f1f1f]">
+                            {msg.subject}
                           </p>
-                          */}
+                          <p className="text-sm text-[#1f1f1f]">
+                            {msg.sender.username}
+                          </p>
+                        </div>
+
+                        <div dangerouslySetInnerHTML={{ __html: msg.body }} />
+
+                        <p className="flex gap-1 items-center -mt-1">
+                          <button
+                            className="px-2 mt-4 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
+                            onClick={() => deleteMsg(msg)}
+                          >
+                            <RiDeleteBinLine />
+                          </button>
+                        </p>
                       </div>
                       <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
                     </div>
@@ -173,10 +164,16 @@ function Messages() {
                       total={allMsg.length}
                     />
                   </div>
+                  {deleteMsgModal && (
+                    <DeleteMsg
+                      setDeleteMsgModal={setDeleteMsgModal}
+                      message={message}
+                    />
+                  )}
                 </div>
               ) : (
                 <div>
-                  <p>No resource</p>
+                  <p>No Messages</p>
                 </div>
               )}
             </div>

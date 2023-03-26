@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../../../context/Context";
 import "./resources.css";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 function CreateResource({ setCreateResourceModal, instituteId }) {
   //sates
@@ -177,12 +179,14 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
               />
             </div>
             <div className="input_content">
-              <label>Description:</label>
-              <textarea
-                type="text"
-                value={description}
-                placeholder="Description"
-                onChange={(e) => setDescription(e.target.value)}
+              <label className="block">Description:</label>
+              <CKEditor
+                editor={ClassicEditor}
+                onReady={(editor) => {}}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setDescription(data);
+                }}
               />
             </div>
 

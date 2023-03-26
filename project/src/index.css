@@ -43,6 +43,66 @@ table th {
   text-decoration: none;
 }
 
+.tabs {
+  display: flex;
+}
+.tab {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2px 0;
+  border: 1px solid #a0a0a0;
+  border-left: none;
+  background-color: #ffffff;
+}
+.tab:not(:last-child) {
+}
+.tab.active {
+  font-weight: bold;
+  color: rgb(123, 123, 123);
+  background-color: transparent;
+  border-bottom: none;
+}
+.panel {
+  display: none;
+  margin: 20px;
+}
+.panel.active {
+  display: block;
+}
+
+.tabsMsg {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 15px auto;
+  margin-left: 7%;
+  width: 100%;
+  font-size: 1.2rem;
+}
+.tabMsg {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.tabMsg.active {
+  font-weight: bold;
+  color: rgb(174, 174, 174);
+  background-color: transparent;
+}
+.panelMsg {
+  display: none;
+  margin: 20px;
+}
+.panelMsg.active {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 @media screen and (max-width: 760px) {
   table {
     border: 0;
@@ -164,7 +224,7 @@ table th {
     @apply md:text-[20px] text-center w-full text-[18px];
   }
   .message_input {
-    @apply w-[70%] h-full bg-transparent border-2 border-[#707070] rounded-md px-2 py-1 text-sm md:text-base;
+    @apply w-[70%] h-full bg-transparent border-2 border-[#e8e8e8] rounded-md px-2 py-1 text-sm md:text-base;
   }
   .single_input {
     @apply w-[90%] h-10 bg-gray_bg px-3 py-1;

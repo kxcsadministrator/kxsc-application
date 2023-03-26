@@ -21,9 +21,12 @@ function Login() {
       console.log(res.data);
       navigate("/admin");
     } catch (err) {
+      console.log(err);
       dispatch({
         type: "LOGIN_FAILURE",
-        payload: err.response ? err.response.data.errors[0].msg : err.message,
+        payload: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
       });
     }
   };
@@ -43,7 +46,7 @@ function Login() {
           <div className="input_container">
             <input placeholder="Username" ref={userRef} type="text" />
             <input placeholder="password" ref={passwordRef} type="password" />
-            {error && <p>{error}</p>}
+            {error && <p className="text-red-400">{error}</p>}
             <button type="submit" disabled={isFetching}>
               Login
             </button>

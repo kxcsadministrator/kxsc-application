@@ -44,7 +44,7 @@ function Users() {
   }, [user.jwt_token]);
 
   //pagination Data
-  const countPerPage = 2;
+  const countPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(allUsers.slice(0, countPerPage))

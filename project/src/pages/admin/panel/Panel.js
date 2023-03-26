@@ -24,6 +24,8 @@ function Panel() {
   const [dashboard, setDashboard] = useState({});
   const navigate = useNavigate();
 
+  console.log(dashboard);
+
   useEffect(() => {
     const getAll = async () => {
       if (!user.superadmin) {
@@ -185,38 +187,49 @@ function Panel() {
                   </p>
                 </div>
 
-                {dashboard?.institute_resource?.resources?.map(
-                  (resource, index) => (
-                    <div className="obj_body my-2" key={index}>
-                      <div className="w-[20%]">
-                        <img src="/default.png" alt="default" />
-                      </div>
-                      <div className="obj_text">
-                        <div>
-                          <p className="text-[13px] text-[#c3c3c3]">
-                            {dashboard.institute_resource.name}
-                          </p>
-                          <p className="font-bold text-lg -mt-3">
-                            {resource.topic}
-                          </p>
-                          <p className="flex items-center gap-3 text-sm  -mt-2 ">
-                            <span>
-                              {resource.rating === 0
-                                ? "No rating"
-                                : resource.rating + "/5"}
-                            </span>
-                            <span>Released: {resource.date}</span>
-                          </p>
-                          <button
-                            onClick={() => viewResource(resource)}
-                            className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
-                          >
-                            <FaEye />
-                          </button>
+                {dashboard?.institute_resource?.resources.length ? (
+                  dashboard?.institute_resource?.resources.map(
+                    (resource, index) => (
+                      <div className="obj_body my-2" key={index}>
+                        <div className="w-[20%]">
+                          <img src="/default.png" alt="default" />
+                        </div>
+                        <div className="obj_text">
+                          <div>
+                            <p className="text-[13px] text-[#c3c3c3]">
+                              {dashboard.institute_resource.name}
+                            </p>
+                            <p className="font-bold text-lg -mt-3">
+                              {resource.topic}
+                            </p>
+                            <p className="flex items-center gap-3 text-sm  -mt-2 ">
+                              <span>
+                                {resource.rating === 0
+                                  ? "No rating"
+                                  : resource.rating + "/5"}
+                              </span>
+                              <span>Released: {resource.date}</span>
+                            </p>
+                            <button
+                              onClick={() => viewResource(resource)}
+                              className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
+                            >
+                              <FaEye />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )
                   )
+                ) : (
+                  <div className="obj_default">
+                    <div className="w-[20%]">
+                      <img src="/default.png" alt="default" />
+                    </div>
+                    <div className="obj_text">
+                      <p>Its a bit lonely here</p>
+                    </div>
+                  </div>
                 )}
               </div>
               {/* my Resources */}

@@ -36,10 +36,11 @@ function PublicResources() {
         } catch (err) {
           setStates({
             loading: false,
-            error: false,
-            errMsg: err.response.data.message,
+            error: true,
+            errMsg: err.response.data.errors
+              ? err.response.data.errors[0].msg
+              : err.response.data.message,
           });
-          console.log(err);
         }
       } else {
         try {
@@ -55,10 +56,11 @@ function PublicResources() {
         } catch (err) {
           setStates({
             loading: false,
-            error: false,
-            errMsg: err.response.data.message,
+            error: true,
+            errMsg: err.response.data.errors
+              ? err.response.data.errors[0].msg
+              : err.response.data.message,
           });
-          console.log(err);
         }
       }
     };
@@ -169,7 +171,9 @@ function PublicResources() {
                               )}
                               <div className="flex flex-col ">
                                 <p className="text-[13px] text-[#c3c3c3]">
-                                  {resource.institute.name}
+                                  {resource.institute
+                                    ? resource.institute.name
+                                    : "null"}
                                 </p>
                                 <p className="font-bold text-lg -mt-3">
                                   {resource.topic}

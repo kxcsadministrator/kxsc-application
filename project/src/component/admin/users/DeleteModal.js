@@ -9,6 +9,7 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
   const [err, setErr] = useState(false);
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
+
   let menuRef = useRef();
   //function removes modal when dom is clicked
   useEffect(() => {
@@ -94,13 +95,13 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
               className="py-1 px-3 bg-green-600 rounded-sm"
               onClick={() => handleBackBtn()}
             >
-              <p>Back</p>
+              Back
             </button>
             <button
               className="py-1 px-3 bg-red-600 rounded-sm"
               onClick={() => handleContinueBtn()}
             >
-              <p>Continue</p>
+              Continue
             </button>
           </div>
         </div>

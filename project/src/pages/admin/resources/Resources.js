@@ -178,7 +178,9 @@ function Resources() {
                         )}
                         <div className="flex flex-col ">
                           <p className="text-[13px] text-[#c3c3c3]">
-                            {resource.institute.name}
+                            {resource.institute
+                              ? resource.institute.name
+                              : "null"}
                           </p>
                           <p className="font-bold text-lg -mt-3">
                             {resource.topic}

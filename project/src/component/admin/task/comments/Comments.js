@@ -5,6 +5,7 @@ import RequestModal from "../../institutes/requests.js/RequestModal";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import DeleteComment from "./DeleteComment";
+import EditComment from "./EditComment";
 
 function Comments({ comments }) {
   //states
@@ -128,6 +129,9 @@ function Comments({ comments }) {
             comment={comment}
             setDeleteComModal={setDeleteComModal}
           />
+        )}
+        {editComModal && (
+          <EditComment comment={comment} setEditComModal={setEditComModal} />
         )}
       </div>
     </div>
