@@ -17,7 +17,7 @@ function Messages() {
   const [message, setMessage] = useState();
   const [deleteMsgModal, setDeleteMsgModal] = useState(false);
   const [states, setStates] = useState({
-    loading: true,
+    loading: false,
     error: false,
     errMsg: "",
   });
@@ -41,7 +41,9 @@ function Messages() {
         setStates({
           loading: false,
           error: false,
-          errMsg: err.response.data.message,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
         });
       }
     };

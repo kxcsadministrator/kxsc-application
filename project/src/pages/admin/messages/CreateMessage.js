@@ -77,13 +77,15 @@ function CreateMessage() {
         setStates({
           loading: false,
           error: false,
-          errMsg: err.response.data.message,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
         });
       }
     } else {
       try {
         const res = await axios.post(
-          `http://52.47.163.4:3000/messages/new/`,
+          `http://52.47.163.4:3000/messages/new`,
           {
             body: message,
             recipient: recipient,
@@ -97,9 +99,12 @@ function CreateMessage() {
       } catch (err) {
         setStates({
           loading: false,
-          error: false,
-          errMsg: err.response.data.message,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
         });
+        console.log(err);
       }
     }
   };

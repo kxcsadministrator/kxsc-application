@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { FiUsers } from "react-icons/fi";
 import { IoIosSearch } from "react-icons/io";
 import { IoIosNotificationsOutline } from "react-icons/io";
@@ -7,11 +7,32 @@ import { AiOutlineLogout } from "react-icons/ai";
 import { FaUserAlt } from "react-icons/fa";
 import { BiSearchAlt } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Topbar() {
   const { user, dispatch } = useContext(Context);
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
+  const [not, setNot] = useState([]);
+
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `http://52.47.163.4:3000/messages/notifications/${user.id}`,
+      {
+        headers: { Authorization: `Bearer ${user.jwt_token}` },
+      }
+    );
+
+    eventSource.onmessage = (event) => {
+      setNot((prevData) => [...prevData, JSON.parse(event.data)]);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [user.id, user.jwt_token]);
+
+  console.log(not);
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
