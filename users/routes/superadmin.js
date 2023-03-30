@@ -1,5 +1,4 @@
 const express = require('express');
-const multer = require("multer");
 const validator = require('express-validator');
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -12,6 +11,8 @@ const router = express.Router()
 
 const SALT_ROUNDS = 10
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
+const TEMPLATE_PATH = "./template/newUser.handlebars"
+const LOGIN_URL = process.env.LOGIN_URL || 'http://52.47.163.4:3003'
 
 
 /** 
@@ -334,6 +335,233 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
         res.status(400).json({error: error.message})
     }
 })
+
+/** 
+ * @swagger
+ * /users/new-user-request/{institute_id}:
+ *  post:
+ *      summary: Creates a request for the superadmin to create a new user
+ *      description: |
+ *          Only an institute admin can make this request.
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the institute to requesting a new user
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+ *    '409':
+ *      description: Request already exists
+*/
+router.post('/new-user-request/:id', 
+    validator.check("username").isLength({min: 3}).withMessage("username must be at least 3 characters long"),
+    validator.check("email").isLength({min: 3}).withMessage("email must be at least 3 characters long"),
+    async (req, res) => {
+    try {
+        const institute_id = req.params.id;
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id}- 400: validation error(s)`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const username = req.body.username
+        const email = req.body.email
+        
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id} - ${validateUser.status}: ${ validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const [isAdmin, user] = await helpers.getAndValidateInstituteAdmin(req.headers, institute_id);
+        if (!isAdmin) {
+            helpers.log_request_error(
+                `POST users/new-user-request/${req.params.id} - 401: Only institute admins can request to create users`
+            )
+            return res.status(401).json({message: "Only institute admins can request to create users"})
+        }
+
+        const dup_request = await repository.find_new_user_request(username, email)
+        if (dup_request){
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id} - 409: duplicate request`)
+            return res.status(409).json({message: `duplicate request`})
+        }
+
+        const dup_username = await repository.get_user_by_username(username)
+        if (dup_username){
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id} - 409: User with username ${username} already exists`)
+            return res.status(409).json({message: `User with username ${username} already exists`})
+        }
+        const dup_email = await repository.get_user_by_email(email)
+        if (dup_email){
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id} - 409: User with email ${email} already exists`)
+            return res.status(409).json({message: `User with email ${email} already exists`})
+        }
+
+        const data = new Model.newUserRequest({
+            username: username,
+            email: email,
+            institute: institute_id,
+            requester: user._id
+        });
+        const result = await repository.create_new_user_request(data)
+
+        helpers.log_request_info(`POST users/new-user-request/${req.params.id} - 200`);
+        helpers.send_request_notification()
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(
+            `POST users/new-user-request/${req.params.id} - 400: ${error.message}`
+        )
+        res.status(400).json({error: error.message})
+    }
+})
+
+/** 
+ * @swagger
+ * /users/new-user-requests:
+ *  get:
+ *      summary: Returns all the requests for creating users.
+ *      description: |
+ *          Only the superadmin can view requests
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: query
+ *            name: page
+ *            schema:
+ *              type: integer
+ *            required: false
+ *            description: |
+ *              the page to start from. Defaults to first page if not specified. 
+ *          - in: query
+ *            name: limit
+ *            schema:
+ *              type: integer
+ *            required: true
+ *            description: the page to start from. Defaults to 20 if not specified.
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.get('/new-user-requests', async (req, res) => {
+    try {
+        const page = req.query.page || 1
+        const limit = req.query.limit || 20
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET users/new-user-requests - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET users/new-user-requests  - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET usersnew-user-requests  - 401: Unauthorized access. Only a superadmin can view requests`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view requests'});
+        }
+
+        const result = await repository.get_all_new_user_requests(page, limit);
+
+        helpers.log_request_info(`GET users/new-user-requests  - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`GET users/new-user-requests  - 400: ${error.message}`)
+        res.status(400).json({message: error.message})
+    }
+})
+
+/** 
+ * @swagger
+ * /users/approve-user-request/{request_id}:
+ *  post:
+ *      summary: Approves a request to create a new user
+ *      description: |
+ *          Only an institute admin can make this request.
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the request to approve
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post('/approve-user-request/:id', async (req, res) => {
+    try {
+        const request_id = req.params.id;
+        
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/approve-user-request/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST users/approve-user-request/${req.params.id} - ${validateUser.status}: ${ validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET users/approve-user-request/${req.params.id}  - 401: Unauthorized access. Only a superadmin can approve requests`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can aprrove requests'});
+        }
+
+        const result = await repository.approve_user_request(request_id)
+        if (!result){
+            helpers.log_request_error(`GET users/approve-user-request/${req.params.id}  - 404: Request not found`)
+            return res.status(404).json({message: 'Request not found'});
+        }
+        helpers.log_request_info(`POST users/approve-user-request/${req.params.id} - 200`);
+
+        await helpers.sendEmail(
+            result.email, 
+            "Welcome to Knowledge Exchange System",
+            {username: result.username, password: result.password, link: LOGIN_URL}, 
+            TEMPLATE_PATH
+        );
+        
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(
+            `POST users/new-user-request/${req.params.id} - 400: ${error.message}`
+        )
+        res.status(400).json({error: error.message})
+    }
+})
+
 
 /** 
  * @swagger

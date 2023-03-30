@@ -1,5 +1,8 @@
 const Model = require('./models');
 const fs = require('fs');
+const bcrypt = require("bcryptjs");
+const crypto = require('crypto')
+const SALT_ROUNDS = 10
 
 /* ----------------------------------- Users ----------------------------------- */
 const create_new_user = async(data) => {
@@ -267,6 +270,55 @@ const delete_token = async(token) => {
     return result;
 }
 
+/*---------------------------------------- Create User Requests -------------------------------------------------*/
+const create_new_user_request = async (data) => {
+    const dataToSave = await data.save();
+    return dataToSave;
+}
+
+const find_new_user_request = async(username, email) => {
+    const result = await Model.newUserRequest.findOne({$or: [
+        {username: username},
+        {email: email}
+    ]})
+    return result
+}
+
+const get_all_new_user_requests = async(offset, limit) => {
+    const data = []
+    const result = await Model.newUserRequest.find().skip((offset - 1) * limit).limit(limit)
+    for (let i = 0; i < result.length; i++) {
+        const request = result[i];
+        const r = {
+            _id: request._id,
+            username: request.username,
+            email: request.email,
+            institute: await Model.institute.findById(request.institute, {_id: 1, name: 1}),
+            requester:  await Model.user.findById(request.requester, {_id: 1, username: 1}),
+            date: new Date(request.date_created).toDateString()
+        }
+        data.push(r)
+    }
+    return data
+}
+
+const approve_user_request = async(id) => {
+    const result = await Model.newUserRequest.findByIdAndUpdate(id, {status: "approved"})
+    if (!result) return null
+
+    const password = crypto.randomBytes(20).toString('hex')
+    const user = new Model.user({
+        username: result.username,
+        email: result.email,
+        password: await bcrypt.hash(password, SALT_ROUNDS) 
+    })
+    const data = await user.save()
+    return {
+        email: data.email,
+        username: data.username,
+        password: password
+    }
+}
 /*---------------------------------------- Publication Requests -------------------------------------------------*/
 const request_to_publish = async (data) => {
     const dataToSave = await data.save();
@@ -360,6 +412,35 @@ const get_institute_admins = async(id) => {
     if (!institute) return []
 
     return institute.admins;
+}
+
+const get_other_institutes_resources = async(main_institute_id) => {
+    const res = []
+    const data = await Model.institute.find({_id: {$ne: main_institute_id}}, {resources: 1, _id: 1, name: 1})
+
+    for (let i = 0; i < data.length; i++) {
+        const institute = data[i];
+        const ins_data = {
+            institute_name: institute.name,
+            resources: []
+        }
+        const resources_data = await Model.resource.find({_id: {$in: institute.resources} })
+        for (let j = 0; j < resources_data.length; j++) {
+            const r_d = resources_data[j];
+            const user_data = await Model.user.findById(r_d.author, {username: 1, _id: 1})
+            ins_data.resources.push({
+                _id: r_d._id,
+                topic: r_d.topic,
+                institute: {_id: institute._id, name: institute.name},
+                author: user_data,
+                date: new Date(r_d.date).toDateString(),
+                rating: r_d.rating,
+                category: r_d.category
+            })
+        }
+        res.push(ins_data)
+    }   
+    return res
 }
 
 /* ------------------------------ Messages ----------------------------- */
@@ -561,8 +642,9 @@ const create_new_notification = async (data) => {
 }
 
 const get_user_notifications = async (id) => {
-    const result = await Model.notification.find({owner: id})
-    return result
+    const messages = await Model.notification.find({owner: id, type: "message"})
+    const requests = await  Model.notification.find({owner: id, type: "request"})
+    return [messages.length, requests.length]
 }
 
 const delete_user_notification = async (id) => {
@@ -578,5 +660,6 @@ module.exports = {
     get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
     clean_user_by_id, get_resources_readable, get_user_dashboard, super_admin_search, search_publication_requests,
     search_username, search_resource, get_main_institute, get_user_password, get_user_sent_messages, create_new_notification,
-    get_user_notifications, delete_user_notification, get_super_admins, get_institute_admins
+    get_user_notifications, delete_user_notification, get_super_admins, get_institute_admins, get_other_institutes_resources,
+    create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request
 }

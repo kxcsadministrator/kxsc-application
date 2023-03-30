@@ -17,7 +17,7 @@ function Topbar() {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `http://52.47.163.4:3000/messages/notifications/${user.id}`,
+      `http://localhost:3000/messages/notifications/${user.id}`,
       {
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       }

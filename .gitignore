@@ -8,6 +8,7 @@ research_institutes/.env
 research_resources/.env
 *.dev
 .DS_Store
+*.html
 
 
 package-lock.json

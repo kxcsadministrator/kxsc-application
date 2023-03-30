@@ -891,6 +891,78 @@ router.get('/publish-requests/:id', async (req, res) => {
     }
 })
 
+
+/** 
+ * @swagger
+ * /institutes/new-user-request/{id}:
+ *  post:
+ *      summary: Makes a request to the superadmin to create a new user account
+ *      description: |
+ *          Only Institute admins can make this request. Upon creation, the user is automatically added as a member of the institute.
+ *          
+ *          Requires a bearer token to be sent as part of authorization headers
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the institute requesting a new user
+ *  
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: category not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post('/new-user-request/:id', 
+validator.check("username").isLength({min: 3}).withMessage("username must be at least 3 characters long"),
+validator.check("email").isLength({min: 3}).withMessage("email must be at least 3 characters long"),
+    async(req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/new-user-request/${req.params.id}- 400: validation error(s)`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+        
+        const institute_id = req.params.id
+        const username = req.body.username
+        const email = req.body.email
+
+        const institute = await repository.get_institute_by_id(institute_id);
+        if (!institute) {
+            helpers.log_request_error(`POST institutes/new-user-request/${req.params.id} - 404: Institute not found`) 
+            return res.status(404).json({message: `institute with id ${institute_id} not found`});
+        }
+
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST institutes/new-user-request/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const isAdmin = await helpers.validateInstituteAdmin(req.headers, institute_id);
+
+        if (!isAdmin) {
+            helpers.log_request_error(`POST institutes/new-user-request/${req.params.id} - 401: Only institute admins can request`) 
+            return res.status(401).json({message: "Only institute admins can request to publish resources"})
+        }
+
+        const data = await helpers.admin_new_user_request(institute_id, username, email, req.headers);
+
+        helpers.log_request_info(`POST institutes/new-user-request/${req.params.id} - 200`) 
+        res.status(200).json(data.data);
+
+    } catch (error) {
+        helpers.log_request_error(`POST institutes/new-user-request/${req.params.id} - 400: ${error.message}`)
+        if (error.response.data.message) error.message = error.response.data.message;
+        res.status(400).json({message: error.message})
+    }
+})
+
 /** 
  * @swagger
  * /institutes/delete/{id}:
