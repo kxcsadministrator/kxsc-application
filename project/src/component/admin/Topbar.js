@@ -43,6 +43,18 @@ function Topbar() {
     navigate("/admin/search");
   };
 
+  const deleteNot = async () => {
+    try {
+      const res = await axios({
+        method: "delete",
+        url: `http://13.36.208.34:3000/messages/notifications`,
+        headers: { Authorization: `Bearer ${user.jwt_token}` },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const topbarContainer = user.superadmin
     ? "flex justify-between items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full"
     : "flex justify-end items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full";
@@ -93,7 +105,7 @@ function Topbar() {
           </div>
         </div>
         <div className="not">
-          <div className="not_icon">
+          <div className="not_icon" onClick={() => deleteNot()}>
             {(not[0]?.publish_requests > 0 ||
               not[0]?.new_user_requests > 0 ||
               not[0]?.messages > 0) && (
@@ -112,17 +124,29 @@ function Topbar() {
             not[0]?.messages > 0) && (
             <div className="notMsg">
               {not[0].messages > 0 && (
-                <Link className="link" to="/admin/messages">
+                <Link
+                  className="link"
+                  to="/admin/messages"
+                  onClick={() => deleteNot()}
+                >
                   you have {not[0].messages} new messages
                 </Link>
               )}
               {not[0].requests > 0 && (
-                <Link className="link" to="/admin/resources/pending">
+                <Link
+                  className="link"
+                  to="/admin/resources/pending"
+                  onClick={() => deleteNot()}
+                >
                   you have {not[0].public_requests} new resource request
                 </Link>
               )}
               {not[0].new_user_requests > 0 && (
-                <Link className="link" to="/admin/user_requests">
+                <Link
+                  className="link"
+                  to="/admin/user_requests"
+                  onClick={() => deleteNot()}
+                >
                   you have {not[0].new_user_requests} new user request
                 </Link>
               )}
