@@ -161,7 +161,7 @@ const delete_file = (path) => {
   )
 }
 
-const send_request_notification = async() => {
+const send_request_notification = async(request_type="publish-request") => {
   const recipients = await repository.get_super_admins()
   if (recipients.length < 1) {
     return null 
@@ -175,13 +175,13 @@ const send_request_notification = async() => {
 for (let i = 0; i < recipient_idx.length; i++) {
   const owner = recipient_idx;
   const notification = new Model.notification({
-      type: "request",
+      type: request_type,
       owner: owner
   })
   const notify_res = repository.create_new_notification(notification);
   if (owner in clients){
-    const [msg, req] = await repository.get_user_notifications(owner)
-    const data = {messages: msg, requests: req}
+    const [msg, pub_req, user_req] = await repository.get_user_notifications(owner)
+    const data = {messages: msg, publish_requests: pub_req, new_user_requests: user_req}
     clients[owner].write(`data: ${JSON.stringify(data)}\n\n`)
   }
   }

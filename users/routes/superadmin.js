@@ -326,7 +326,7 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
         const result = await repository.request_to_publish(data);
 
         helpers.log_request_info(`POST users/admin-publish-request/${institute_id}/${resource_id} - 200`);
-        helpers.send_request_notification()
+        helpers.send_request_notification(request_type="publish-request")
         res.status(200).json(result);
     } catch (error) {
         helpers.log_request_error(
@@ -422,7 +422,7 @@ router.post('/new-user-request/:id',
         const result = await repository.create_new_user_request(data)
 
         helpers.log_request_info(`POST users/new-user-request/${req.params.id} - 200`);
-        helpers.send_request_notification()
+        helpers.send_request_notification(request_type="new-user-request")
         res.status(200).json(result);
     } catch (error) {
         helpers.log_request_error(
@@ -556,7 +556,7 @@ router.post('/approve-user-request/:id', async (req, res) => {
         res.status(200).json(result);
     } catch (error) {
         helpers.log_request_error(
-            `POST users/new-user-request/${req.params.id} - 400: ${error.message}`
+            `POST users/approve-user-request/${req.params.id} - 400: ${error.message}`
         )
         res.status(400).json({error: error.message})
     }

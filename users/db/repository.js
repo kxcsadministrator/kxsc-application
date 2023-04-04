@@ -303,7 +303,7 @@ const get_all_new_user_requests = async(offset, limit) => {
 }
 
 const approve_user_request = async(id) => {
-    const result = await Model.newUserRequest.findByIdAndUpdate(id, {status: "approved"})
+    const result = await Model.newUserRequest.findById(id)
     if (!result) return null
 
     const password = crypto.randomBytes(20).toString('hex')
@@ -313,6 +313,7 @@ const approve_user_request = async(id) => {
         password: await bcrypt.hash(password, SALT_ROUNDS) 
     })
     const data = await user.save()
+    await Model.newUserRequest.findByIdAndDelete(id)
     return {
         email: data.email,
         username: data.username,
@@ -417,29 +418,28 @@ const get_institute_admins = async(id) => {
 const get_other_institutes_resources = async(main_institute_id) => {
     const res = []
     const data = await Model.institute.find({_id: {$ne: main_institute_id}}, {resources: 1, _id: 1, name: 1})
+    let resources_list = []
+    const institute_obj = {}
+    data.forEach((item) => {
+        resources_list = resources_list.concat(item.resources)
+        institute_obj[item._id.toString()] = item.name
+    })
+    
+    const resources = await Model.resource.find({_id: {$in: resources_list}})
 
-    for (let i = 0; i < data.length; i++) {
-        const institute = data[i];
-        const ins_data = {
-            institute_name: institute.name,
-            resources: []
-        }
-        const resources_data = await Model.resource.find({_id: {$in: institute.resources} })
-        for (let j = 0; j < resources_data.length; j++) {
-            const r_d = resources_data[j];
-            const user_data = await Model.user.findById(r_d.author, {username: 1, _id: 1})
-            ins_data.resources.push({
-                _id: r_d._id,
-                topic: r_d.topic,
-                institute: {_id: institute._id, name: institute.name},
-                author: user_data,
-                date: new Date(r_d.date).toDateString(),
-                rating: r_d.rating,
-                category: r_d.category
-            })
-        }
-        res.push(ins_data)
-    }   
+    for (let j = 0; j < resources.length; j++) {
+        const r_d = resources[j];
+        const user_data = await Model.user.findById(r_d.author, {username: 1, _id: 1})
+        res.push({
+            _id: r_d._id,
+            topic: r_d.topic,
+            institute: {_id: r_d.institute, name: institute_obj[r_d.institute.toString()]},
+            author: user_data,
+            date: new Date(r_d.date).toDateString(),
+            rating: r_d.rating,
+            category: r_d.category
+        })
+    }
     return res
 }
 
@@ -643,23 +643,104 @@ const create_new_notification = async (data) => {
 
 const get_user_notifications = async (id) => {
     const messages = await Model.notification.find({owner: id, type: "message"})
-    const requests = await  Model.notification.find({owner: id, type: "request"})
-    return [messages.length, requests.length]
+    const pub_requests = await  Model.notification.find({owner: id, type: "publish-request"})
+    const user_requests = await  Model.notification.find({owner: id, type: "new-user-request"})
+    return [messages.length, pub_requests.length, user_requests.length]
 }
 
 const delete_user_notification = async (id) => {
     await Model.notification.deleteMany({owner: id})
 }
 
+//------------------------------------ Pages and footer section -------------------------------------------
+const create_new_footer_section = async(name) => {
+    const section = new Model.footerSection({
+        name: name
+    })
+    const data = await section.save()
+    return data
+}
+
+const get_section = async(name) => {
+    const result = await Model.footerSection.findOne({name: name})
+    return result;
+}
+
+const get_all_sections = async() => {
+    const result = await Model.footerSection.find({}, {_id: 1, name: 1})
+    return result
+}
+
+const edit_footer_section = async(name, new_name) => {
+    let result = await Model.footerSection.findOneAndUpdate({name: name}, {name: new_name})
+    result = await get_section(new_name)
+    return result
+}
+
+const delete_footer_section = async(name) => {
+    const result = await Model.footerSection.findOneAndDelete({name: name})
+    return result
+}
+
+const create_new_footer_page = async(section, title, body) => {
+    const page = {title: title, body: body}
+    const result = await Model.footerSection.findOneAndUpdate({name: section}, {$addToSet: {children: page}})
+    return result
+}
+
+const get_page = async(section_name, page_title) => {
+    const page = await Model.footerSection.findOne({name: section_name, "children.title": page_title}, {children: { $elemMatch:{ title: page_title } }})
+    return page
+}
+
+const update_page = async(section_name, page_title, update_obj) => {
+    if (!update_obj['title']) {
+       update_obj['title'] = page_title
+    }
+
+    if (!update_obj['body']){
+        const page = await Model.footerSection.findOne({name: section_name, "children.title": page_title}, {children: { $elemMatch:{ title: page_title } }})
+        update_obj['body'] = page.children[0].body
+        
+    }
+    const page = await Model.footerSection.findOneAndUpdate(
+        {name: section_name, "children.title": page_title},
+        {
+            $set: {"children.$": update_obj}
+        }
+        
+    )
+    const res = await Model.footerSection.findOne({name: section_name, "children.title": update_obj['title']})
+    return res
+}
+
+const delete_page = async(section_name, page_title) => {
+    const result = await Model.footerSection.findOneAndUpdate({name: section_name}, {$pull: {children: {title: page_title} }})
+    return result
+}
+
 
 module.exports = { 
+    // Users
     create_new_user, get_user_by_id, get_user_by_email, get_user_by_username, get_all_users, edit_username, update_password, 
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
-    add_profile_photo, remove_profile_photo, request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
-    get_institute_by_id, get_resource_by_id, publish , new_message, get_message_by_id, all_messages, edit_message, delete_message,
-    get_user_messages, broadcast_message, get_institute_members, get_task_members, get_resource_data, get_profile_photo,
+    add_profile_photo, remove_profile_photo, 
+    // Resources and publishing
+    request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
+    get_institute_by_id, get_resource_by_id, publish , 
+    // messages
+    new_message, get_message_by_id, all_messages, edit_message, delete_message,
+    get_user_messages, broadcast_message, get_user_sent_messages,
+    // Data aggregation
+    get_institute_members, get_task_members, get_resource_data, get_profile_photo,
     clean_user_by_id, get_resources_readable, get_user_dashboard, super_admin_search, search_publication_requests,
-    search_username, search_resource, get_main_institute, get_user_password, get_user_sent_messages, create_new_notification,
+    search_username, search_resource, get_main_institute, get_user_password,
+    // notification 
+    create_new_notification,
     get_user_notifications, delete_user_notification, get_super_admins, get_institute_admins, get_other_institutes_resources,
-    create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request
+    //  new user request
+    create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request, 
+    // Footer section
+    create_new_footer_section, get_section, edit_footer_section, delete_footer_section, create_new_footer_page, get_page, update_page,
+    delete_page, get_all_sections
 }

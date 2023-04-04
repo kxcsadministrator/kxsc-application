@@ -301,6 +301,26 @@ const newUserRequestSchema = new mongoose.Schema({
     }
 })
 
+/*------------------------------------- Footer Schema ----------------------------*/
+const footerPageSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    body: {
+        type: String,
+        required: true
+    }
+})
+
+const footerSectionSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    children: [footerPageSchema]
+})
+
 const profilePic = mongoose.model("profilePicture", picSchema);
 const user = mongoose.model("user", userSchema);
 const token = mongoose.model("token", tokenSchema);
@@ -311,5 +331,8 @@ const task = mongoose.model("Task", taskSchema);
 const message = mongoose.model("Message", messageSchema)
 const notification = mongoose.model("Notification", notificationSchema)
 const newUserRequest = mongoose.model('NewUserRequest', newUserRequestSchema);
+const footerSection = mongoose.model('FooterSection', footerSectionSchema)
 
-module.exports = { profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest};
+module.exports = { 
+    profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest, footerSection
+};

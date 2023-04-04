@@ -502,8 +502,8 @@ router.get('/notifications/:id', async(req, res) => {
         // helpers.log_request_info(`${user_id} Connection opened`)
         res.writeHead(200, headers);
         
-        const [messages, requests] = await repository.get_user_notifications(user_id)
-        const data = {messages: messages, requests: requests}
+        const [messages, pub_requests, user_requests] = await repository.get_user_notifications(user_id)
+        const data = {messages: messages, publish_requests: pub_requests, new_user_requests: user_requests}
         const result = `data: ${JSON.stringify(data)}\n\n`;
         
         res.write(result);
