@@ -15,7 +15,7 @@ function Members({ members, instituteId, admin }) {
   const [value, setValue] = useState("");
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(members?.slice(0, countPerPage))
@@ -73,13 +73,15 @@ function Members({ members, instituteId, admin }) {
             Add members
           </button>
         )}
-        <div>
-          <input
-            placeholder="Search Members"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Members"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length ? (

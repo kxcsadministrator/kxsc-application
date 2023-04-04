@@ -31,7 +31,7 @@ function DeleteInstituteModal({ setDeleteInstituteModal, modalInstitute }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://52.47.163.4:3001/institutes/delete/${modalInstitute._id}`,
+        `http://13.36.208.34:3001/institutes/delete/${modalInstitute._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

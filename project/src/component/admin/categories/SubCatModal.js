@@ -32,7 +32,7 @@ function SubCatModal({ deleteSubCat, setSubCatModal, category }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://52.47.163.4:3002/categories/remove-subcategories/${category._id}`,
+        `http://13.36.208.34:3002/categories/remove-subcategories/${category._id}`,
         { sub_categories: [deleteSubCat] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

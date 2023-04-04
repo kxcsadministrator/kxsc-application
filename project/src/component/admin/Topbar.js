@@ -4,8 +4,6 @@ import { IoIosSearch } from "react-icons/io";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { Context } from "../../context/Context";
 import { AiOutlineLogout } from "react-icons/ai";
-import { FaUserAlt } from "react-icons/fa";
-import { BiSearchAlt } from "react-icons/bi";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -17,7 +15,7 @@ function Topbar() {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `http://52.47.163.4:3000/messages/notifications/${user.id}`,
+      `http://13.36.208.34:3000/messages/notifications/${user.id}`,
       {
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       }
@@ -32,7 +30,7 @@ function Topbar() {
     };
   }, [user.id, user.jwt_token]);
 
-  console.log(not);
+  console.log(not[0]?.requests);
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -46,8 +44,8 @@ function Topbar() {
   };
 
   const topbarContainer = user.superadmin
-    ? "flex justify-between items-center px-6 gap-3 h-[50px] bg-white w-full"
-    : "flex justify-end items-center px-6 gap-3 h-[50px] bg-white w-full";
+    ? "flex justify-between items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full"
+    : "flex justify-end items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full";
   return (
     <div className={topbarContainer}>
       {user.superadmin && (
@@ -74,14 +72,14 @@ function Topbar() {
           {user.profile_picture ? (
             <div className="md:w-8 w-7 cursor-pointer">
               <img
-                src={`http://52.47.163.4:3000/uploads/${user.profile_picture.original_name}`}
+                src={`http://13.36.208.34:3000/uploads/${user.profile_picture.original_name}`}
                 alt="profile_picture"
                 className="w-full  rounded-full"
               />
             </div>
           ) : (
             <div className="cursor-pointer">
-              <FiUsers />
+              <FiUsers size="1.6rem" />
             </div>
           )}
           <div className="hover_div">
@@ -94,8 +92,31 @@ function Topbar() {
             </div>
           </div>
         </div>
-        <div className="text-gray-600">
-          <IoIosNotificationsOutline size="1.4rem" />
+        <div className="not">
+          <div className="not_icon">
+            {(not[0]?.requests > 0 || not[0]?.messages > 0) && (
+              <div className="absolute w-[15px] h-[15px] rounded-full bg-red-500 text-white right-0 overflow-hidden">
+                <p className="text-[8px] mt-[0.5px] text-center">
+                  {not[0]?.requests + not[0]?.messages}
+                </p>
+              </div>
+            )}
+            <IoIosNotificationsOutline size="1.6rem" />
+          </div>
+          {(not[0]?.requests > 0 || not[0]?.messages > 0) && (
+            <div className="notMsg">
+              {not[0].messages > 0 && (
+                <Link className="link" to="/admin/messages">
+                  you have {not[0].messages} new messages
+                </Link>
+              )}
+              {not[0].requests > 0 && (
+                <Link className="link" to="/admin/resources/pending">
+                  you have {not[0].requests} new request
+                </Link>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

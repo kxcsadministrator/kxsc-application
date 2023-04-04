@@ -32,7 +32,7 @@ function DeleteMsg({ setDeleteMsgModal, message }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.delete(
-        `http://52.47.163.4:3000/messages/delete/${message._id}`,
+        `http://13.36.208.34:3000/messages/delete/${message._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });

@@ -9,7 +9,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 
-function PublicResources() {
+function OtherResources() {
   const { user } = useContext(Context);
   const navigate = useNavigate();
   const [allResourrces, setAllResources] = useState([]);
@@ -22,46 +22,24 @@ function PublicResources() {
   const [value, setValue] = useState("");
   useEffect(() => {
     const getResources = async () => {
-      if (user.superadmin) {
-        try {
-          const res = await axios.get(
-            `http://13.36.208.34:3002/resources/public`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
-          setStates({ loading: false, error: false });
-          setAllResources(res.data);
-          console.log(res.data);
-        } catch (err) {
-          setStates({
-            loading: false,
-            error: true,
-            errMsg: err.response.data.errors
-              ? err.response.data.errors[0].msg
-              : err.response.data.message,
-          });
-        }
-      } else {
-        try {
-          const res = await axios.get(
-            `http://13.36.208.34:3002/resources/public`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
-          setStates({ loading: false, error: false });
-          setAllResources(res.data);
-          console.log(res.data);
-        } catch (err) {
-          setStates({
-            loading: false,
-            error: true,
-            errMsg: err.response.data.errors
-              ? err.response.data.errors[0].msg
-              : err.response.data.message,
-          });
-        }
+      try {
+        const res = await axios.get(
+          `http://13.36.208.34:3000/users/other-institute-resources/${user.id}`,
+          {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          }
+        );
+        setStates({ loading: false, error: false });
+        setAllResources(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
       }
     };
     getResources();
@@ -227,4 +205,4 @@ function PublicResources() {
   );
 }
 
-export default PublicResources;
+export default OtherResources;

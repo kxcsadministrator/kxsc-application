@@ -29,7 +29,7 @@ function Messages() {
 
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3000/messages/my-messages`,
+          `http://13.36.208.34:3000/messages/my-messages`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

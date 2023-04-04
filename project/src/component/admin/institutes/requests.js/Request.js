@@ -25,7 +25,7 @@ function Request({ instituteId, admin }) {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3001/institutes/publish-requests/${id}`,
+          `http://13.36.208.34:3001/institutes/publish-requests/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -40,7 +40,7 @@ function Request({ instituteId, admin }) {
   }, [user.jwt_token, id]);
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(request?.slice(0, countPerPage))
@@ -91,7 +91,7 @@ function Request({ instituteId, admin }) {
     try {
       const res = await axios({
         method: "post",
-        url: `http://52.47.163.4:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
+        url: `http://13.36.208.34:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);
@@ -112,13 +112,15 @@ function Request({ instituteId, admin }) {
   return (
     <div>
       <div className="all_heading my-3">
-        <div>
-          <input
-            placeholder="Search Members"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Members"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
       {collection?.length ? (
         <div>

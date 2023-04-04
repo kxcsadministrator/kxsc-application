@@ -36,7 +36,7 @@ function AddResourceFile({ setAddFileModal, resourceId }) {
 
     try {
       const res = await axios.post(
-        `http://52.47.163.4:3002/resources/upload-files/${resourceId}`,
+        `http://13.36.208.34:3002/resources/upload-files/${resourceId}`,
         formData,
         {
           headers: {

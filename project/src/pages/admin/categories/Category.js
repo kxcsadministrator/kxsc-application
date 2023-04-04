@@ -32,7 +32,7 @@ function Category() {
 
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3002/categories/category/${catId}`,
+          `http://13.36.208.34:3002/categories/category/${catId}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

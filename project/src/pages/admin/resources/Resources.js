@@ -30,9 +30,12 @@ function Resources() {
       setStates({ loading: true, error: false });
       if (user.superadmin) {
         try {
-          const res = await axios.get(`http://52.47.163.4:3002/resources/all`, {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          });
+          const res = await axios.get(
+            `http://13.36.208.34:3002/resources/all`,
+            {
+              headers: { Authorization: `Bearer ${user.jwt_token}` },
+            }
+          );
           setStates({ loading: false, error: false });
           setAllResources(res.data);
           console.log(res.data);
@@ -47,7 +50,7 @@ function Resources() {
       } else {
         try {
           const res = await axios.get(
-            `http://52.47.163.4:3002/resources/my-resources`,
+            `http://13.36.208.34:3002/resources/my-resources`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -80,9 +83,14 @@ function Resources() {
       const query = value.toLowerCase();
       const data = cloneDeep(
         allResources
-          .filter((item) => item.topic.toLowerCase().indexOf(query) > -1)
+          .filter(
+            (item) =>
+              (item.topic + item.institute.name).toLowerCase().indexOf(query) >
+              -1
+          )
           .slice(0, 2)
       );
+
       setCollection(data);
       console.log(data);
     },
@@ -170,7 +178,7 @@ function Resources() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://52.47.163.4:3002/${resource.avatar}`}
+                              src={`http://13.36.208.34:3002/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />

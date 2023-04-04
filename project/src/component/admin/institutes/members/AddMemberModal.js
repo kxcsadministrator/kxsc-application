@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 function AddMemberModal({ setMemberModal, instituteId }) {
   //states
   const [username, setUsername] = useState("");
+  const [newUser, setNewUser] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [newUsername, setNewUsername] = useState("");
+
   const { user } = useContext(Context);
   const [members, setMembers] = useState([]);
   const [states, setStates] = useState({
@@ -17,6 +21,12 @@ function AddMemberModal({ setMemberModal, instituteId }) {
 
   const navigate = useNavigate();
   let menuRef = useRef();
+
+  //tab active states
+  const [activeIndex, setActiveIndex] = useState(1);
+  const handleClick = (index) => setActiveIndex(index);
+  const checkActive = (index, className) =>
+    activeIndex === index ? className : "";
 
   //function removes modal when dom is clicked
   useEffect(() => {
@@ -37,7 +47,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3000/users/search-user?name=${username}`,
+          `http://13.36.208.34:3000/users/search-user?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -52,49 +62,119 @@ function AddMemberModal({ setMemberModal, instituteId }) {
   const submitMember = async (e) => {
     e.preventDefault();
     setStates({ loading: true, error: false });
-    try {
-      const res = await axios.patch(
-        `http://52.47.163.4:3001/institutes/add-members/${instituteId}`,
-        {
-          members: [username],
-        },
-        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
-      );
-      setStates({ loading: false, error: false, success: true });
-      setTimeout(() => {
-        setMemberModal(false);
-        window.location.reload(false);
-      }, 3000);
-    } catch (err) {
-      setStates({
-        loading: false,
-        error: true,
-        errMsg: err.response.data.message,
-        success: false,
-      });
-      console.log(err);
+    if (newUser) {
+      try {
+        const res = await axios.post(
+          `http://13.36.208.34:3001/institutes/new-user-request/${instituteId}`,
+          {
+            username: newUsername,
+            email: newEmail,
+          },
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
+        setStates({ loading: false, error: false, success: true });
+        setTimeout(() => {
+          setMemberModal(false);
+          window.location.reload(false);
+        }, 3000);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.message,
+          success: false,
+        });
+        console.log(err);
+      }
+    } else {
+      try {
+        const res = await axios.patch(
+          `http://13.36.208.34:3001/institutes/add-members/${instituteId}`,
+          {
+            members: [username],
+          },
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
+        setStates({ loading: false, error: false, success: true });
+        setTimeout(() => {
+          setMemberModal(false);
+          window.location.reload(false);
+        }, 3000);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.message,
+          success: false,
+        });
+        console.log(err);
+      }
     }
   };
+  console.log(newUser);
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="text_h1_heading">Add Member</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <form>
-            <input
-              placeholder="Username"
-              list="members"
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-              }}
-            />
-            <datalist id="members">
-              {members.map((member, index) => (
-                <option key={index}>{member.username}</option>
-              ))}
-            </datalist>
+            <div className="tabsMsg">
+              <div
+                className={`tabMsg ${checkActive(1, "active")}`}
+                onClick={() => {
+                  handleClick(1);
+                  setNewUser(false);
+                }}
+              >
+                Registered user
+              </div>
+
+              <div
+                className={`tabMsg ${checkActive(2, "active")}`}
+                onClick={() => {
+                  handleClick(2);
+                  setNewUser(true);
+                }}
+              >
+                New user
+              </div>
+            </div>
+            <div className="flex flex-col w-[90%] mx-auto gap-6 -mt-5">
+              <div className={`panelMsg ${checkActive(1, "active")}`}>
+                <input
+                  placeholder="Username"
+                  list="members"
+                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  value={username}
+                  onChange={(e) => {
+                    setUsername(e.target.value);
+                  }}
+                />
+                <datalist id="members">
+                  {members.map((member, index) => (
+                    <option key={index}>{member.username}</option>
+                  ))}
+                </datalist>
+              </div>
+              <div className={`panelMsg ${checkActive(2, "active")}`}>
+                <input
+                  placeholder="Username"
+                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  value={newUsername}
+                  onChange={(e) => {
+                    setNewUsername(e.target.value);
+                  }}
+                />
+                <input
+                  placeholder="Email"
+                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  value={newEmail}
+                  onChange={(e) => {
+                    setNewEmail(e.target.value);
+                  }}
+                />
+              </div>
+            </div>
           </form>
           <div>
             {states.loading ? (

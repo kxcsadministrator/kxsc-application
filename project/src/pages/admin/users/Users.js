@@ -4,8 +4,6 @@ import Topbar from "../../../component/admin/Topbar";
 import "./users.css";
 import { Context } from "../../../context/Context";
 import axios from "axios";
-import DeleteModal from "../../../component/admin/users/DeleteModal";
-import { RiDeleteBinLine } from "react-icons/ri";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
@@ -19,15 +17,13 @@ function Users() {
     error: false,
     errMsg: "",
   });
-  const [deleteUser, setDeleteUser] = useState({});
-  const [deleteModal, setDeleteModal] = useState(false);
   const [value, setValue] = useState("");
 
   useEffect(() => {
     const getUsers = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(`http://52.47.163.4:3000/users/all`, {
+        const res = await axios.get(`http://13.36.208.34:3000/users/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });
@@ -84,10 +80,10 @@ function Users() {
     }
   }, [value, updatePage, searchData]);
 
-  const handleDelete = (id, username, email) => {
-    setDeleteUser({ id, username, email });
-    setDeleteModal(true);
-  };
+  // const handleDelete = (id, username, email) => {
+  //   setDeleteUser({ id, username, email });
+  //   setDeleteModal(true);
+  // };
 
   return (
     <div className="base_container">
@@ -124,7 +120,6 @@ function Users() {
                       <tr>
                         <th scope="col">s/n</th>
                         <th scope="col">Username</th>
-                        <th scope="col">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -132,8 +127,9 @@ function Users() {
                         <tr key={singleUser._id}>
                           <td data-label="s/n">{index + 1}</td>
                           <td data-label="Username">{singleUser.username}</td>
+                          {/*
                           <td data-label="Action">
-                            <div>
+                           <div>
                               <button
                                 className="user_delete_btn"
                                 onClick={() =>
@@ -146,8 +142,9 @@ function Users() {
                               >
                                 <RiDeleteBinLine size="1.2rem" />
                               </button>
-                            </div>
+                            </div> 
                           </td>
+                          */}
                         </tr>
                       ))}
                     </tbody>
@@ -166,14 +163,14 @@ function Users() {
                   <p>No user with the search input found</p>
                 </div>
               )}
-
+              {/* 
               {deleteModal && (
                 <DeleteModal
                   setDeleteModal={setDeleteModal}
                   deleteUser={deleteUser}
                   setDeleteUser={setDeleteUser}
                 />
-              )}
+              )} */}
             </div>
           ) : (
             <div>

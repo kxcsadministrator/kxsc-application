@@ -175,17 +175,17 @@ table th {
     @apply lg:w-[82%] md:w-[74%] w-full;
   }
   .btn_green {
-    @apply p-2 bg-[#52cb83]  md:min-w-[100px] max-w-[128px] text-white rounded-md lg:w-36 w-[35%] text-sm;
+    @apply p-2 bg-[#52cb83]  md:min-w-[100px] max-w-[128px] text-white rounded-md lg:w-36 md:w-[35%] w-fit text-sm;
   }
 
   .btn_green_h {
     @apply p-2 bg-[#52cb83] rounded-md w-36 text-white my-3 text-sm md:text-base max-w-[150px];
   }
   .btn_red {
-    @apply bg-[#d14949] max-w-[128px] text-white p-2 rounded-md lg:w-36 w-[35%] text-sm;
+    @apply bg-[#d14949] max-w-[128px] text-white p-2 rounded-md lg:w-36 md:w-[35%] w-fit text-sm;
   }
   .btn_gray {
-    @apply bg-[#cccccc] max-w-[128px] text-white p-2 rounded-md lg:w-36 w-[35%] text-sm;
+    @apply bg-[#cccccc] max-w-[128px] text-white p-2 rounded-md lg:w-36  md:w-[35%] w-fit text-sm;
   }
   .err_text {
     @apply text-[#d14949] text-sm;

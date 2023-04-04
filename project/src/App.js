@@ -25,6 +25,8 @@ import ResetEmail from "./pages/admin/password-reset/ResetEmail";
 import Reset from "./pages/admin/password-reset/Reset";
 import Profile from "./pages/admin/profile/Profile";
 import Search from "./pages/admin/Search";
+import OtherResources from "./pages/admin/resources/OtherResources";
+import UserRequests from "./pages/admin/users/UserRequests";
 
 function App() {
   const { user } = useContext(Context);
@@ -36,6 +38,7 @@ function App() {
           <Route path="/sign_up" element={<SignUp />} />
           <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
+          <Route path="/admin/user_requests" element={<UserRequests />} />
           <Route path="/admin/create-user" element={<CreateUser />} />
           <Route path="/admin/messages" element={<Messages />} />
           <Route path="/admin/create-message" element={<CreateMessage />} />
@@ -53,6 +56,7 @@ function App() {
             element={<PendingResources />}
           />
           <Route path="/admin/public_resources" element={<PublicResources />} />
+          <Route path="/admin/other_resources" element={<OtherResources />} />
           <Route path="/admin/categories" element={<Categories />} />
           <Route path="/admin/category/:name" element={<Category />} />
           <Route path="/admin/create-category" element={<CreateCategory />} />

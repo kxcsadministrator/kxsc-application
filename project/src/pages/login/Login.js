@@ -13,7 +13,7 @@ function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post(`http://52.47.163.4:3000/users/login`, {
+      const res = await axios.post(`http://13.36.208.34:3000/users/login`, {
         username: userRef.current.value,
         password: passwordRef.current.value,
       });
@@ -24,9 +24,6 @@ function Login() {
       console.log(err);
       dispatch({
         type: "LOGIN_FAILURE",
-        payload: err.response.data.errors
-          ? err.response.data.errors[0].msg
-          : err.response.data.message,
       });
     }
   };

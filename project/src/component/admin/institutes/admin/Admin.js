@@ -15,7 +15,7 @@ function Admin({ admins, instituteId }) {
   const [value, setValue] = useState("");
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(admins?.slice(0, countPerPage))
@@ -71,13 +71,15 @@ function Admin({ admins, instituteId }) {
             Add admin
           </button>
         )}
-        <div>
-          <input
-            placeholder="Search Admins"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Admins"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length ? (

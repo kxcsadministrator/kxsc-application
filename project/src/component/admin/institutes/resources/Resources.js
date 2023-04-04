@@ -29,7 +29,7 @@ function Resources({ resources, instituteId, admin }) {
     try {
       const res = await axios({
         method: "post",
-        url: `http://52.47.163.4:3001/institutes/request-to-publish/${instituteId}/${id}`,
+        url: `http://13.36.208.34:3001/institutes/request-to-publish/${instituteId}/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);
@@ -49,7 +49,7 @@ function Resources({ resources, instituteId, admin }) {
   };
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(resources?.slice(0, countPerPage))
@@ -105,13 +105,15 @@ function Resources({ resources, instituteId, admin }) {
         >
           Add resource
         </button>
-        <div>
-          <input
-            placeholder="Search Resources"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Resources"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length > 0 ? (

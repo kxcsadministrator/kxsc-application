@@ -15,7 +15,7 @@ function Files({ files, admin }) {
   const id = sessionStorage.getItem("taskId");
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(files?.slice(0, countPerPage))
@@ -63,7 +63,7 @@ function Files({ files, admin }) {
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://52.47.163.4:3001/tasks/${id}/download-file/${file._id}`,
+        `http://13.36.208.34:3001/tasks/${id}/download-file/${file._id}`,
         {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
           responseType: "blob",
@@ -89,13 +89,15 @@ function Files({ files, admin }) {
             Add files
           </button>
         )}
-        <div>
-          <input
-            placeholder="Search Files"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Files"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length ? (

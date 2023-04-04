@@ -26,7 +26,7 @@ function Resource() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3002/resources/one/${id}`,
+          `http://13.36.208.34:3002/resources/one/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -47,7 +47,7 @@ function Resource() {
       setRequestModal(true);
       const res = await axios({
         method: "post",
-        url: `http://52.47.163.4:3002/resources/request-institute-publish/${resource.id}`,
+        url: `http://13.36.208.34:3002/resources/request-institute-publish/${resource.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });
@@ -77,7 +77,7 @@ function Resource() {
         {resource.id ? (
           <div className="py-4 px-6 grid gap-12">
             <div className="flex flex-col">
-              <h1 className="my-2">{resource.topic}</h1>
+              <h2 className="my-2">{resource.topic}</h2>
               <div>
                 <div className="resource_row">
                   <p>By: {resource.author.username}</p>
@@ -111,12 +111,15 @@ function Resource() {
                 )}
               </div>
             </div>
-            <div className="flex flex-col gap-0">
-              <h1>About Resources</h1>
-              <div>
-                <p>{resource.description}</p>
+            {resource.description && (
+              <div className="flex flex-col gap-0">
+                <h1>About Resources</h1>
+                <div>
+                  <p>{resource.description}</p>
+                </div>
               </div>
-            </div>
+            )}
+
             <div className="flex flex-col gap-0">
               <h1>Files</h1>
               <ResourceFiles resource={resource} />

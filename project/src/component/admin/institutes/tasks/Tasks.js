@@ -79,13 +79,15 @@ function Tasks({ tasks, instituteId, admin }) {
             Add Tasks
           </button>
         )}
-        <div>
-          <input
-            placeholder="Search Tasks"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Tasks"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length ? (

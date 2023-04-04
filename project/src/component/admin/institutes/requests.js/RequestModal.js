@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { GrStatusGood } from "react-icons/gr";
+import { VscPassFilled } from "react-icons/vsc";
 
 function RequestModal({ setRequestModal, states }) {
   let menuRef = useRef();
@@ -29,9 +29,11 @@ function RequestModal({ setRequestModal, states }) {
             <p className="text-red-400 text-3xl text-center">{states.errMsg}</p>
           </div>
         ) : states.success ? (
-          <div className="flex items-center gap-4 text-green-400">
-            <GrStatusGood />
-            <p className=" text-3xl text-center">Success</p>
+          <div className="flex h-full items-center justify-center gap-4 text-green-400 ">
+            <p className="text-2xl font-semibold text-center">Success</p>
+            <p>
+              <VscPassFilled size="2rem" />
+            </p>
           </div>
         ) : (
           <div></div>

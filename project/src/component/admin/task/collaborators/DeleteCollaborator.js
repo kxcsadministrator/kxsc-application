@@ -34,7 +34,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://52.47.163.4:3001/tasks/remove-collabs/${id}`,
+        `http://13.36.208.34:3001/tasks/remove-collabs/${id}`,
         {
           collaborators: [member],
         },

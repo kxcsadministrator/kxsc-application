@@ -221,6 +221,9 @@ function Sidebar() {
                 <Link className="link" to="/admin/users">
                   <p>All users</p>
                 </Link>
+                <Link className="link" to="/admin/user_requests">
+                  <p>User Requests</p>
+                </Link>
               </div>
 
               <div className="dash" />
@@ -300,6 +303,11 @@ function Sidebar() {
                 <Link className="link" to="/admin/resources">
                   <p>My Resource Items</p>
                 </Link>
+                {user?.main_institute?.name && (
+                  <Link className="link" to="/admin/other_resources">
+                    <p>Other Institute Resources</p>
+                  </Link>
+                )}
               </div>
               <div className="dash" />
             </div>

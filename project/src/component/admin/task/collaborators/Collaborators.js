@@ -73,13 +73,15 @@ function Collaborators({ collaborators, admin, instituteId, task }) {
             Add member
           </button>
         )}
-        <div>
-          <input
-            placeholder="Search Members"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-        </div>
+        {collection?.length > 0 && (
+          <div>
+            <input
+              placeholder="Search Members"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+            />
+          </div>
+        )}
       </div>
 
       {collection?.length ? (

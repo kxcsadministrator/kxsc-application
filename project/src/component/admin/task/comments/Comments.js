@@ -29,7 +29,7 @@ function Comments({ comments }) {
     setRequestModal(true);
     try {
       const res = await axios.post(
-        `http://52.47.163.4:3001/tasks/${id}/comments/new`,
+        `http://13.36.208.34:3001/tasks/${id}/comments/new`,
         {
           author: user.id,
           body: text,

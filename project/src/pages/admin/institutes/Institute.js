@@ -26,7 +26,7 @@ function Institute() {
     const getInstitute = async () => {
       try {
         const res = await axios.get(
-          `http://52.47.163.4:3001/institutes/one/${id}`,
+          `http://13.36.208.34:3001/institutes/one/${id}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setInstitute(res.data);

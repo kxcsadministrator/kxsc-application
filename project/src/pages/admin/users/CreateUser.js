@@ -24,7 +24,7 @@ function CreateUser() {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.post(
-          `http://52.47.163.4:3000/users/new/super-admin`,
+          `http://13.36.208.34:3000/users/new/super-admin`,
           {
             username: username,
             email: email,
@@ -44,7 +44,7 @@ function CreateUser() {
     } else {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.post(`http://52.47.163.4:3000/users/new`, {
+        const res = await axios.post(`http://13.36.208.34:3000/users/new`, {
           username: username,
           email: email,
           password: password,
