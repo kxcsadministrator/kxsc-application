@@ -173,26 +173,53 @@ router.get('/one/:id', async (req, res) => {
 router.get('/username/:name', async (req, res) => {
     try {
         const name = req.params.name
-        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
-        const token = req.headers.authorization.split(' ')[1];
-        if (!token) {
-            helpers.log_request_error(`GET users/username/${name} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-
-        const decodedToken = jwt.verify(token, SECRET_KEY);
-
-        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        const user = await repository.get_user_by_username_or_email(name);
+        const user = await repository.get_user_by_username(name);
         if (!user) {
-            helpers.log_request_error(`GET users/username/${name} - 404: user with name ${name} not found`)
+            helpers.log_request_info(`GET users/username/${name} - 404: user with name ${name} not found`)
             return res.status(404).json({message: `user with name ${name} not found`});
         }
-
         helpers.log_request_info(`GET users/username/${name} - 200`)
         res.status(200).json({"id": user._id, "username": user.username});
     } catch (error) {
         helpers.log_request_error(`GET users/username/${req.params.name} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/username/{email}:
+ *  get:
+ *      summary: Gets a user via the username or email
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: username of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/username/:email', async (req, res) => {
+    try {
+        const email = req.params.email
+        const user = await repository.get_user_by_email(email);
+        if (!user) {
+            helpers.log_request_info(`GET users/username/${email} - 404: user with email ${email} not found`)
+            return res.status(404).json({message: `user with name ${email} not found`});
+        }
+        helpers.log_request_info(`GET users/username/${email} - 200`)
+        res.status(200).json({"id": user._id, "username": user.email});
+    } catch (error) {
+        helpers.log_request_error(`GET users/username/${req.params.email} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -225,7 +252,7 @@ router.get('/search-user', async (req, res) => {
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
-            helpers.log_request_error(`GET users/username/${name} - 401: Token not found`)
+            helpers.log_request_error(`GET users/search-user?name=${name} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
 
@@ -234,10 +261,10 @@ router.get('/search-user', async (req, res) => {
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const users = await repository.search_username(name);
 
-        helpers.log_request_info(`GET users/username/${name} - 200`)
+        helpers.log_request_info(`GET users/search-user?name=${name} - 200`)
         res.status(200).json(users);
     } catch (error) {
-        helpers.log_request_error(`GET users/username/${req.params.name} - 400: ${error.message}`)
+        helpers.log_request_error(`GET users/search-user?name=${req.query.name} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -654,12 +681,55 @@ router.get('/my-dashboard', async (req, res) => {
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const result = await repository.get_user_dashboard(auth_user._id.toString())
+        const main_institute_id = result.institute_resource._id
+        let data = []
         
+        if (main_institute_id != null){
+            data = await repository.get_other_institutes_resources(main_institute_id)
+        }
+                    
         helpers.log_request_info(`GET users/my-dashboard - 200`)
         res.status(200).json(result);
     } catch (error) {
         console.error(error)
         helpers.log_request_error(`GET users/my-dashboard - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/other-institute-resources/{id}:
+ *  get:
+ *      summary: Gets published resources from other institutes
+ *      description: |
+ *          The user is obtained from authentication token
+ * 
+ *          Requires a bearer token for authentication.
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/other-institute-resources/:id', async (req, res) => {
+    try {
+        
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/other-institute-resources/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const main_institute_id = req.params.id
+        const data = await repository.get_other_institutes_resources(main_institute_id)
+                    
+        helpers.log_request_info(`GET users/other-institute-resources - 200`)
+        res.status(200).json(data);
+    } catch (error) {
+        console.error(error)
+        helpers.log_request_error(`GET users/other-institute-resources - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })

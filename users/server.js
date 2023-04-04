@@ -9,6 +9,7 @@ const user_router = require('./routes/users');
 const message_router = require('./routes/messages');
 const super_admin_router = require('./routes/superadmin')
 const log_router = require('./routes/logs')
+const pages_router = require('./routes/pages')
 
 
 const swaggerDefinition = {
@@ -64,7 +65,8 @@ app.use("/uploads", express.static('files/uploads'));
 app.use('/users', user_router);
 app.use('/users', super_admin_router);
 app.use('/messages', message_router);
-app.use('/logs', log_router)
+app.use('/logs', log_router);
+app.use('/pages', pages_router);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 module.exports = app

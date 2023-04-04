@@ -271,6 +271,56 @@ const notificationSchema = new mongoose.Schema({
     }
 })
 
+/*------------------------------------- New User request schema ----------------------------*/
+const newUserRequestSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    requester: {
+        type: Schema.Types.ObjectId,
+        ref: "users",
+        required: true
+    },
+    status: {
+        type: String,
+        default: "pending"
+    },
+    institute: {
+        type: Schema.Types.ObjectId,
+        ref: "researchinstitutes",
+        required: true
+    },
+    date_created: {
+        type: Date,
+        default: Date.now,
+    }
+})
+
+/*------------------------------------- Footer Schema ----------------------------*/
+const footerPageSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true
+    },
+    body: {
+        type: String,
+        required: true
+    }
+})
+
+const footerSectionSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    children: [footerPageSchema]
+})
+
 const profilePic = mongoose.model("profilePicture", picSchema);
 const user = mongoose.model("user", userSchema);
 const token = mongoose.model("token", tokenSchema);
@@ -280,5 +330,9 @@ const institute = mongoose.model("ResearchInstitute", instituteSchema);
 const task = mongoose.model("Task", taskSchema);
 const message = mongoose.model("Message", messageSchema)
 const notification = mongoose.model("Notification", notificationSchema)
+const newUserRequest = mongoose.model('NewUserRequest', newUserRequestSchema);
+const footerSection = mongoose.model('FooterSection', footerSectionSchema)
 
-module.exports = { profilePic, user, token, pubRequest, resource, institute, task, message, notification};
+module.exports = { 
+    profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest, footerSection
+};

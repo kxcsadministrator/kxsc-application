@@ -95,6 +95,18 @@ const validateInstituteAdmin = async (headers, institute_id) => {
   return false;
 }
 
+const getAndValidateInstituteAdmin = async(headers, institute_id) => {
+  const user = await validateUser(headers);
+  if (user.status != 200) return [false, user]
+
+  const user_data = user.data;
+  if (user_data.superadmin) return [true, user_data];
+  const institute = await repository.get_institute_by_id(institute_id);
+  if (!institute) return [false, user_data]
+  if (institute.admins.includes(user_data._id.toString())) return [true, user_data];
+  return [false, user_data];
+}
+
 const validatePublicResource = async (resource_id) => {
   try {
     const resource = await repository.get_resource_by_id(resource_id);
@@ -149,7 +161,7 @@ const delete_file = (path) => {
   )
 }
 
-const send_request_notification = async() => {
+const send_request_notification = async(request_type="publish-request") => {
   const recipients = await repository.get_super_admins()
   if (recipients.length < 1) {
     return null 
@@ -163,12 +175,15 @@ const send_request_notification = async() => {
 for (let i = 0; i < recipient_idx.length; i++) {
   const owner = recipient_idx;
   const notification = new Model.notification({
-      type: "request",
+      type: request_type,
       owner: owner
   })
   const notify_res = repository.create_new_notification(notification);
-  if (owner in clients)
-      clients[owner].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+  if (owner in clients){
+    const [msg, pub_req, user_req] = await repository.get_user_notifications(owner)
+    const data = {messages: msg, publish_requests: pub_req, new_user_requests: user_req}
+    clients[owner].write(`data: ${JSON.stringify(data)}\n\n`)
+  }
   }
 }
 
@@ -183,19 +198,23 @@ const send_instiute_notification = async(id) => {
       recipient_idx.push(recipients[i]._id)
   }
 
-for (let i = 0; i < recipient_idx.length; i++) {
-  const owner = recipient_idx;
-  const notification = new Model.notification({
-      type: "request",
-      owner: owner
-  })
-  const notify_res = await repository.create_new_notification(notification);
-  if (owner in clients)
-      clients[owner].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+  for (let i = 0; i < recipient_idx.length; i++) {
+    const owner = recipient_idx;
+    const notification = new Model.notification({
+        type: "request",
+        owner: owner
+    })
+    const notify_res = await repository.create_new_notification(notification);
+    if (owner in clients){
+      const [msg, req] = await repository.get_user_notifications(owner)
+      const data = {messages: msg, requests: req}
+      clients[owner].write(`data: ${JSON.stringify(data)}\n\n`)
+    }
   }
 }
 
 module.exports = {
   sendEmail, validateUser, validatePublicResource, validateInstituteAdmin, log_request_error, log_request_info, get_all_logs,
-  prepare_log_response, get_log_files, delete_file, clients, send_request_notification, send_instiute_notification
+  prepare_log_response, get_log_files, delete_file, clients, send_request_notification, send_instiute_notification,
+  getAndValidateInstituteAdmin
 };

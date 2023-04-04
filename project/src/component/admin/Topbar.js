@@ -30,7 +30,7 @@ function Topbar() {
     };
   }, [user.id, user.jwt_token]);
 
-  console.log(not[0]?.requests);
+  console.log(not[0]?.new_user_requests);
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -94,16 +94,22 @@ function Topbar() {
         </div>
         <div className="not">
           <div className="not_icon">
-            {(not[0]?.requests > 0 || not[0]?.messages > 0) && (
+            {(not[0]?.publish_requests > 0 ||
+              not[0]?.new_user_requests > 0 ||
+              not[0]?.messages > 0) && (
               <div className="absolute w-[15px] h-[15px] rounded-full bg-red-500 text-white right-0 overflow-hidden">
                 <p className="text-[8px] mt-[0.5px] text-center">
-                  {not[0]?.requests + not[0]?.messages}
+                  {not[0].publish_requests +
+                    not[0].new_user_requests +
+                    not[0].messages}
                 </p>
               </div>
             )}
             <IoIosNotificationsOutline size="1.6rem" />
           </div>
-          {(not[0]?.requests > 0 || not[0]?.messages > 0) && (
+          {(not[0]?.publish_requests > 0 ||
+            not[0]?.new_user_requests > 0 ||
+            not[0]?.messages > 0) && (
             <div className="notMsg">
               {not[0].messages > 0 && (
                 <Link className="link" to="/admin/messages">
@@ -112,7 +118,12 @@ function Topbar() {
               )}
               {not[0].requests > 0 && (
                 <Link className="link" to="/admin/resources/pending">
-                  you have {not[0].requests} new request
+                  you have {not[0].public_requests} new resource request
+                </Link>
+              )}
+              {not[0].new_user_requests > 0 && (
+                <Link className="link" to="/admin/user_requests">
+                  you have {not[0].new_user_requests} new user request
                 </Link>
               )}
             </div>

@@ -35,6 +35,7 @@ const validateInstituteAdmin = async (headers, institute_id) => {
     return false;
 }
 
+
 const validateInstituteMembers = async (headers, institute_id) => {
     const institute = await repository.get_institute_by_id(institute_id);
     if (!institute) return false
@@ -97,6 +98,18 @@ const admin_publish_request = async (institute_id, resource_id, headers) => {
     return {status: 200, data: publish_res.data};
 }
 
+const admin_new_user_request = async (institute_id, username, email, headers) => {
+    const publish_res = await axios({
+        method: 'post',
+        url: `${USERS_BASE_URL}/new-user-request/${institute_id}`,
+        data: {username: username, email: email},
+        headers: {'Authorization': `Bearer ${headers.authorization.split(' ')[1]}`}
+    })
+    if (publish_res.status != 200) return {status: 400, message: "something went wrong"};
+
+    return {status: 200, data: publish_res.data};
+}
+
 const validateCollabs = async (collaborators, institute_id) => {
     const institute = await repository.get_institute_by_id(institute_id);
     const admins = institute.admins.toString();
@@ -138,5 +151,6 @@ const notify_institute = async (institute_id, headers) => {
 
 module.exports = {
     validateUser, validateInstituteAdmin, validateInstituteMembers, validateUserResource, validateUserdata, admin_publish_request,
-    validateTaskMembers, validateCollabs, log_request_error, log_request_info, notify_institute
+    validateTaskMembers, validateCollabs, log_request_error, log_request_info, notify_institute,
+    admin_new_user_request
 };

@@ -89,7 +89,9 @@ router.post('/new',
             
             // clients is a list of response objects
             if (recipient._id.toString() in helpers.clients){
-                helpers.clients[recipient._id.toString()].write(`data: ${JSON.stringify(notify_res)}\n\n`)
+                const [msg, req] = await repository.get_user_notifications(recipient._id.toString())
+                const data = {messages: msg, requests: req}
+                helpers.clients[recipient._id.toString()].write(`data: ${JSON.stringify(data)}\n\n`)
             }
             res.status(200).json(result);
 
@@ -496,10 +498,12 @@ router.get('/notifications/:id', async(req, res) => {
             'Cache-Control': 'no-cache'
         };
         const user_id = req.params.id
-        helpers.log_request_info(`${user_id} Connection opened`)
+        console.log(`${user_id} Connection opened`)
+        // helpers.log_request_info(`${user_id} Connection opened`)
         res.writeHead(200, headers);
         
-        const data = await repository.get_user_notifications(user_id)
+        const [messages, pub_requests, user_requests] = await repository.get_user_notifications(user_id)
+        const data = {messages: messages, publish_requests: pub_requests, new_user_requests: user_requests}
         const result = `data: ${JSON.stringify(data)}\n\n`;
         
         res.write(result);
@@ -507,8 +511,8 @@ router.get('/notifications/:id', async(req, res) => {
         helpers.clients[user_id] = res;
         
         req.on('close', () => {
-            // console.log(`${user_id} Connection closed`);
-            helpers.log_request_info(`${user_id} Connection closed`)
+            console.log(`${user_id} Connection closed`);
+            // helpers.log_request_info(`${user_id} Connection closed`)
             delete helpers.clients[user_id]
         });
     } catch (error) {
@@ -520,23 +524,33 @@ router.get('/notifications/:id', async(req, res) => {
 
 /** 
  * @swagger
- * /notifications/{id}:
+ * /notifications:
  *  delete:
  *      summary: Delete read notifications
  *      description: |
- *          Use for deleting notifications that have been seen
+ *          Use for deleting notifications that have been seen. Requires a bearer token for authentication
  * responses:
- *    '200':
+ *    '204':
  *      description: Successful
  *    '500':
  *      description: Internal Server Error
 */
-router.delete('/notifications/:id', async(req, res) => {
+router.delete('/notifications', async(req, res) => {
     try {
-        const user_id = req.params.id
-        console.log(user_id)
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET messages/my-messages - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET messages/my-messages - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data
+        console.log(user._id)
         
-        await repository.delete_user_notification(user_id)
+        await repository.delete_user_notification(user._id)
         return res.status(204).json({message: "successful"})
     } catch (error) {
         helpers.log_request_error(`GET messages/notifications - 500: ${error.message}`)

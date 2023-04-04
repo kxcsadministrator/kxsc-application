@@ -493,16 +493,16 @@ router.get('/:id/search-member', async (req, res) => {
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
-            helpers.log_request_error(`GET users/username/${name} - 401: Token not found`)
+            helpers.log_request_error(`GET institute/${id}/search-member - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
 
         const members = await repository.search_institute_members(id, name, token);
 
-        helpers.log_request_info(`GET users/username/${name} - 200`)
+        helpers.log_request_info(`GET institute/${id}/search-member - 200`)
         res.status(200).json(members);
     } catch (error) {
-        helpers.log_request_error(`GET users/username/${req.params.name} - 400: ${error.message}`)
+        helpers.log_request_error(`GET institute/${req.params.id}/search-member - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
