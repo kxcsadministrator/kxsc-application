@@ -15,14 +15,14 @@ const FILE_PATH = 'files/logs'
 const fileRotateTransport = new transports.DailyRotateFile({
   filename: `${FILE_PATH}/info-logs-%DATE%.log`,
   datePattern: "YYYY-MM-DD",
-  maxFiles: "7d",
+  maxFiles: "2d",
 });
 
 const errorfileRotateTransport = new transports.DailyRotateFile({
     level: "error",
     filename: `${FILE_PATH}/error-logs-%DATE%.log`,
     datePattern: "YYYY-MM-DD",
-    maxFiles: "7d",
+    maxFiles: "2d",
   });
 
 const logger = createLogger({
