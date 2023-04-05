@@ -54,8 +54,8 @@ function CreateCategory() {
             </h1>
             <div className="flex flex-col justify-center gap-6">
               <div className="flex gap-3 items-center">
-                <p className="md:w-[30%] hidden md:block">Categories: </p>
-                <div className="md:w-[300px] md:h-[40px]">
+                <p className="md:w-[30%] hidden lg:block">Categories: </p>
+                <div className="md:w-[300px] h-[30px] md:h-[40px]">
                   <input
                     placeholder="Categories"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
@@ -65,8 +65,8 @@ function CreateCategory() {
                 </div>
               </div>
               <div className="flex gap-3 items-center">
-                <p className="md:w-[30%] hidden md:block">Sub-categories: </p>
-                <div className="md:w-[300px] md:h-[40px]">
+                <p className="md:w-[30%] hidden lg:block">Sub-categories: </p>
+                <div className="md:w-[300px]  h-[30px] md:h-[40px]">
                   <input
                     placeholder="Sub-categories"
                     className="w-full h-full bg-transparent border-2 border-[#707070] rounded-md px-2"
@@ -96,7 +96,7 @@ function CreateCategory() {
               <div>
                 <button
                   onClick={(e) => handleSubmit(e)}
-                  className="bg-green_bg h-[40px] w-[35%] py-1 px-3"
+                  className="btn_green -mt-3"
                   disabled={loading}
                 >
                   Submit

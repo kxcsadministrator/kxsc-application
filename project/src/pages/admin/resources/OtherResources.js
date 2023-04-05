@@ -12,7 +12,7 @@ import "rc-pagination/assets/index.css";
 function OtherResources() {
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const [allResourrces, setAllResources] = useState([]);
+  const [allResources, setAllResources] = useState([]);
   const [states, setStates] = useState({
     loading: true,
     error: false,
@@ -43,26 +43,26 @@ function OtherResources() {
       }
     };
     getResources();
-  }, [user.jwt_token, user.superadmin]);
+  }, [user.id, user.jwt_token, user.superadmin]);
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
-    cloneDeep(allResourrces.slice(0, countPerPage))
+    cloneDeep(allResources.slice(0, countPerPage))
   );
 
   const searchData = useCallback(
     (value) => {
       const query = value.toLowerCase();
       const data = cloneDeep(
-        allResourrces
+        allResources
           .filter((item) => item.topic.toLowerCase().indexOf(query) > -1)
           .slice(0, 2)
       );
       setCollection(data);
       console.log(data);
     },
-    [allResourrces]
+    [allResources]
   );
 
   //updatePage Function
@@ -71,9 +71,9 @@ function OtherResources() {
       setCurrentPage(p);
       const to = countPerPage * p;
       const from = to - countPerPage;
-      setCollection(cloneDeep(allResourrces.slice(from, to)));
+      setCollection(cloneDeep(allResources.slice(from, to)));
     },
-    [allResourrces]
+    [allResources]
   );
 
   //useEffect Search
@@ -109,7 +109,7 @@ function OtherResources() {
               <div>{states.errMsg}</div>
             ) : (
               <>
-                {allResourrces?.length === 0 ? (
+                {allResources?.length === 0 ? (
                   <div>
                     <h1>No resource</h1>
                   </div>
@@ -181,12 +181,14 @@ function OtherResources() {
                           </div>
                         ))}
                         <div className="paginate my-4">
-                          <Pagination
-                            pageSize={countPerPage}
-                            onChange={updatePage}
-                            current={currentPage}
-                            total={allResourrces.length}
-                          />
+                          {allResources > countPerPage && (
+                            <Pagination
+                              pageSize={countPerPage}
+                              onChange={updatePage}
+                              current={currentPage}
+                              total={allResources.length}
+                            />
+                          )}
                         </div>
                       </div>
                     ) : (

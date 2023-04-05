@@ -89,7 +89,7 @@ function Admin({ admins, instituteId }) {
               <tr>
                 <th scope="col">s/n</th>
                 <th scope="col">Admins</th>
-                {(admin || user.superadmin) && <th>Action</th>}
+                {user.superadmin && <th>Action</th>}
               </tr>
             </thead>
             <tbody>

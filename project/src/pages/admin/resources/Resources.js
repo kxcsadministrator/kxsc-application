@@ -72,7 +72,7 @@ function Resources() {
   }, [user.jwt_token, user.superadmin]);
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(allResources.slice(0, countPerPage))
@@ -137,7 +137,7 @@ function Resources() {
         <div>
           <Topbar />
         </div>
-        <div className="py-5 px-5">
+        <div className="py-5 px-4">
           {states.loading ? (
             <div>
               <h1>Loading</h1>
@@ -226,12 +226,14 @@ function Resources() {
                     </div>
                   ))}
                   <div className="paginate my-4">
-                    <Pagination
-                      pageSize={countPerPage}
-                      onChange={updatePage}
-                      current={currentPage}
-                      total={allResources.length}
-                    />
+                    {allResources > countPerPage && (
+                      <Pagination
+                        pageSize={countPerPage}
+                        onChange={updatePage}
+                        current={currentPage}
+                        total={allResources.length}
+                      />
+                    )}
                   </div>
                 </div>
               ) : (

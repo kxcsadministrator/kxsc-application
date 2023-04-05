@@ -116,7 +116,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="text_h1_heading">Add Member</h1>
-        <div className="flex flex-col items-center w-full gap-3">
+        <div className="flex flex-col -mt-5 items-center w-full gap-3">
           <form>
             <div className="tabsMsg">
               <div
@@ -130,7 +130,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
               </div>
 
               <div
-                className={`tabMsg ${checkActive(2, "active")}`}
+                className={`tab_2 tabMsg ${checkActive(2, "active")}`}
                 onClick={() => {
                   handleClick(2);
                   setNewUser(true);
@@ -144,7 +144,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
                 <input
                   placeholder="Username"
                   list="members"
-                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  className="w-[100%] rounded-sm h-10 bg-gray_bg px-3 py-1"
                   value={username}
                   onChange={(e) => {
                     setUsername(e.target.value);

@@ -73,24 +73,27 @@ table th {
 
 .tabsMsg {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
   align-items: center;
   margin: 15px auto;
-  margin-left: 7%;
   width: 100%;
-  font-size: 1.2rem;
+  font-size: clamp(1rem, 1vw + 1rem, 1.4rem);
+  padding-bottom: 5px;
 }
 .tabMsg {
-  justify-content: center;
-  align-items: center;
-  width: 100%;
   padding: 2px 0;
   cursor: pointer;
 }
 
+.tab_2 {
+  border-left: 2px solid rgb(213, 213, 213);
+  padding-left: 20px;
+}
+
 .tabMsg.active {
   font-weight: bold;
-  color: rgb(174, 174, 174);
+  color: #52cb83;
   background-color: transparent;
 }
 .panelMsg {
@@ -126,7 +129,6 @@ table th {
   table tr {
     border-bottom: 3px solid #ddd;
     display: block;
-    margin-bottom: 0.625em;
   }
 
   table td {
@@ -151,6 +153,10 @@ table th {
   }
 }
 
+.all_heading h1 {
+  font-size: clamp(0.889rem, 1vw + 1rem, 1.333rem);
+}
+
 @layer components {
   body {
     @apply m-0 bg-gray_bg;
@@ -162,7 +168,7 @@ table th {
     @apply fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(5,2,9,0.6)];
   }
   .modal_content {
-    @apply flex flex-col  py-2 gap-5 md:w-[65%] w-[80%] lg:w-[35%] h-fit pb-5 bg-white rounded-md shadow-md;
+    @apply flex flex-col  py-2 gap-5 md:w-[65%] w-[80%] lg:w-[35%] h-fit pb-5 bg-white rounded-md shadow-md px-4;
   }
 
   .modal_heading {
@@ -172,7 +178,7 @@ table th {
     @apply lg:w-[24%] md:w-[30%] md:relative absolute w-full;
   }
   .main_content {
-    @apply lg:w-[82%] md:w-[74%] w-full;
+    @apply lg:w-[82%] md:w-[74%] w-full md:mx-0;
   }
   .btn_green {
     @apply p-2 bg-[#52cb83]  md:min-w-[100px] max-w-[128px] text-white rounded-md lg:w-36 md:w-[35%] w-fit text-sm;
@@ -197,10 +203,10 @@ table th {
     @apply flex md:flex-row flex-col md:items-center justify-between;
   }
   .all_heading h1 {
-    @apply md:text-2xl text-base font-bold;
+    @apply font-bold text-center md:text-start my-3 md:my-0;
   }
   .all_heading input {
-    @apply rounded-sm py-2 px-4;
+    @apply rounded-sm py-2 px-4 w-[60%] min-w-[200px] max-w-[250px]  md:w-fit;
   }
   .paginate {
     @apply flex justify-end my-3;
@@ -214,14 +220,14 @@ table th {
   }
 
   .form_message {
-    @apply flex flex-col items-center gap-6 bg-white shadow-md md:w-[80%] mx-auto h-fit pb-5 rounded-md w-full;
+    @apply flex flex-col gap-6 bg-white shadow-md md:w-[80%] mx-auto h-fit pb-5 rounded-md w-[90%];
   }
   .message_heading {
     @apply md:text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full text-[18px];
   }
 
   .text_h1_heading {
-    @apply md:text-[20px] text-center w-full text-[18px];
+    @apply font-bold text-[20px] border-b-2 border-gray-300 w-full text-center pb-2;
   }
   .message_input {
     @apply w-[70%] h-full bg-transparent border-2 border-[#e8e8e8] rounded-md px-2 py-1 text-sm md:text-base;

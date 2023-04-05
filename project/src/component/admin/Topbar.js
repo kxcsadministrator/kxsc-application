@@ -56,8 +56,8 @@ function Topbar() {
   };
 
   const topbarContainer = user.superadmin
-    ? "flex justify-between items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full"
-    : "flex justify-end items-center px-6 pr-16 gap-3 h-[50px] bg-white w-full";
+    ? "flex justify-between items-center md:w-[90%] px-4 mx-auto gap-3 h-[50px] bg-white w-full"
+    : "flex justify-end items-center md:w-[90%] px-4 mx-auto  gap-3 h-[50px] bg-white w-full";
   return (
     <div className={topbarContainer}>
       {user.superadmin && (
@@ -67,8 +67,8 @@ function Topbar() {
             onSubmit={(e) => handleSubmit(e)}
           >
             <input
-              className="bg-[#f4f4f6] w-[250px] h-9 rounded-lg pl-9 pr-3"
-              placeholder="Search for resources"
+              className="bg-[#f4f4f6] w-[150px] md:w-[250px] h-8 md:h-9 rounded-lg pl-9 pr-3 md:text-base text-sm"
+              placeholder="Search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -82,9 +82,9 @@ function Topbar() {
       <div className="flex gap-4 items-center">
         <div className="profile_img">
           {user.profile_picture ? (
-            <div className="md:w-8 w-7 cursor-pointer">
+            <div className="md:w-8 w-6 cursor-pointer">
               <img
-                src={`http://13.36.208.34:3000/uploads/${user.profile_picture.original_name}`}
+                src={`http://13.36.208.34:3000/${user.profile_picture.path}`}
                 alt="profile_picture"
                 className="w-full  rounded-full"
               />

@@ -120,7 +120,7 @@ function CreateMessage() {
         <div>
           <Topbar />
         </div>
-        <div className="py-2 px-5">
+        <div className="py-4 md:px-5">
           <form className="form_message">
             <div className="tabsMsg">
               <div
@@ -130,17 +130,17 @@ function CreateMessage() {
                   setAdminMsg(false);
                 }}
               >
-                Send Message
+                {user.superadmin ? "Any User" : "Send Message"}
               </div>
               {user.superadmin && (
                 <div
-                  className={`tabMsg ${checkActive(2, "active")}`}
+                  className={`tab_2 tabMsg ${checkActive(2, "active")}`}
                   onClick={() => {
                     handleClick(2);
                     setAdminMsg(true);
                   }}
                 >
-                  Broadcast to institute admins
+                  Institute Admins
                 </div>
               )}
             </div>

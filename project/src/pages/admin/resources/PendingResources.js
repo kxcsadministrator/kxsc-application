@@ -40,7 +40,7 @@ function PendingResources() {
     getRequest();
   }, [user.jwt_token]);
   //pagination Data
-  const countPerPage = 1;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(pendingResources.slice(0, countPerPage))
@@ -118,7 +118,7 @@ function PendingResources() {
           <Topbar />
         </div>
 
-        <div className="py-2 px-5">
+        <div className="py-2 px-4">
           {pendingResources?.length === 0 ? (
             <div>
               <h1>No pending Resources</h1>
@@ -156,7 +156,7 @@ function PendingResources() {
                             <td data-label="Action">
                               <div>
                                 <button
-                                  className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                                  className="btn_green"
                                   onClick={() => publish(resource.resource._id)}
                                 >
                                   Publish
@@ -168,12 +168,14 @@ function PendingResources() {
                       </tbody>
                     </table>
                     <div className="paginate">
-                      <Pagination
-                        pageSize={countPerPage}
-                        onChange={updatePage}
-                        current={currentPage}
-                        total={pendingResources.length}
-                      />
+                      {pendingResources > countPerPage && (
+                        <Pagination
+                          pageSize={countPerPage}
+                          onChange={updatePage}
+                          current={currentPage}
+                          total={pendingResources.length}
+                        />
+                      )}
                     </div>
                   </div>
                 ) : (

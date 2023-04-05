@@ -70,7 +70,7 @@ function Institutes() {
     getInstitutes();
   }, [user.jwt_token]);
   //pagination Data
-  const countPerPage = 2;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(allInstitutes.slice(0, countPerPage))
@@ -186,12 +186,14 @@ function Institutes() {
                     </tbody>
                   </table>
                   <div className="paginate ">
-                    <Pagination
-                      pageSize={countPerPage}
-                      onChange={updatePage}
-                      current={currentPage}
-                      total={allInstitutes.length}
-                    />
+                    {allInstitutes > countPerPage && (
+                      <Pagination
+                        pageSize={countPerPage}
+                        onChange={updatePage}
+                        current={currentPage}
+                        total={allInstitutes.length}
+                      />
+                    )}
                   </div>
                 </div>
               ) : (

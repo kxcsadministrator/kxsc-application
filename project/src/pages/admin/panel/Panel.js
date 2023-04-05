@@ -194,8 +194,16 @@ function Panel() {
                   dashboard?.institute_resource?.resources.map(
                     (resource, index) => (
                       <div className="obj_body my-2" key={index}>
-                        <div className="w-[20%]">
-                          <img src="/default.png" alt="default" />
+                        <div className="lg:w-[20%] md:[40%] w-[60%]">
+                          {resource.avatar === null ? (
+                            <img src="/default.png" alt="default" />
+                          ) : (
+                            <img
+                              src={`http://13.36.208.34:3002/${resource.avatar}`}
+                              alt="default"
+                              className="object-cover h-full w-full"
+                            />
+                          )}
                         </div>
                         <div className="obj_text">
                           <div>
@@ -226,7 +234,7 @@ function Panel() {
                   )
                 ) : (
                   <div className="obj_default">
-                    <div className="w-[20%]">
+                    <div className="lg:w-[20%] md:[40%] w-[60%]">
                       <img src="/default.png" alt="default" />
                     </div>
                     <div className="obj_text">
@@ -251,8 +259,16 @@ function Panel() {
                 {dashboard?.user_resources?.length ? (
                   dashboard.user_resources.map((resource, index) => (
                     <div className="obj_body my-2" key={index}>
-                      <div className="w-[20%]">
-                        <img src="/default.png" alt="default" />
+                      <div className="lg:w-[20%] md:[40%] w-[60%]">
+                        {resource.avatar === null ? (
+                          <img src="/default.png" alt="default" />
+                        ) : (
+                          <img
+                            src={`http://13.36.208.34:3002/${resource.avatar}`}
+                            alt="default"
+                            className="object-cover h-full w-full"
+                          />
+                        )}
                       </div>
                       <div className="obj_text">
                         <div className="flex flex-col">
@@ -279,7 +295,7 @@ function Panel() {
                   ))
                 ) : (
                   <div className="obj_default">
-                    <div className="w-[20%]">
+                    <div className="lg:w-[20%] md:[40%] w-[60%]">
                       <img src="/default.png" alt="default" />
                     </div>
                     <div className="obj_text">
@@ -307,7 +323,7 @@ function Panel() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <div className="w-[30%]">
+                    <div className="lg:w-[20%] md:[40%] w-[60%]">
                       <img src="/book.png" alt="default" />
                     </div>
                     <div className="obj_text">
@@ -339,7 +355,7 @@ function Panel() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center">
-                    <div className="w-[30%]">
+                    <div className="lg:w-[20%] md:[40%] w-[60%]">
                       <img src="/book.png" alt="default" />
                     </div>
                     <div className="obj_text">

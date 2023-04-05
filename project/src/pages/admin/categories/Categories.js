@@ -49,7 +49,7 @@ function Categories() {
   }, [user.jwt_token]);
 
   //pagination Data
-  const countPerPage = 3;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(allCat.slice(0, countPerPage))
@@ -165,12 +165,14 @@ function Categories() {
                     </div>
                   ))}
                   <div className="paginate my-4">
-                    <Pagination
-                      pageSize={countPerPage}
-                      onChange={updatePage}
-                      current={currentPage}
-                      total={allCat.length}
-                    />
+                    {allCat > countPerPage && (
+                      <Pagination
+                        pageSize={countPerPage}
+                        onChange={updatePage}
+                        current={currentPage}
+                        total={allCat.length}
+                      />
+                    )}
                   </div>
                 </div>
               ) : (
