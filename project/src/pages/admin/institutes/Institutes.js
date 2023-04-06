@@ -171,14 +171,14 @@ function Institutes() {
                               >
                                 <FaEye size="1.2rem" />
                               </button>
-                              {user.superadmin && (
+                              {/* {user.superadmin && (
                                 <button
                                   className="p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600"
                                   onClick={() => deleteBtn(institute)}
                                 >
                                   <RiDeleteBinLine size="1.2rem" />
                                 </button>
-                              )}
+                              )} */}
                             </div>
                           </td>
                         </tr>

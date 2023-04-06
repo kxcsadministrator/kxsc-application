@@ -90,6 +90,8 @@ function OtherResources() {
     sessionStorage.setItem("resourceId", resource._id);
     navigate(`/admin/resources/${resource.topic}`);
   };
+
+  console.log(allResources);
   return (
     <div>
       <div className="base_container">
@@ -130,18 +132,18 @@ function OtherResources() {
                         {collection.map((resource, index) => (
                           <div className="grid gap-6" key={index}>
                             <div className="flex md:flex-row flex-col gap-3 md:h-36 w-full">
-                              {resource.avatar === null ? (
+                              {resource.avatar ? (
                                 <div className="md:h-full h-36 md:w-[28%] w-[90%]">
                                   <img
-                                    src="/default.png"
-                                    alt="default"
+                                    src={`http://13.36.208.34:3002/${resource.avatar}`}
+                                    alt="resource avatar"
                                     className="object-cover h-full w-full"
                                   />
                                 </div>
                               ) : (
                                 <div className="h-full w-[28%]">
                                   <img
-                                    src={`http://13.36.208.34:3002/${resource.avatar}`}
+                                    src="/default.png"
                                     alt="default"
                                     className="object-cover h-full w-full"
                                   />

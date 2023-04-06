@@ -50,7 +50,6 @@ function Messages() {
     };
     const sentMessages = async () => {
       setStates({ loading: true, error: false });
-
       try {
         const res = await axios.get(
           `http://13.36.208.34:3000/messages/sent-messages`,
@@ -173,10 +172,6 @@ function Messages() {
             <div>
               <p>{states.errMsg}</p>
             </div>
-          ) : allMsg.length === 0 ? (
-            <div>
-              <p>{states.errMsg}</p>
-            </div>
           ) : (
             <div className="flex flex-col gap-8">
               <div className="tabsMsg">
@@ -195,7 +190,7 @@ function Messages() {
                     handleClick(2);
                   }}
                 >
-                  Receive messages
+                  Received messages
                 </div>
               </div>
               <div className={`panelMsg ${checkActive(1, "active")}`}>

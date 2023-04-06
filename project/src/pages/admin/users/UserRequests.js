@@ -195,7 +195,7 @@ function UserRequests() {
               </div>
             ) : (
               <div>
-                <p>No users Found</p>
+                <p>No user Requests</p>
               </div>
             )}
             {requestModal && (

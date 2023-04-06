@@ -56,8 +56,8 @@ function Topbar() {
   };
 
   const topbarContainer = user.superadmin
-    ? "flex justify-between items-center md:w-[90%] px-4 mx-auto gap-3 h-[50px] bg-white w-full"
-    : "flex justify-end items-center md:w-[90%] px-4 mx-auto  gap-3 h-[50px] bg-white w-full";
+    ? "flex justify-between items-center md:w-[100%] px-4 mx-auto gap-3 h-[50px] bg-white w-full"
+    : "flex justify-end items-center md:w-[100%] px-4 mx-auto  gap-3 h-[50px] bg-white w-full";
   return (
     <div className={topbarContainer}>
       {user.superadmin && (

@@ -179,7 +179,7 @@ function Resources() {
                           <div className="h-full w-[28%]">
                             <img
                               src={`http://13.36.208.34:3002/${resource.avatar}`}
-                              alt="default"
+                              alt="avatar resource"
                               className="object-cover h-full w-full"
                             />
                           </div>
@@ -211,14 +211,15 @@ function Resources() {
                             >
                               <FaEye />
                             </button>
-                            {user.superadmin && (
+
+                            {/* {user.superadmin && (
                               <button
                                 className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
                                 onClick={() => deleteBtn(resource)}
                               >
                                 <RiDeleteBinLine />
                               </button>
-                            )}
+                            )} */}
                           </p>
                         </div>
                       </div>

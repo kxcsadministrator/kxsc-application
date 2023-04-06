@@ -8,24 +8,18 @@ table {
   margin: 0;
   padding: 0;
   width: 100%;
-  table-layout: fixed;
   margin: 0 auto;
   background-color: white;
 }
 
-table caption {
-  font-size: 1.5em;
-  margin: 0.5em 0 0.75em;
-}
-
 table tr {
-  padding: 0.35em;
+  padding: 0.7rem;
   border-top: 1px solid #e5e7eb;
 }
 
 table th,
 table td {
-  padding: 0.625em;
+  padding: 0.7rem;
   text-align: center;
 }
 
@@ -55,8 +49,7 @@ table th {
   border-left: none;
   background-color: #ffffff;
 }
-.tab:not(:last-child) {
-}
+
 .tab.active {
   font-weight: bold;
   color: rgb(123, 123, 123);
@@ -203,7 +196,7 @@ table th {
     @apply lg:w-[24%] md:w-[30%] md:relative absolute w-full;
   }
   .main_content {
-    @apply lg:w-[82%] md:w-[74%] w-full md:mx-0;
+    @apply lg:w-[82%] md:w-[78%] w-full md:mx-0;
   }
   .btn_green {
     @apply p-2 bg-[#52cb83]  md:min-w-[100px] max-w-[128px] text-white rounded-md lg:w-36 md:w-[35%] w-fit text-sm;
