@@ -2,13 +2,11 @@
 
 @layer components {
   .create_form {
-    @apply grid gap-5 py-4 px-4 w-full;
+    @apply grid gap-5 py-4 px-2 w-full;
   }
-  .resource_heading {
-    @apply w-full md:py-3 py-1 border-b-2 border-gray-400;
-  }
+
   .input_content {
-    @apply flex gap-4 items-center px-3;
+    @apply flex gap-4 items-center px-2 w-full;
   }
   .input_content label {
     @apply text-base md:w-[20%] hidden md:block;

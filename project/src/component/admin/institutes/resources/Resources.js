@@ -154,12 +154,14 @@ function Resources({ resources, instituteId, admin }) {
             </tbody>
           </table>
           <div className="paginate my-4">
-            <Pagination
-              pageSize={countPerPage}
-              onChange={updatePage}
-              current={currentPage}
-              total={resources?.length}
-            />
+            {resources > countPerPage && (
+              <Pagination
+                pageSize={countPerPage}
+                onChange={updatePage}
+                current={currentPage}
+                total={resources?.length}
+              />
+            )}
           </div>
         </div>
       ) : (

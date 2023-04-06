@@ -70,7 +70,7 @@ function EditPic({ setEditPicModal, editUser }) {
         <div className="flex flex-col items-center w-full gap-3">
           <form>
             <input
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+              className="w-[90%] custom-file-input"
               type="file"
               onChange={(e) => {
                 setFile(e.target.files[0]);

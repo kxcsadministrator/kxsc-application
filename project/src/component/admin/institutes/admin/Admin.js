@@ -114,12 +114,14 @@ function Admin({ admins, instituteId }) {
             </tbody>
           </table>
           <div className="paginate my-4">
-            <Pagination
-              pageSize={countPerPage}
-              onChange={updatePage}
-              current={currentPage}
-              total={admin?.length}
-            />
+            {admins > countPerPage && (
+              <Pagination
+                pageSize={countPerPage}
+                onChange={updatePage}
+                current={currentPage}
+                total={admin?.length}
+              />
+            )}
           </div>
         </div>
       ) : (

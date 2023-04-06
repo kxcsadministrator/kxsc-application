@@ -4,7 +4,7 @@ import { Context } from "../../../context/Context";
 
 function RemovePic({ setRemovePicModal }) {
   //   states
-  const { user } = useContext;
+  const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -27,16 +27,13 @@ function RemovePic({ setRemovePicModal }) {
     };
   }, [setRemovePicModal]);
 
-  const removePic = async (e) => {
+  const removePic = async () => {
     try {
-      const res = await axios.post(
-        `http://13.36.208.34:3000/users/remove-profile-photo/${user.id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.jwt_token}`,
-          },
-        }
-      );
+      const res = await axios({
+        method: "post",
+        url: `http://13.36.208.34:3000/users/remove-profile-photo/${user.id}`,
+        headers: { Authorization: `Bearer ${user.jwt_token}` },
+      });
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRemovePicModal(false);
@@ -82,14 +79,14 @@ function RemovePic({ setRemovePicModal }) {
             )}
             <div className="flex items-center gap-5">
               <button
-                onClick={(e) => RemovePic(e)}
+                onClick={() => setRemovePicModal(false)}
                 className="btn_green"
                 disabled={states.loading}
               >
                 Back
               </button>
               <button
-                onClick={(e) => RemovePic(e)}
+                onClick={() => removePic()}
                 className="btn_red"
                 disabled={states.loading}
               >

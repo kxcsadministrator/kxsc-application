@@ -154,12 +154,14 @@ function Request({ instituteId, admin }) {
             </tbody>
           </table>
           <div className="paginate my-4">
-            <Pagination
-              pageSize={countPerPage}
-              onChange={updatePage}
-              current={currentPage}
-              total={request?.length}
-            />
+            {request > countPerPage && (
+              <Pagination
+                pageSize={countPerPage}
+                onChange={updatePage}
+                current={currentPage}
+                total={request?.length}
+              />
+            )}
           </div>
         </div>
       ) : (

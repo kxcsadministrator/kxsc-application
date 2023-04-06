@@ -7,12 +7,14 @@ import EditPassword from "./EditPassword";
 import EditPic from "./EditPic";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
+import RemovePic from "./RemovePic";
 
 function Profile() {
   const { user } = useContext(Context);
   const [editUserModal, setEditUserModal] = useState(false);
   const [editPassModal, setEditPassModal] = useState(false);
   const [editPicModal, setEditPicModal] = useState(false);
+  const [removePicModal, setRemovePicModal] = useState(false);
   const [editUser, setEditUser] = useState();
 
   const editBtn = (user) => {
@@ -31,9 +33,9 @@ function Profile() {
   };
 
   const deletePic = (user) => {
-    setEditUser(user);
-    setEditPicModal(true);
+    setRemovePicModal(true);
   };
+  console.log(user);
 
   return (
     <div className="base_container">
@@ -115,6 +117,7 @@ function Profile() {
         {editPicModal && (
           <EditPic setEditPicModal={setEditPicModal} editUser={editUser} />
         )}
+        {removePicModal && <RemovePic setRemovePicModal={setRemovePicModal} />}
       </div>
     </div>
   );

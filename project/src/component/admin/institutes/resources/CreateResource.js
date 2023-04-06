@@ -97,123 +97,122 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
 
   return (
     <div className="modal_container">
-      <div className="ml-[24%] w-full">
-        <div
-          className="modal_content md:w-[80%] ml-[-20px] md:ml-0 mt-10 md:mt-0 "
-          ref={menuRef}
-        >
-          <div className="resource_heading">
-            <h1 className="text_h1_heading">Create Resource</h1>
-          </div>
-          <form className="create_form">
-            <div className="input_content">
-              <label>Topic :</label>
-              <input
-                type="text"
-                placeholder="Topic"
-                value={topic}
-                onChange={(e) => setTopic(e.target.value)}
-              />
-            </div>
-            <div className="input_content">
-              <label>Category :</label>
-              <select
-                onChange={(e) => {
-                  getSub(e);
-                }}
-                className="select"
-              >
-                <option>-select category</option>
-                {allCat.map((cat, index) => {
-                  return (
-                    <option key={index} value={cat.name}>
-                      {cat.name}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="input_content">
-              <label>Sub_categories:</label>
-              <select
-                onChange={(e) => setSubCat(e.target.value)}
-                className="select"
-              >
-                <option>-select sub category</option>
-                {selectedCat.map((sub, index) => {
-                  return (
-                    <option key={index} value={sub}>
-                      {sub}
-                    </option>
-                  );
-                })}
-              </select>
-            </div>
-            <div className="input_content">
-              <label>Citations:</label>
-              <input
-                type="text"
-                value={citation}
-                placeholder="citation"
-                onChange={(e) => setCitation(e.target.value)}
-              />
-            </div>
-            <div className="input_content">
-              <label>Resource Type:</label>
-              <select onChange={(e) => setType(e.target.value)}>
-                <option>-select resource type</option>
-                <option value="government">government</option>
-                <option value="private">private</option>
-                <option value="education">education</option>
-              </select>
-            </div>
-            <div className="input_content_files">
-              <label for="img">Select Avatar:</label>
-              <input
-                placeholder="Upload Avatar"
-                type="file"
-                id="img"
-                name="img"
-                accept="image/*"
-                onChange={(e) => setAvatar(e.target.files)}
-              />
-            </div>
-            <div className="input_content">
-              <label className="block">Description:</label>
-              <CKEditor
-                editor={ClassicEditor}
-                onReady={(editor) => {}}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setDescription(data);
-                }}
-              />
-            </div>
-
-            <div>
-              {states.loading ? (
-                <div>
-                  <p>Loading...</p>
-                </div>
-              ) : states.err ? (
-                <div>
-                  <p>{states.errMsg}</p>
-                </div>
-              ) : (
-                <div></div>
-              )}
-            </div>
-            <div className="input_content justify-center">
-              <button
-                onClick={(e) => handleSubmit(e)}
-                className="btn_green"
-                disabled={states.loading}
-              >
-                Submit
-              </button>
-            </div>
-          </form>
+      <div
+        className="relative md:w-[60%] w-[90%] rounded-md mx-auto bg-white"
+        ref={menuRef}
+      >
+        <div className="resource_heading">
+          <h1 className="text_h1_heading">Create Resource</h1>
         </div>
+        <form className="create_form">
+          <div className="input_content">
+            <label>Topic :</label>
+            <input
+              type="text"
+              placeholder="Topic"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+            />
+          </div>
+          <div className="input_content">
+            <label>Category :</label>
+            <select
+              onChange={(e) => {
+                getSub(e);
+              }}
+              className="select"
+            >
+              <option>-select category</option>
+              {allCat.map((cat, index) => {
+                return (
+                  <option key={index} value={cat.name}>
+                    {cat.name}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="input_content">
+            <label>Sub_categories:</label>
+            <select
+              onChange={(e) => setSubCat(e.target.value)}
+              className="select"
+            >
+              <option>-select sub category</option>
+              {selectedCat.map((sub, index) => {
+                return (
+                  <option key={index} value={sub}>
+                    {sub}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          <div className="input_content">
+            <label>Citations:</label>
+            <input
+              type="text"
+              value={citation}
+              placeholder="citation"
+              onChange={(e) => setCitation(e.target.value)}
+            />
+          </div>
+          <div className="input_content">
+            <label>Resource Type:</label>
+            <select onChange={(e) => setType(e.target.value)}>
+              <option>-select resource type</option>
+              <option value="government">government</option>
+              <option value="private">private</option>
+              <option value="education">education</option>
+            </select>
+          </div>
+          <div className="input_content_files">
+            <label for="img">Select Avatar:</label>
+            <input
+              className="custom-file-input"
+              placeholder="Upload Avatar"
+              type="file"
+              id="img"
+              name="img"
+              accept="image/*"
+              onChange={(e) => setAvatar(e.target.files)}
+            />
+          </div>
+          <div className="w-[90%] relative">
+            <label>Description:</label>
+            <CKEditor
+              editor={ClassicEditor}
+              onReady={(editor) => {}}
+              onChange={(event, editor) => {
+                const data = editor.getData();
+                setDescription(data);
+              }}
+            />
+          </div>
+
+          <div>
+            {states.loading ? (
+              <div>
+                <p>Loading...</p>
+              </div>
+            ) : states.err ? (
+              <div>
+                <p>{states.errMsg}</p>
+              </div>
+            ) : (
+              <div></div>
+            )}
+          </div>
+          <div className="input_content justify-center">
+            <button
+              onClick={(e) => handleSubmit(e)}
+              className="btn_green"
+              disabled={states.loading}
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

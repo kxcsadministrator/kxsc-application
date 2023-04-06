@@ -147,12 +147,14 @@ function Files({ files, instituteId, admin }) {
             </tbody>
           </table>
           <div className="paginate my-4">
-            <Pagination
-              pageSize={countPerPage}
-              onChange={updatePage}
-              current={currentPage}
-              total={files?.length}
-            />
+            {files > countPerPage && (
+              <Pagination
+                pageSize={countPerPage}
+                onChange={updatePage}
+                current={currentPage}
+                total={files?.length}
+              />
+            )}
           </div>
         </div>
       ) : (
