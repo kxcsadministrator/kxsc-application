@@ -948,7 +948,7 @@ validator.check("email").isLength({min: 3}).withMessage("email must be at least 
 
         if (!isAdmin) {
             helpers.log_request_error(`POST institutes/new-user-request/${req.params.id} - 401: Only institute admins can request`) 
-            return res.status(401).json({message: "Only institute admins can request to publish resources"})
+            return res.status(401).json({message: "Only institute admins can request"})
         }
 
         const data = await helpers.admin_new_user_request(institute_id, username, email, req.headers);

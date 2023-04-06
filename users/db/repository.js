@@ -313,6 +313,7 @@ const approve_user_request = async(id) => {
         password: await bcrypt.hash(password, SALT_ROUNDS) 
     })
     const data = await user.save()
+    await Model.institute.findByIdAndUpdate(result.institute.toString(), {$addToSet: {members: [data._id]}});
     await Model.newUserRequest.findByIdAndDelete(id)
     return {
         email: data.email,

@@ -6,12 +6,8 @@ services:
       - "uploads:/node/files"
       - /node/node_modules
     environment:
-<<<<<<< HEAD
       - BASE_URL=http://13.36.208.34:3003
-=======
-      - BASE_URL=http://52.47.163.4:3003
-      - LOGIN_URL=http://52.47.163.4:3003
->>>>>>> a24dcb67a50864f6893d91777e45abf776dbeb41
+      - LOGIN_URL=http://13.36.208.34:3003
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
       - SECRET_KEY=9mODTPQzQz-zlXxU9RPwfg
