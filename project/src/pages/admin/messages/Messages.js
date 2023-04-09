@@ -221,14 +221,14 @@ function Messages() {
 
                           <div dangerouslySetInnerHTML={{ __html: msg.body }} />
 
-                          <p className="flex gap-1 items-center -mt-1">
+                          {/* <p className="flex gap-1 items-center -mt-1">
                             <button
                               className="px-2 mt-4 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
                               onClick={() => deleteMsg(msg)}
                             >
                               <RiDeleteBinLine />
                             </button>
-                          </p>
+                          </p> */}
                         </div>
                         <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
                       </div>
@@ -291,14 +291,14 @@ function Messages() {
 
                           <div dangerouslySetInnerHTML={{ __html: msg.body }} />
 
-                          <p className="flex gap-1 items-center -mt-1">
+                          {/* <p className="flex gap-1 items-center -mt-1">
                             <button
                               className="px-2 mt-4 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
                               onClick={() => deleteMsg(msg)}
                             >
                               <RiDeleteBinLine />
                             </button>
-                          </p>
+                          </p> */}
                         </div>
                         <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
                       </div>

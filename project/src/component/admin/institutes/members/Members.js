@@ -91,7 +91,7 @@ function Members({ members, instituteId, admin }) {
               <tr>
                 <th scope="col">s/n</th>
                 <th scope="col">Members</th>
-                {(user.superadmin || admin) && <th scope="col">Action</th>}
+                {/* {(user.superadmin || admin) && <th scope="col">Action</th>} */}
               </tr>
             </thead>
             <tbody>
@@ -99,7 +99,7 @@ function Members({ members, instituteId, admin }) {
                 <tr key={index}>
                   <td data-label="s/n">{index + 1}</td>
                   <td data-label="Member Name">{member.username}</td>
-                  {(user.superadmin || admin) && (
+                  {/* {(user.superadmin || admin) && (
                     <td data-label="Action">
                       <div className="flex gap-3 items-center md:justify-center justify-end">
                         <button
@@ -110,7 +110,7 @@ function Members({ members, instituteId, admin }) {
                         </button>
                       </div>
                     </td>
-                  )}
+                  )} */}
                 </tr>
               ))}
             </tbody>

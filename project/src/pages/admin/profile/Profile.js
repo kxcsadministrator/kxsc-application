@@ -81,7 +81,7 @@ function Profile() {
                 </p>
                 <div>
                   <button
-                    className="btn_green border-2 rounded-md bg-gray-400 w-fit"
+                    className="btn_green border-2 rounded-md w-fit"
                     onClick={() => editBtn(user)}
                   >
                     Edit
@@ -97,7 +97,7 @@ function Profile() {
               </div>
               <div className="dash bg-white -mt-2" />
               <button
-                className="btn_green border-2 rounded-md bg-gray-400 w-fit"
+                className="btn_green border-2 rounded-md  w-fit"
                 onClick={() => changeBtn(user)}
               >
                 change password

@@ -24,6 +24,9 @@ function Login() {
       console.log(err);
       dispatch({
         type: "LOGIN_FAILURE",
+        payload: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
       });
     }
   };
