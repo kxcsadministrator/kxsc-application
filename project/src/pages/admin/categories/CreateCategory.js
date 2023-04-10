@@ -47,8 +47,8 @@ function CreateCategory() {
         <div>
           <Topbar />
         </div>
-        <div className="py-2 px-5">
-          <form className="flex flex-col items-center gap-6 bg-white shadow-md w-[80%] mx-auto h-fit pb-5 rounded-md">
+        <div className="py-2 px-4">
+          <form className="flex flex-col items-center gap-6 px-2 bg-white shadow-md w-full md:w-[80%] mx-auto h-fit pb-5 rounded-md">
             <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
               Create Category
             </h1>
