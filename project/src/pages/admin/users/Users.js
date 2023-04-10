@@ -40,7 +40,7 @@ function Users() {
   }, [user.jwt_token]);
 
   //pagination Data
-  const countPerPage = 10;
+  const countPerPage = 50;
   const [currentPage, setCurrentPage] = useState(1);
   const [collection, setCollection] = useState(
     cloneDeep(allUsers.slice(0, countPerPage))
@@ -149,14 +149,16 @@ function Users() {
                       ))}
                     </tbody>
                   </table>
-                  <div className="paginate">
-                    <Pagination
-                      pageSize={countPerPage}
-                      onChange={updatePage}
-                      current={currentPage}
-                      total={allUsers.length}
-                    />
-                  </div>
+                  {allUsers.length > countPerPage && (
+                    <div className="paginate">
+                      <Pagination
+                        pageSize={countPerPage}
+                        onChange={updatePage}
+                        current={currentPage}
+                        total={allUsers.length}
+                      />
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div>

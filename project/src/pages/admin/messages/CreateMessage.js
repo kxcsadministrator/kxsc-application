@@ -76,7 +76,7 @@ function CreateMessage() {
       } catch (err) {
         setStates({
           loading: false,
-          error: false,
+          error: true,
           errMsg: err.response.data.errors
             ? err.response.data.errors[0].msg
             : err.response.data.message,
@@ -215,7 +215,7 @@ function CreateMessage() {
                   </div>
                 ) : states.error ? (
                   <div>
-                    <p>{states.errMsg}</p>
+                    <p className="text-red-400">{states.errMsg}</p>
                   </div>
                 ) : (
                   <div></div>

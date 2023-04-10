@@ -42,6 +42,11 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
       setSuccess(false);
       setLoading(false);
       setErr(true);
+      setErrMsg(
+        err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message
+      );
 
       console.log(err);
     }

@@ -46,7 +46,9 @@ function EditCatModal({ setEditCatModal, category }) {
       setStates({
         loading: false,
         error: true,
-        errMsg: err.response.data.message,
+        errMsg: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
         success: false,
       });
     }

@@ -178,8 +178,8 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
               onChange={(e) => setAvatar(e.target.files)}
             />
           </div>
-          <div className="w-[90%] relative">
-            <label>Description:</label>
+          <div className="w-[90%] pl-3 relative">
+            <label className="">Description:</label>
             <CKEditor
               editor={ClassicEditor}
               onReady={(editor) => {}}

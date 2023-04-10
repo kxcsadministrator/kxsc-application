@@ -163,7 +163,7 @@ function Messages() {
         <div>
           <Topbar />
         </div>
-        <div className="py-5 px-5">
+        <div className="py-5 px-4">
           {states.loading ? (
             <div>
               <h1>Loading</h1>
@@ -173,7 +173,7 @@ function Messages() {
               <p>{states.errMsg}</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-2">
               <div className="tabsMsg">
                 <div
                   className={`tabMsg ${checkActive(1, "active")}`}
@@ -210,16 +210,19 @@ function Messages() {
                     {collection.map((msg, index) => (
                       <div className="grid gap-6" key={index}>
                         <div className="flex flex-col ">
-                          <div className="flex justify-between items-center">
-                            <p className="text-base font-bold text-[#1f1f1f]">
+                          <div className="flex justify-between  gap-3 items-center">
+                            <p className="text-sm md:text-base font-bold text-[#1f1f1f]">
                               {msg.subject}
                             </p>
-                            <p className="text-sm text-[#1f1f1f]">
+                            <p className="text-xs md:text-sm text-[#1f1f1f]">
                               {msg.sender.username}
                             </p>
                           </div>
 
-                          <div dangerouslySetInnerHTML={{ __html: msg.body }} />
+                          <div
+                            className="text-xs md:text-base"
+                            dangerouslySetInnerHTML={{ __html: msg.body }}
+                          />
 
                           {/* <p className="flex gap-1 items-center -mt-1">
                             <button
@@ -273,14 +276,14 @@ function Messages() {
                     {collection_2.map((msg, index) => (
                       <div className="grid gap-6" key={index}>
                         <div className="flex flex-col ">
-                          <div className="flex justify-between items-center">
-                            <p className="text-base font-bold text-[#1f1f1f]">
+                          <div className="flex justify-between gap-3 items-center">
+                            <p className="md:text-base text-sm font-bold text-[#1f1f1f]">
                               {msg.subject}
                             </p>
                             <div className="flex gap-3">
                               {msg.recipients.map((name, index) => (
                                 <p
-                                  className="text-sm text-[#1f1f1f]"
+                                  className=" text-[#1f1f1f] md:text-base text-xs"
                                   key={index}
                                 >
                                   {name.username}
@@ -289,7 +292,10 @@ function Messages() {
                             </div>
                           </div>
 
-                          <div dangerouslySetInnerHTML={{ __html: msg.body }} />
+                          <div
+                            className="text-xs md:text-base"
+                            dangerouslySetInnerHTML={{ __html: msg.body }}
+                          />
 
                           {/* <p className="flex gap-1 items-center -mt-1">
                             <button

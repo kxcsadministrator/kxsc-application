@@ -30,27 +30,37 @@ function AddSubCat({ setAddSubCatModal, category }) {
 
   //submit subCat
   const submitSubCat = async () => {
-    setStates({ loading: true, error: false });
-    try {
-      const res = await axios.patch(
-        `http://13.39.47.227:3002/categories/add-subcategories/${category._id}`,
-        { sub_categories: [sub] },
-        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
-      );
-      setStates({ loading: false, error: false, success: true });
-      setTimeout(() => {
-        setAddSubCatModal(false);
-        window.location.reload(false);
-      }, 3000);
-    } catch (err) {
+    if (sub.length == 0) {
       setStates({
         loading: false,
         error: true,
-        errMsg: err.response.data.message,
-        success: false,
+        errMsg: "sub category input field is empty",
       });
+    } else {
+      setStates({ loading: true, error: false });
+      try {
+        const res = await axios.patch(
+          `http://13.39.47.227:3002/categories/add-subcategories/${category._id}`,
+          { sub_categories: [sub] },
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
+        setStates({ loading: false, error: false, success: true });
+        setTimeout(() => {
+          setAddSubCatModal(false);
+          window.location.reload(false);
+        }, 3000);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+          success: false,
+        });
 
-      console.log(err);
+        console.log(err);
+      }
     }
   };
 
