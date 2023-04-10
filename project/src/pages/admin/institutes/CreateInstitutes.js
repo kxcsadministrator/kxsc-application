@@ -51,7 +51,7 @@ function CreateInstitues() {
             <div className="institute_input_row">
               <label>Institues Name: </label>
               <input
-                placeholder="Username"
+                placeholder="Institues Name"
                 value={instituteName}
                 onChange={(e) => setInstituteName(e.target.value)}
               />

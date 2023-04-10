@@ -115,7 +115,9 @@ function Resource() {
               <div className="flex flex-col gap-0">
                 <h1>About</h1>
                 <div>
-                  <p>{resource.description}</p>
+                  <p
+                    dangerouslySetInnerHTML={{ __html: resource.description }}
+                  ></p>
                 </div>
               </div>
             )}
