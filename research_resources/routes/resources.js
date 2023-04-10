@@ -226,12 +226,12 @@ router.get('/one/:id', async (req, res) => {
             return res.status(404).json({message: "Resource not found"});
         }
 
-        if (resource.visibility != "public"){
-            if (user._id.toString() != resource.author._id && user.superadmin == false) {
-                helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Unauthorized access to get`)
-                return res.status(401).json({message: 'Unauthorized access to get'});
-            }
-        }
+        // if (resource.visibility != "public"){
+        //     if (user._id.toString() != resource.author._id && user.superadmin == false) {
+        //         helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Unauthorized access to get`)
+        //         return res.status(401).json({message: 'Unauthorized access to get'});
+        //     }
+        // }
         
         helpers.log_request_info(`GET /resources/one/${req.params.id} - 200`)
         res.status(200).json(resource);
