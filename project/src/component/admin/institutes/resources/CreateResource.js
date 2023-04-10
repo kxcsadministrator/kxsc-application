@@ -30,7 +30,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   useEffect(() => {
     const getCat = async () => {
       try {
-        const res = await axios.get(`http://13.36.208.34:3002/categories/all`, {
+        const res = await axios.get(`http://13.39.47.227:3002/categories/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setAllCat(res.data);
@@ -58,7 +58,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     setCategory(e.target.value);
     try {
       const res = await axios.get(
-        `http://13.36.208.34:3002/categories/subs?name=${e.target.value}`
+        `http://13.39.47.227:3002/categories/subs?name=${e.target.value}`
       );
       setSelectedCat(res.data);
     } catch (err) {}
@@ -70,7 +70,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://13.36.208.34:3002/resources/new`,
+        `http://13.39.47.227:3002/resources/new`,
         {
           topic: topic,
           description: description,

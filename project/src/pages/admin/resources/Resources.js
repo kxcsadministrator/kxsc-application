@@ -31,7 +31,7 @@ function Resources() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://13.36.208.34:3002/resources/all`,
+            `http://13.39.47.227:3002/resources/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -50,7 +50,7 @@ function Resources() {
       } else {
         try {
           const res = await axios.get(
-            `http://13.36.208.34:3002/resources/my-resources`,
+            `http://13.39.47.227:3002/resources/my-resources`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -178,7 +178,7 @@ function Resources() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://13.36.208.34:3002/${resource.avatar}`}
+                              src={`http://13.39.47.227:3002/${resource.avatar}`}
                               alt="avatar resource"
                               className="object-cover h-full w-full"
                             />

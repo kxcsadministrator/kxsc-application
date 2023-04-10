@@ -25,7 +25,7 @@ function UserRequests() {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.get(
-          `http://13.36.208.34:3000/users/new-user-requests`,
+          `http://13.39.47.227:3000/users/new-user-requests`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -92,7 +92,7 @@ function UserRequests() {
     try {
       const res = await axios({
         method: "post",
-        url: `http://13.36.208.34:3000/users/approve-user-request/${id}`,
+        url: `http://13.39.47.227:3000/users/approve-user-request/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

@@ -70,7 +70,7 @@ function Files({ files, instituteId, admin }) {
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://13.36.208.34:3001/institutes/download-file/${file._id}`,
+        `http://13.39.47.227:3001/institutes/download-file/${file._id}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,

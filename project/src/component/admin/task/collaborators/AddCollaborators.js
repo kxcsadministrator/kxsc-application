@@ -36,7 +36,7 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://13.36.208.34:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `http://13.39.47.227:3001/institutes/${instituteId}/search-member?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -53,7 +53,7 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://13.36.208.34:3001/tasks/add-collabs/${id}`,
+        `http://13.39.47.227:3001/tasks/add-collabs/${id}`,
         {
           collaborators: [username],
         },

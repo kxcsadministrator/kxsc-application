@@ -39,7 +39,7 @@ function AddFiles({ setAddFileModal, instituteId }) {
 
     try {
       const res = await axios.post(
-        `http://13.36.208.34:3001/institutes/upload-files/${instituteId}`,
+        `http://13.39.47.227:3001/institutes/upload-files/${instituteId}`,
         formData,
         {
           headers: {

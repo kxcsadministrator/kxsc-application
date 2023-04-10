@@ -40,7 +40,7 @@ function Search() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://13.36.208.34:3000/users/superadmin-search?q=${search}`,
+            `http://13.39.47.227:3000/users/superadmin-search?q=${search}`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -163,7 +163,7 @@ function Search() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://13.36.208.34:3002/${resource.avatar}`}
+                              src={`http://13.39.47.227:3002/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />

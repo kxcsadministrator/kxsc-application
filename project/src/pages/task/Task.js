@@ -24,7 +24,7 @@ function Task() {
       try {
         const res = await axios({
           method: "get",
-          url: `http://13.36.208.34:3001/tasks/one/${id}`,
+          url: `http://13.39.47.227:3001/tasks/one/${id}`,
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         console.log(res.data);

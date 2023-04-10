@@ -19,7 +19,7 @@ function ResourceFiles({ resource }) {
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://13.36.208.34:3002/resources/download-file/${file._id}`,
+        `http://13.39.47.227:3002/resources/download-file/${file._id}`,
         {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
           responseType: "blob",

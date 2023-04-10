@@ -35,7 +35,7 @@ function EditPic({ setEditPicModal, editUser }) {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        `http://13.36.208.34:3000/users/change-profile-photo/${user.id}`,
+        `http://13.39.47.227:3000/users/change-profile-photo/${user.id}`,
         formData,
         {
           headers: {

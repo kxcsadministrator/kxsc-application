@@ -35,7 +35,7 @@ function DeleteResources({
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://13.36.208.34:3002/resources/delete/${deleteResource._id}`,
+        `http://13.39.47.227:3002/resources/delete/${deleteResource._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

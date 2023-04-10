@@ -23,7 +23,7 @@ function Reset() {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://13.36.208.34:3000/users/password-reset/${id}`,
+        `http://13.39.47.227:3000/users/password-reset/${id}`,
         {
           new_password: password,
           token: token,

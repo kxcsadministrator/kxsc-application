@@ -34,7 +34,7 @@ function DeleteComment({ setDeleteComModal, comment }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.delete(
-        `http://13.36.208.34:3001/tasks/comments/delete/${comment._id}`,
+        `http://13.39.47.227:3001/tasks/comments/delete/${comment._id}`,
         {
           body: comment.body,
         },
