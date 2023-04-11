@@ -134,7 +134,7 @@ function Sidebar() {
               {/* Resource Menu*/}
               <div className="dropdown_menu">
                 <Link className="link" to="/admin/resources/pending">
-                  <p>Resources Pending Aprroval</p>
+                  <p>Resources Pending Approval</p>
                 </Link>
                 <Link className="link" to="/admin/resources">
                   <p>View All Resource Items</p>
