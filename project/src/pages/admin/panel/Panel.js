@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useContext } from "react";
 import { Context } from "../../../context/Context";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
 import "./panel.css";
-import BarChart from "../../../component/admin/panel/BarChart";
-import PieChart from "../../../component/admin/panel/PieChart";
+import BarChart from "../../../components/admin/panel/BarChart";
+import PieChart from "../../../components/admin/panel/PieChart";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { HiUser } from "react-icons/hi";

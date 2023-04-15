@@ -1,9 +1,9 @@
 import { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
-import RequestModalR from "../../../component/admin/institutes/resources/RequestModalR";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";

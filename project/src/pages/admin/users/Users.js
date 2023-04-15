@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useCallback } from "react";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
 import "./users.css";
 import { Context } from "../../../context/Context";
 import axios from "axios";

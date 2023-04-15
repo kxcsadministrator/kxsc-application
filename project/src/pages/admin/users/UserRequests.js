@@ -1,13 +1,13 @@
 import { useContext, useEffect, useState, useCallback } from "react";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
 import "./users.css";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import RequestModalR from "../../../component/admin/institutes/resources/RequestModalR";
+import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
 
 function UserRequests() {
   const { user } = useContext(Context);

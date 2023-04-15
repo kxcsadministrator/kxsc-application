@@ -1,13 +1,13 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
-import Admin from "../../../component/admin/institutes/admin/Admin";
-import Files from "../../../component/admin/institutes/all_files/Files";
-import Members from "../../../component/admin/institutes/members/Members";
-import Resources from "../../../component/admin/institutes/resources/Resources";
-import Tasks from "../../../component/admin/institutes/tasks/Tasks";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
-import Request from "../../../component/admin/institutes/requests.js/Request";
+import Admin from "../../../components/admin/institutes/admin/Admin";
+import Files from "../../../components/admin/institutes/all_files/Files";
+import Members from "../../../components/admin/institutes/members/Members";
+import Resources from "../../../components/admin/institutes/resources/Resources";
+import Tasks from "../../../components/admin/institutes/tasks/Tasks";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import Request from "../../../components/admin/institutes/requests.js/Request";
 import axios from "axios";
 import "./institutes.css";
 

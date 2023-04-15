@@ -27,6 +27,18 @@ import Profile from "./pages/admin/profile/Profile";
 import Search from "./pages/admin/Search";
 import OtherResources from "./pages/admin/resources/OtherResources";
 import UserRequests from "./pages/admin/users/UserRequests";
+import LandingPage from "./components/landing/LandingPage";
+import LandingsearchIndividualpage from "./components/landing/LandingsearchIndividualpage";
+import Footer from "./components/landing/Footer";
+import CategoryLanding from "./components/landing/CategoryLanding";
+import CategorysinglePage from "./components/landing/CategorysinglePage";
+import ModalOne from "./components/landing/ModalOne";
+import ModalTwo from "./components/landing/ModalTwo";
+import LandingsearchResult from "./components/landing/LandingsearchResult";
+import Ham from "./components/landing/Ham";
+import Landmobile from "./components/landing/Landmobile";
+import Compo from "./components/landing/Compo";
+import Production from "./components/landing/Production";
 
 function App() {
   const { user } = useContext(Context);
@@ -34,7 +46,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <Routes>
-          <Route path="/" element={<Login />} />
+          <Route path="/sign_in" element={<Login />} />
           <Route path="/sign_up" element={<SignUp />} />
           <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
@@ -64,6 +76,22 @@ function App() {
           <Route path="/password-reset" element={<Reset />} />
           <Route path="/admin/profile" element={<Profile />} />
           <Route path="/admin/search" element={<Search />} />
+
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="individualPage"
+            element={<LandingsearchIndividualpage />}
+          />
+          <Route path="cateLanding" element={<CategoryLanding />} />
+          <Route path="footer" element={<Footer />} />
+          <Route path="categorysinglepage" element={<CategorysinglePage />} />
+          <Route path="landingsearch" element={<LandingsearchResult />} />
+          <Route path="Modal" element={<ModalOne />} />
+          <Route path="Modall" element={<ModalTwo />} />
+          <Route path="Ham" element={<Ham />} />
+          <Route path="Landmobile" element={<Landmobile />} />
+          <Route path="Compo" element={<Compo />} />
+          <Route path="production" element={<Production />} />
         </Routes>
       </div>
     </BrowserRouter>

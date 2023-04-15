@@ -2,11 +2,11 @@ import React from "react";
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../../context/Context";
 import axios from "axios";
-import Sidebar from "../../component/admin/Sidebar";
-import Topbar from "../../component/admin/Topbar";
-import Collaborators from "../../component/admin/task/collaborators/Collaborators";
-import Files from "../../component/admin/task/task_files/Files";
-import Comments from "../../component/admin/task/comments/Comments";
+import Sidebar from "../../components/admin/Sidebar";
+import Topbar from "../../components/admin/Topbar";
+import Collaborators from "../../components/admin/task/collaborators/Collaborators";
+import Files from "../../components/admin/task/task_files/Files";
+import Comments from "../../components/admin/task/comments/Comments";
 
 function Task() {
   //states

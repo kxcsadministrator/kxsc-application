@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState, useCallback } from "react";
-import Topbar from "../../../component/admin/Topbar";
-import Sidebar from "../../../component/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import cloneDeep from "lodash/cloneDeep";
@@ -8,7 +8,7 @@ import Pagination from "rc-pagination";
 import { Link } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
-import DeleteMsg from "../../../component/admin/users/DeleteMsg";
+import DeleteMsg from "../../../components/admin/users/DeleteMsg";
 
 function Messages() {
   //states

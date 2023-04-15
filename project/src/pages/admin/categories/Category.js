@@ -1,14 +1,14 @@
-import Topbar from "../../../component/admin/Topbar";
-import Sidebar from "../../../component/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
 import { Context } from "../../../context/Context";
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { RiDeleteBinLine } from "react-icons/ri";
-import SubCatModal from "../../../component/admin/categories/SubCatModal";
+import SubCatModal from "../../../components/admin/categories/SubCatModal";
 import { FaRegEdit } from "react-icons/fa";
-import AddSubCat from "../../../component/admin/categories/AddSubCat";
-import EditCatModal from "../../../component/admin/categories/EditCatModal";
+import AddSubCat from "../../../components/admin/categories/AddSubCat";
+import EditCatModal from "../../../components/admin/categories/EditCatModal";
 function Category() {
   //states
   const catId = sessionStorage.getItem("catId");

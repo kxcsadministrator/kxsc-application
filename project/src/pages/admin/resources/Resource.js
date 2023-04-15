@@ -1,11 +1,11 @@
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
-import Sidebar from "../../../component/admin/Sidebar";
-import Topbar from "../../../component/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
 import "./resource.css";
-import RequestModalR from "../../../component/admin/institutes/resources/RequestModalR";
-import ResourceFiles from "../../../component/admin/institutes/resources/resource_files/ResourceFiles";
+import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
+import ResourceFiles from "../../../components/admin/institutes/resources/resource_files/ResourceFiles";
 
 function Resource() {
   //states

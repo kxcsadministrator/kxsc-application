@@ -1,5 +1,5 @@
-import Topbar from "../../component/admin/Topbar";
-import Sidebar from "../../component/admin/Sidebar";
+import Topbar from "../../components/admin/Topbar";
+import Sidebar from "../../components/admin/Sidebar";
 import { Context } from "../../context/Context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import axios from "axios";
@@ -8,10 +8,10 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import DeleteResources from "../../component/admin/institutes/resources/DeleteResources";
+import DeleteResources from "../../components/admin/institutes/resources/DeleteResources";
 import { RiDeleteBinLine } from "react-icons/ri";
-import DeleteInstituteModal from "../../component/admin/institutes/DeleteInstituteModal";
-import DeleteModal from "../../component/admin/users/DeleteModal";
+import DeleteInstituteModal from "../../components/admin/institutes/DeleteInstituteModal";
+import DeleteModal from "../../components/admin/users/DeleteModal";
 
 function Search() {
   // search states

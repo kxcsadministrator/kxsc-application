@@ -1,12 +1,12 @@
-import Topbar from "../../../component/admin/Topbar";
-import Sidebar from "../../../component/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import Sidebar from "../../../components/admin/Sidebar";
 import { Context } from "../../../context/Context";
 import { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
-import DeleteResources from "../../../component/admin/institutes/resources/DeleteResources";
+import DeleteResources from "../../../components/admin/institutes/resources/DeleteResources";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
