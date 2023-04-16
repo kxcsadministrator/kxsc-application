@@ -2,20 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
-.menu {
+.menus {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  font-size: 16px;
 }
 
-.menu .dropdown_menu {
+.menus .dropdown_menu {
   display: none;
   flex-direction: column;
   gap: 3px;
   padding-left: 30px;
+  font-size: 16px;
 }
 
-.menu.active .dropdown_menu {
+.menus.active .dropdown_menu {
   display: flex;
 }
 
@@ -43,8 +45,8 @@
   .sidebar_container {
     @apply m-0 bg-black_bg md:flex flex-col gap-5 py-4 h-screen min-h-fit mt-[55px] md:mt-0 overflow-y-scroll fixed pb-10 hidden md:max-w-[350px]  md:w-[23%] w-full;
   }
-  .menu_content {
-    @apply flex justify-between items-center px-2 gap-5 cursor-pointer hover:text-white;
+  .menu_contents {
+    @apply flex justify-between items-center px-2 gap-5 cursor-pointer hover:text-white text-base;
   }
 
   .toggleImg {
@@ -59,20 +61,20 @@
     @apply transition-all duration-200 -mt-2 text-[15px] hover:text-white;
   }
 
-  .menu.active .toggleImg {
+  .menus.active .toggleImg {
     @apply rotate-180;
   }
 
   .dash {
     @apply h-[1.5px] w-full mx-auto rounded-lg  bg-[#242527];
   }
-  .content {
-    @apply flex gap-3 items-center;
+  .contents {
+    @apply flex gap-3 items-center text-base;
   }
   .content_1 {
     @apply flex gap-3 items-center px-2 py-1;
   }
-  .content h5 {
+  .contents h5 {
     @apply text-base md:text-sm lg:text-base;
   }
   .content_1 h5 {

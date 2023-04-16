@@ -68,12 +68,12 @@ function Sidebar() {
             </Link>
 
             {/* Message Section - text and Menu*/}
-            <div className={"menu  " + (msgMenu && "active")}>
+            <div className={"menus  " + (msgMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setMsgMenu(!msgMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <RiMessage2Line />
                   <h5>Manage Message</h5>
                 </div>
@@ -93,12 +93,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
             {/* Category Section - text and Menu*/}
-            <div className={"menu " + (catMenu && "active")}>
+            <div className={"menus " + (catMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setCatMenu(!catMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <AiFillFormatPainter />
                   <h5>Manage Categories</h5>
                 </div>
@@ -118,12 +118,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
             {/* Resource Section - text and Menu*/}
-            <div className={"menu " + (resourceMenu && "active")}>
+            <div className={"menus " + (resourceMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setResourceMenu(!resourceMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <AiFillHdd />
                   <h5>Manage Resources</h5>
                 </div>
@@ -143,12 +143,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
             {/* Manage Public Portal Section - text and Menu*/}
-            <div className={"menu " + (mppMenu && "active")}>
+            <div className={"menus " + (mppMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setMppMenu(!mppMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <FaGalacticRepublic />
                   <h5>Manage Public Portal</h5>
                 </div>
@@ -174,12 +174,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
             {/* Manage Research Institutes Section - text and Menu*/}
-            <div className={"menu " + (mriMenu && "active")}>
+            <div className={"menus " + (mriMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setMriMenu(!mriMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <SiRoamresearch />
                   <h5>Manage Research Institutes</h5>
                 </div>
@@ -199,12 +199,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
             {/* Manage User Section - text and Menu*/}
-            <div className={"menu " + (usersMenu && "active")}>
+            <div className={"menus " + (usersMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setUsersMenu(!usersMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <FiUsers />
                   <h5>Manage Users</h5>
                 </div>
@@ -257,12 +257,12 @@ function Sidebar() {
               <h5 className="text-base md:text-sm lg:text-base">Dashboard</h5>
             </Link>
             {/* Message Section - text and Menu*/}
-            <div className={"menu  " + (msgMenu && "active")}>
+            <div className={"menus  " + (msgMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setMsgMenu(!msgMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <RiMessage2Line />
                   <h5>Messages</h5>
                 </div>
@@ -282,12 +282,12 @@ function Sidebar() {
               <div className="dash" />
             </div>
 
-            <div className={"menu " + (resourceMenu && "active")}>
+            <div className={"menus " + (resourceMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setResourceMenu(!resourceMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <AiFillHdd />
                   <h5>My Resources</h5>
                 </div>
@@ -313,12 +313,12 @@ function Sidebar() {
             </div>
 
             {/* Manage Research Institutes Section - text and Menu*/}
-            <div className={"menu " + (mriMenu && "active")}>
+            <div className={"menus " + (mriMenu && "active")}>
               <div
-                className="menu_content"
+                className="menu_contents"
                 onClick={() => setMriMenu(!mriMenu)}
               >
-                <div className="content">
+                <div className="contents">
                   <SiRoamresearch />
                   <h5>My Institutes</h5>
                 </div>
