@@ -1,4 +1,3 @@
-import React from "react";
 import image from "../images/coatOfArm.png";
 import image2 from "../images/world.png";
 import { IoIosSearch } from "react-icons/io";
@@ -17,7 +16,41 @@ import {
   faMobile,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { useState, useEffect } from "react";
+import axios from "axios";
+
 function LandingPage() {
+  const [allCat, setAllCat] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+
+  //get categories
+  useEffect(() => {
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`http://13.39.47.227:3002/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
+  }, []);
+
   return (
     <div>
       <div className="landing-home">
@@ -122,7 +155,7 @@ function LandingPage() {
       <div>
         <div className="container text-center">
           <div className="row">
-            <div className="col">
+            {/* <div className="col">
               <FontAwesomeIcon
                 icon={faLayerGroup}
                 className="fnt"
@@ -191,7 +224,14 @@ function LandingPage() {
                 style={{ color: "blue", fontSize: "35px" }}
               ></FontAwesomeIcon>
               Mediawiki
-            </div>
+            </div> */}
+            {allCat.map((cat, index) => (
+              <div className="col">
+                <Link to="/" className="link text-gray-500 hover:text-green_bg">
+                  {cat.name}
+                </Link>
+              </div>
+            ))}
           </div>
         </div>
         <div className="land---mobile">

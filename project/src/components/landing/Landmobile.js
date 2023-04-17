@@ -15,7 +15,40 @@ import {
   faMobile,
 } from "@fortawesome/free-solid-svg-icons";
 
+import { useState, useEffect } from "react";
+import axios from "axios";
+
 function Landmobile() {
+  const [allCat, setAllCat] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+
+  //get categories
+  useEffect(() => {
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`http://13.39.47.227:3002/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
+  }, []);
   return (
     <div>
       <div className="Landmobile">
@@ -62,9 +95,9 @@ function Landmobile() {
         </div>
         <br />
         <div>
-          <div class="containerx text-center">
-            <div class="row">
-              <div class="col">
+          <div className="containerx text-center">
+            <div className="row">
+              {/* <div className="col">
                 <Link to={"/categorysinglepage"}>
                   <FontAwesomeIcon
                     icon={faLayerGroup}
@@ -74,7 +107,7 @@ function Landmobile() {
                   Commons
                 </Link>
               </div>
-              <div class="col">
+              <div className="col">
                 <FontAwesomeIcon
                   icon={faPlaneArrival}
                   className="fnt"
@@ -87,8 +120,8 @@ function Landmobile() {
           <br />
           <br />
           <div className="containerx text-center">
-            <div class="row">
-              <div class="col">
+            <div className="row">
+              <div className="col">
                 <FontAwesomeIcon
                   icon={faBook}
                   className="fnt"
@@ -96,8 +129,8 @@ function Landmobile() {
                 ></FontAwesomeIcon>
                 Wikitionary
               </div>
-              <div class="col">
-                <div class="col">
+              <div className="col">
+                <div className="col">
                   <FontAwesomeIcon
                     icon={faQuoteLeft}
                     className="fnt"
@@ -111,8 +144,8 @@ function Landmobile() {
           <br />
           <br />
           <div className="containerx text-center">
-            <div class="row">
-              <div class="col">
+            <div className="row">
+              <div className="col">
                 <FontAwesomeIcon
                   icon={faNewspaper}
                   className="fnt"
@@ -149,12 +182,15 @@ function Landmobile() {
                   style={{ color: "blue", fontSize: "25px" }}
                 ></FontAwesomeIcon>
                 Mediawiki
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
 
-        <i class="fab fa-adn" style={{ fontSize: "48px", color: "red" }}></i>
+        <i
+          className="fab fa-adn"
+          style={{ fontSize: "48px", color: "red" }}
+        ></i>
       </div>
     </div>
   );
