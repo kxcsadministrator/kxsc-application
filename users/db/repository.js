@@ -59,8 +59,6 @@ const get_user_dashboard = async(id) => {
         const author = await Model.user.findById(resource.author, {_id: 1, username: 1})
         const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1})
         if (!institute) {
-            console.log('-------------')
-            console.log(resource)
             Model.resource.findByIdAndDelete(resource._id)
             continue
         }
@@ -720,6 +718,66 @@ const delete_page = async(section_name, page_title) => {
     return result
 }
 
+//------------------------------------ Blog section -------------------------------------------
+const create_new_article = async(title, body, author) => {
+    const article = new Model.blog({
+        title: title,
+        author: author,
+        body: body
+    })
+    const data = await article.save()
+    return data
+}
+
+const get_article_by_id = async(id) => {
+    const result = await Model.blog.findById(id)
+    r = result.toObject()
+    r['author'] = await Model.user.findById(result.author, {_id: 1, username: 1})
+    let date  = new Date(result.date_created).toDateString()
+    r['date_created'] = date
+    return r;
+}
+
+const get_article_by_title = async(title) => {
+    const result = await Model.blog.findOne({title: title})
+    return result
+}
+
+const get_all_articles = async(offset, limit) => {
+    let data = []
+    const result = await Model.blog.find({}).sort({"date_created": -1}).skip((offset - 1) * limit).limit(limit)
+    for (let i = 0; i < result.length; i++) {
+        const article = result[i];
+        let user = await Model.user.findById(article.author, {_id: 1, username: 1})
+        let date  = new Date(article.date_created).toDateString()
+        let r = {
+            _id: article._id,
+            author: user,
+            title: article.title,
+            date: date
+        }
+        data.push(r)
+    }
+    return data
+}
+
+const update_article = async(id, update_obj, page_title, page_body) => {
+    if (!update_obj['title']) {
+       update_obj['title'] = page_title
+    }
+
+    if (!update_obj['body']){
+        update_obj['body'] = page_body
+        
+    }
+    const page = await Model.blog.findByIdAndUpdate(id, update_obj)
+    return await Model.blog.findById(id)
+}
+
+const delete_article = async(id) => {
+    const result = await Model.blog.findByIdAndDelete(id)
+    return result
+}
 
 module.exports = { 
     // Users
@@ -743,5 +801,7 @@ module.exports = {
     create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request, 
     // Footer section
     create_new_footer_section, get_section, edit_footer_section, delete_footer_section, create_new_footer_page, get_page, update_page,
-    delete_page, get_all_sections
+    delete_page, get_all_sections,
+    // Blog
+    create_new_article, get_all_articles, get_article_by_id, get_article_by_title, update_article, delete_article
 }
