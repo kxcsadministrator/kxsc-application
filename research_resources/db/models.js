@@ -108,9 +108,84 @@ const ratingSchema = new mongoose.Schema({
     }
 })
 
+// --------------------------------- User ----------------------------------------
+const userSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    email : {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    profile_picture: {
+        type: Schema.Types.ObjectId,
+        required: false,
+        ref: "profilePicture"
+    },
+    superadmin: {
+        type: Boolean,
+        default: false
+    },
+    institutes: [{
+        type: Schema.Types.ObjectId,
+        ref: "researchinstitutes"
+    }],
+    resources: [{
+        type: Schema.Types.ObjectId,
+        ref: "resources"
+    }],
+    tasks: [{
+        type: Schema.Types.ObjectId,
+        ref: "tasks"
+    }],
+    date_created: {type: Date, default: Date.now} 
+})
+
+/*------------------------------------- organizations/research institute schema ----------------------------*/
+const instituteSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    admins: [{
+        type: Schema.Types.ObjectId,
+        ref: "users"
+    }],
+    tasks: [{
+        type: Schema.Types.ObjectId,
+        ref: "task"
+    }],
+    members: { // modify when users service is up
+        type: [String],
+        required: false
+    },
+    resources: [{
+        type: Schema.Types.ObjectId,
+        ref: "resources"
+    }],
+    date_created: {
+        type: Date, 
+        default: Date.now
+    },
+    files: [{
+        type: Schema.Types.ObjectId,
+        ref: "instituteFile"
+    }]
+})
+
 const resource = mongoose.model('Resource', resourceSchema);
 const category = mongoose.model("Category", categorySchema);
 const resourceFile = mongoose.model("resourcefile", resourceFileSchema);
 const rating = mongoose.model("rating", ratingSchema);
 
-module.exports = { resource, category, resourceFile, rating }
+const user = mongoose.model("user", userSchema);
+const institute = mongoose.model("ResearchInstitute", instituteSchema);
+
+module.exports = { resource, category, resourceFile, rating, user, institute }

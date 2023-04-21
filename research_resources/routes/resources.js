@@ -208,17 +208,17 @@ router.post('/new',
 */
 router.get('/one/:id', async (req, res) => {
     try{
-        // Authorization and validation
-        if (!req.headers.authorization) {
-            helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-        const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) {
-            helpers.log_request_error(`GET /resources/one/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
-            return res.status(validateUser.status).json({message: validateUser.message});
-        }
-        const user = validateUser.data;
+        // // Authorization and validation
+        // if (!req.headers.authorization) {
+        //     helpers.log_request_error(`GET /resources/one/${req.params.id} - 401: Token not found`)
+        //     return res.status(401).json({message: "Token not found"});
+        // }
+        // const validateUser = await helpers.validateUser(req.headers);
+        // if (validateUser.status !== 200) {
+        //     helpers.log_request_error(`GET /resources/one/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+        //     return res.status(validateUser.status).json({message: validateUser.message});
+        // }
+        // const user = validateUser.data;
 
         const resource = await repository.get_resource_data(req.params.id, req.headers);
         if (!resource) {
