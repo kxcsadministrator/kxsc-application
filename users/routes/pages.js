@@ -114,7 +114,6 @@ router.get("/section/:section",
  * /pages/all-sections:
  * get:
  *   summary: Retrieves all sections
- *   description: Requires a bearer token for authentication
  *  
  * responses:
  *    '200':
@@ -194,7 +193,7 @@ router.patch("/edit-section/:name",
         }
 
         const result = await repository.edit_footer_section(name, new_name)
-        helpers.log_request_info("POST pages/new-section - 200")
+        helpers.log_request_info(`PATCH pages/edit-section/${req.body.name} - 200`)
         res.status(201).json(result);
     } catch (error) {
         helpers.log_request_error(`PATCH pages/edit-section/${req.body.name}  - 400: ${error.message}`)
@@ -239,21 +238,21 @@ router.delete("/delete-section/:name",
         const decodedToken = jwt.verify(token, SECRET_KEY);
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         if (!auth_user.superadmin) {
-            helpers.log_request_error(`PATCH pages/edit-section - 401: Unauthorized access to edit`)
+            helpers.log_request_error(`DELETE pages/delete-section/${req.params.name} - 401: Unauthorized access to edit`)
             return res.status(401).json({message: 'Unauthorized access to edit'});
         }
 
         const is_section = await repository.get_section(name)
         if (!is_section){
-            helpers.log_request_error(`PATCH pages/edit-section - 404: Section ${name} not found`)
+            helpers.log_request_error(`DELETE pages/delete-section/${req.params.name} - 404: Section ${name} not found`)
             return res.status(401).json({message: `Section ${name} not found`});
         }
 
         const result = await repository.delete_footer_section(name)
-        helpers.log_request_info("POST pages/new-section - 200")
+        helpers.log_request_info(`DELETE pages/delete-section/${req.params.name} - 200`)
         res.status(204).json(result);
     } catch (error) {
-        helpers.log_request_error(`PATCH pages/edit-section/${req.params.name}  - 400: ${error.message}`)
+        helpers.log_request_error(`DELETE pages/delete-section/${req.params.name}  - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })

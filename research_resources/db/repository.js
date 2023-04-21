@@ -415,6 +415,13 @@ const get_group_stats =  async () => {
     return result;
 }
 
+const resource_data = async(resource) => {
+    const user = await Model.user.findById(resource.author, {username: 1, _id: 1});
+    const institute = await Model.institute.findById(resource.institute, {_id: 1, name: 1});
+    
+    return [user, institute];
+}
+
 const search_resource = async (keyword) => {
     let result = await Model.resource.aggregate([
         {
@@ -432,11 +439,32 @@ const search_resource = async (keyword) => {
             "$project": {
                 "_id": 1,
                 "topic": 1,
+                "author": 1,
+                "institute": 1,
+                "rating": 1,
+                "date": 1,
                 "score": { "$meta": "searchScore"},
             }
           }
     ])
-    return result;
+    let data = []
+    for (let i = 0; i < result.length; i++) {
+        const resource = result[i];
+        let resource_result = await resource_data(resource)
+        let date  = new Date(resource.date).toDateString()
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource_result[0],
+            institute: resource_result[1],
+            rating: resource.rating,
+            date: date,
+            avatar: resource.avatar,
+            avatar: resource.avatar
+        }
+        data.push(r)
+    }
+    return data;
 }
 
 /*------------------------------ Categories Section ------------------------------------------ */
