@@ -18,6 +18,7 @@ import {
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function LandingPage() {
   const [allCat, setAllCat] = useState([]);
@@ -26,6 +27,9 @@ function LandingPage() {
     error: false,
     errMsg: "",
   });
+  const [searchResource, setSearchResource] = useState("");
+  const [errText, setErrText] = useState("");
+  const navigate = useNavigate();
 
   //get categories
   useEffect(() => {
@@ -50,6 +54,20 @@ function LandingPage() {
     };
     getCategories();
   }, []);
+
+  const getCat = (name) => {
+    sessionStorage.setItem("cat", name);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (searchResource.length > 0) {
+      navigate("/landingsearch");
+      sessionStorage.setItem("search", searchResource);
+    } else {
+      setErrText("Input field is empty");
+    }
+  };
 
   return (
     <div>
@@ -125,23 +143,24 @@ function LandingPage() {
           </div>
         </div>
         <br />
-        <div className="input">
+        <form className="input" onSubmit={(e) => handleSubmit(e)}>
           <div className="input-group">
             <input
               type="text"
               className="form-control"
               aria-label="Dollar amount (with dot and two decimal places)"
               placeholder="Search skills, publication or research"
+              value={searchResource}
+              onChange={(e) => setSearchResource(e.target.value)}
             />
-            <Link to={"/landingsearch"}>
-              <span className="in-search bg-success input-group-text">
-                <div className="fasearch text-white">
-                  <IoIosSearch />
-                </div>
-              </span>
-            </Link>
+            <span className="in-search bg-success input-group-text">
+              <button className="fasearch text-white" type="submit">
+                <IoIosSearch />
+              </button>
+            </span>
           </div>
-        </div>
+          <p className="text-red-500 text-sm my-2">{errText}</p>
+        </form>
       </div>
       <br />
       <br />
@@ -227,7 +246,11 @@ function LandingPage() {
             </div> */}
             {allCat.map((cat, index) => (
               <div className="col">
-                <Link to="/" className="link text-gray-500 hover:text-green_bg">
+                <Link
+                  to="/landing"
+                  className="link text-gray-500 hover:text-green_bg"
+                  onClick={() => getCat(cat.name)}
+                >
                   {cat.name}
                 </Link>
               </div>

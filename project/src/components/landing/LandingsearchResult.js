@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import image6 from "../images/kxcc.png";
 import { IoIosSearch } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
@@ -15,9 +16,67 @@ import Ham from "./Ham";
 
 function LandingsearchResult() {
   const [show, setShow] = useState(false);
-
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [searchResource, setSearchResource] = useState("");
+
+  const [resources, setResources] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+
+  const search = sessionStorage.getItem("search");
+
+  //get categories
+  useEffect(() => {
+    const getResources = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(
+          `http://13.39.47.227:3002/resources/search?query=${search}`
+        );
+        setStates({ loading: false, error: false });
+        setResources(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getResources();
+  }, [search]);
+
+  // const handleSubmit = async (e) => {
+  //   setStates({ loading: true, error: false });
+
+  //   try {
+  //     const res = await axios.get(
+  //       `http://13.39.47.227:3002/resources/search?query=${search}`
+  //     );
+  //     setStates({ loading: false, error: false });
+  //     setResources(res.data);
+  //     console.log(res.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //     setStates({
+  //       loading: false,
+  //       error: true,
+  //       errMsg: err.response.data.errors
+  //         ? err.response.data.errors[0].msg
+  //         : err.response.data.message,
+  //     });
+  //   }
+  // };
+
   return (
     <div>
       <div className="PageFive">
@@ -73,23 +132,29 @@ function LandingsearchResult() {
         </div>
 
         <div className="inputtt p-2">
-          <div className="input-group">
+          {/* <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
             <span className="in-search bg-light input-group-text">
               Learning
             </span>
+
             <input
               type="text"
               className="form-control"
               aria-label="Dollar amount (with dot and two decimal places)"
               placeholder="Search skills, subjects or software"
+              value={searchResource}
+              onChange={(e) => setSearchResource(e.target.value)}
             />
-            <span className="in-search bg-light input-group-text">
+            <button
+              className="in-search bg-light input-group-text"
+              type="submit"
+            >
               <IoIosSearch />
-            </span>
-          </div>
+            </button>
+          </form> */}
         </div>
         <br />
-        <div className="main-dropdown">
+        {/* <div className="main-dropdown">
           <div className="drop d-flex gap-2">
             <Dropdown>
               <Dropdown.Toggle variant="success" id="dropdown-basic">
@@ -127,7 +192,7 @@ function LandingsearchResult() {
               </Dropdown.Menu>
             </Dropdown>
           </div>
-        </div>
+        </div> */}
         <br />
         <br />
         <br />

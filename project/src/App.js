@@ -39,6 +39,7 @@ import Ham from "./components/landing/Ham";
 import Landmobile from "./components/landing/Landmobile";
 import Compo from "./components/landing/Compo";
 import Production from "./components/landing/Production";
+import LandingSearchCategory from "./components/landing/LandingSearchCategory";
 
 function App() {
   const { user } = useContext(Context);
@@ -46,7 +47,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <Routes>
-          <Route path="/sign_in" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/sign_up" element={<SignUp />} />
           <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
@@ -85,7 +86,8 @@ function App() {
           <Route path="cateLanding" element={<CategoryLanding />} />
           <Route path="footer" element={<Footer />} />
           <Route path="categorysinglepage" element={<CategorysinglePage />} />
-          <Route path="landingsearch" element={<LandingsearchResult />} />
+          <Route path="/landingsearch" element={<LandingsearchResult />} />
+          <Route path="/landing" element={<LandingSearchCategory />} />
           <Route path="Modal" element={<ModalOne />} />
           <Route path="Modall" element={<ModalTwo />} />
           <Route path="Ham" element={<Ham />} />
