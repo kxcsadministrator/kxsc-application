@@ -18,7 +18,7 @@ function ResetEmail() {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.post(
-        `http://13.39.47.227:3000/users/reset-password-request`,
+        `http://15.186.62.53:3000/users/reset-password-request`,
         {
           username: username,
         }

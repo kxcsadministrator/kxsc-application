@@ -25,7 +25,7 @@ function PublicResources() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://13.39.47.227:3002/resources/public`,
+            `http://15.186.62.53:3002/resources/public`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -45,7 +45,7 @@ function PublicResources() {
       } else {
         try {
           const res = await axios.get(
-            `http://13.39.47.227:3002/resources/public`,
+            `http://15.186.62.53:3002/resources/public`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -163,7 +163,7 @@ function PublicResources() {
                               ) : (
                                 <div className="h-full w-[28%]">
                                   <img
-                                    src={`http://13.39.47.227:3002/${resource.avatar}`}
+                                    src={`http://15.186.62.53:3002/${resource.avatar}`}
                                     alt="default"
                                     className="object-cover h-full w-full"
                                   />

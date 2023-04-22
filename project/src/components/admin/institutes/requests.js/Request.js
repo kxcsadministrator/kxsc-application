@@ -25,7 +25,7 @@ function Request({ instituteId, admin }) {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `http://13.39.47.227:3001/institutes/publish-requests/${id}`,
+          `http://15.186.62.53:3001/institutes/publish-requests/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -91,7 +91,7 @@ function Request({ instituteId, admin }) {
     try {
       const res = await axios({
         method: "post",
-        url: `http://13.39.47.227:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
+        url: `http://15.186.62.53:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

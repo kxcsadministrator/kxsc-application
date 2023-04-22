@@ -35,7 +35,7 @@ function LandingSearchCategory() {
 
       try {
         const res = await axios.get(
-          `http://13.39.47.227:3002/resources/public?category=${cat}`
+          `http://15.186.62.53:3002/resources/public?category=${cat}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -192,7 +192,7 @@ function LandingSearchCategory() {
                       {resource.avatar ? (
                         <div>
                           <img
-                            src={`http://13.39.47.227:3002/${resource.avatar}`}
+                            src={`http://15.186.62.53:3002/${resource.avatar}`}
                             alt="avatar resource"
                             className="object-cover h-full w-full"
                           />

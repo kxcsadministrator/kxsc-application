@@ -23,7 +23,7 @@ function Users() {
     const getUsers = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(`http://13.39.47.227:3000/users/all`, {
+        const res = await axios.get(`http://15.186.62.53:3000/users/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });

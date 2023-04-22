@@ -51,7 +51,7 @@ function Profile() {
             <div className="w-[25%] flex flex-col gap-5">
               {user?.profile_picture ? (
                 <img
-                  src={`http://13.39.47.227:3000/${user.profile_picture.path}`}
+                  src={`http://15.186.62.53:3000/${user.profile_picture.path}`}
                   alt="profile_picture"
                   className="w-full  rounded-full"
                 />

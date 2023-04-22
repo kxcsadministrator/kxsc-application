@@ -30,7 +30,7 @@ function EditUser({ setEditUserModal, editUser }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://13.39.47.227:3000/users/edit-username/${editUser.id}`,
+        `http://15.186.62.53:3000/users/edit-username/${editUser.id}`,
         {
           new_username: user,
         },

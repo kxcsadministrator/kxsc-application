@@ -25,7 +25,7 @@ function PieChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          `http://13.39.47.227:3002/resources/group-stats`,
+          `http://15.186.62.53:3002/resources/group-stats`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

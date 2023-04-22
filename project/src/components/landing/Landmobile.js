@@ -32,7 +32,7 @@ function Landmobile() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://13.39.47.227:3002/categories/all`);
+        const res = await axios.get(`http://15.186.62.53:3002/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);

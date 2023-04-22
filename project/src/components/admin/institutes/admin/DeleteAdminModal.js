@@ -31,7 +31,7 @@ function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.patch(
-        `http://13.39.47.227:3001/institutes/remove-admins/${instituteId}`,
+        `http://15.186.62.53:3001/institutes/remove-admins/${instituteId}`,
         {
           admins: [admin.username],
         },

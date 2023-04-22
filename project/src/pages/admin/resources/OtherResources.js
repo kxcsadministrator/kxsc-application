@@ -24,7 +24,7 @@ function OtherResources() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `http://13.39.47.227:3000/users/other-institute-resources/${user.id}`,
+          `http://15.186.62.53:3000/users/other-institute-resources/${user.id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -135,7 +135,7 @@ function OtherResources() {
                               {resource.avatar ? (
                                 <div className="md:h-full h-36 md:w-[28%] w-[90%]">
                                   <img
-                                    src={`http://13.39.47.227:3002/${resource.avatar}`}
+                                    src={`http://15.186.62.53:3002/${resource.avatar}`}
                                     alt="resource avatar"
                                     className="object-cover h-full w-full"
                                   />

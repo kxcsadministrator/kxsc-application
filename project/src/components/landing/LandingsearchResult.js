@@ -36,7 +36,7 @@ function LandingsearchResult() {
 
       try {
         const res = await axios.get(
-          `http://13.39.47.227:3002/resources/search?query=${search}`
+          `http://15.186.62.53:3002/resources/search?query=${search}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -60,7 +60,7 @@ function LandingsearchResult() {
 
   //   try {
   //     const res = await axios.get(
-  //       `http://13.39.47.227:3002/resources/search?query=${search}`
+  //       `http://15.186.62.53:3002/resources/search?query=${search}`
   //     );
   //     setStates({ loading: false, error: false });
   //     setResources(res.data);

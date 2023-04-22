@@ -31,7 +31,7 @@ function Categories() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://13.39.47.227:3002/categories/all`, {
+        const res = await axios.get(`http://15.186.62.53:3002/categories/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });
