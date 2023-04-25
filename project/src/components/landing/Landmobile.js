@@ -17,6 +17,7 @@ import {
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Landmobile() {
   const [allCat, setAllCat] = useState([]);
@@ -25,6 +26,9 @@ function Landmobile() {
     error: false,
     errMsg: "",
   });
+  const [searchResource, setSearchResource] = useState("");
+  const [errText, setErrText] = useState("");
+  const navigate = useNavigate();
 
   //get categories
   useEffect(() => {
@@ -32,7 +36,7 @@ function Landmobile() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.186.62.53:3002/categories/all`);
+        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);
@@ -49,6 +53,16 @@ function Landmobile() {
     };
     getCategories();
   }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (searchResource.length > 0) {
+      navigate(`/resourceSearch?query=${searchResource}`);
+      sessionStorage.setItem("search", searchResource);
+    } else {
+      setErrText("Input field is empty");
+    }
+  };
   return (
     <div>
       <div className="Landmobile">
@@ -61,26 +75,29 @@ function Landmobile() {
             <p>The Data Knowledge driven Platform</p>
           </div>
         </div>
-        <div className="inpu_tt p-2">
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              aria-label="Dollar amount (with dot and two decimal places)"
-              placeholder="Search skills, subjects or software"
-            />
-            <Link to={"/landingsearch"}>
-              <span className="in-search bg-primary input-group-text text-white">
-                <div className="fasearch text-white">
+        <div className="w-[90%] mx-auto">
+          <form className="w-full" onSubmit={(e) => handleSubmit(e)}>
+            <div className="input-group">
+              <input
+                type="text"
+                className="form-control"
+                aria-label="Dollar amount (with dot and two decimal places)"
+                placeholder="Search skills, publication or research"
+                value={searchResource}
+                onChange={(e) => setSearchResource(e.target.value)}
+              />
+              <span className="in-search bg-success input-group-text">
+                <button className="fasearch text-white" type="submit">
                   <IoIosSearch />
-                </div>
+                </button>
               </span>
-            </Link>
-          </div>
+            </div>
+            <p className="text-red-500 text-sm my-2">{errText}</p>
+          </form>
         </div>
         <br />
         <hr />
-        <div className="yelp">
+        {/* <div className="yelp">
           <div className="yepp mb-5">
             <img src={image2} alt="" />
           </div>
@@ -92,7 +109,7 @@ function Landmobile() {
               esse culpa.
             </p>
           </div>
-        </div>
+        </div> */}
         <br />
         <div>
           <div className="containerx text-center">

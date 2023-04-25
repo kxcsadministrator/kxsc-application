@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
+import { Context } from "../../../context/Context";
 
-function EditUser({ setEditUserModal, editUser }) {
-  //   states
-  const [user, setUser] = useState(editUser.username);
+function RemoveSectionModal({ setRemoveSection, editSection }) {
+  const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -16,7 +16,7 @@ function EditUser({ setEditUserModal, editUser }) {
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setEditUserModal(false);
+        setRemoveSection(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -24,21 +24,22 @@ function EditUser({ setEditUserModal, editUser }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setEditUserModal]);
+  }, [setRemoveSection]);
 
-  const submitEditUser = async () => {
+  const submitRemoveSection = async () => {
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.patch(
-        `http://15.188.62.53:3000/users/edit-username/${editUser.id}`,
+      const res = await axios.delete(
+        `http://15.188.62.53:3000/pages/delete-section/${editSection.name}`,
         {
-          new_username: user,
-        },
-        { headers: { Authorization: `Bearer ${editUser.jwt_token}` } }
+          headers: {
+            Authorization: `Bearer ${user.jwt_token}`,
+          },
+        }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setEditUserModal(false);
+        setRemoveSection(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -53,24 +54,16 @@ function EditUser({ setEditUserModal, editUser }) {
       });
     }
   };
-
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
+          Remove Section
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <form>
-            <input
-              placeholder={user}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={user}
-              onChange={(e) => {
-                setUser(e.target.value);
-              }}
-            />
-          </form>
+          <div>
+            <p>Are you sure you want to remove Section {editSection.name}</p>
+          </div>
           <div>
             {states.loading ? (
               <div>
@@ -87,13 +80,20 @@ function EditUser({ setEditUserModal, editUser }) {
             ) : (
               <div></div>
             )}
-            <div>
+            <div className="flex items-center gap-5">
               <button
-                onClick={() => submitEditUser()}
+                onClick={() => setRemoveSection(false)}
                 className="btn_green"
                 disabled={states.loading}
               >
-                submit
+                Back
+              </button>
+              <button
+                onClick={() => submitRemoveSection()}
+                className="btn_red"
+                disabled={states.loading}
+              >
+                Continue
               </button>
             </div>
           </div>
@@ -103,4 +103,4 @@ function EditUser({ setEditUserModal, editUser }) {
   );
 }
 
-export default EditUser;
+export default RemoveSectionModal;

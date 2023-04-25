@@ -21,7 +21,7 @@ function CreateCategory() {
     setErr(false);
     try {
       const res = await axios.post(
-        `http://15.186.62.53:3002/categories/new`,
+        `http://15.188.62.53:3002/categories/new`,
         {
           name: cat,
           sub_categories: [subCat],

@@ -30,7 +30,7 @@ function Messages() {
 
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3000/messages/my-messages`,
+          `http://15.188.62.53:3000/messages/my-messages`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -52,7 +52,7 @@ function Messages() {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3000/messages/sent-messages`,
+          `http://15.188.62.53:3000/messages/sent-messages`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

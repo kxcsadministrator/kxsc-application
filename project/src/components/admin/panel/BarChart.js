@@ -27,7 +27,7 @@ function BarChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3002/resources/monthly-stats`,
+          `http://15.188.62.53:3002/resources/monthly-stats`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -36,7 +36,7 @@ function BarChart() {
         console.log(res.data);
       } catch (err) {}
       try {
-        const res = await axios.get(`http://15.186.62.53:3002/resources/all`, {
+        const res = await axios.get(`http://15.188.62.53:3002/resources/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setResources(res.data);

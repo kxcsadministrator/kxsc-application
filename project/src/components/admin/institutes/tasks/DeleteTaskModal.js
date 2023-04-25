@@ -33,7 +33,7 @@ function DeleteTaskModal({ task, setDeleteTaskModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.186.62.53:3001/tasks/delete/${task._id}`,
+        `http://15.188.62.53:3001/tasks/delete/${task._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

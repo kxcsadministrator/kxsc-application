@@ -31,7 +31,7 @@ function RemovePic({ setRemovePicModal }) {
     try {
       const res = await axios({
         method: "post",
-        url: `http://15.186.62.53:3000/users/remove-profile-photo/${user.id}`,
+        url: `http://15.188.62.53:3000/users/remove-profile-photo/${user.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });

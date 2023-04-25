@@ -30,7 +30,7 @@ function Institutes() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3001/institutes/all`,
+            `http://15.188.62.53:3001/institutes/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -48,7 +48,7 @@ function Institutes() {
       } else {
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3001/institutes/my-institutes`,
+            `http://15.188.62.53:3001/institutes/my-institutes`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }

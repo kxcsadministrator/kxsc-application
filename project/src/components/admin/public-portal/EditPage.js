@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
+import { Context } from "../../../context/Context";
 
-function EditUser({ setEditUserModal, editUser }) {
-  //   states
-  const [user, setUser] = useState(editUser.username);
+function EditPage({ setEditPageModal, section, edit }) {
+  const [title, setTitle] = useState(edit.title);
+  const [body, setBody] = useState(edit.body);
+  const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -16,7 +18,7 @@ function EditUser({ setEditUserModal, editUser }) {
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setEditUserModal(false);
+        setEditPageModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -24,21 +26,26 @@ function EditUser({ setEditUserModal, editUser }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setEditUserModal]);
+  }, [setEditPageModal]);
 
-  const submitEditUser = async () => {
+  const editPage = async () => {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/users/edit-username/${editUser.id}`,
+        `http://15.188.62.53:3000/pages/edit-page/${section}/${edit.title}`,
         {
-          new_username: user,
+          new_title: title,
+          new_body: body,
         },
-        { headers: { Authorization: `Bearer ${editUser.jwt_token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${user.jwt_token}`,
+          },
+        }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setEditUserModal(false);
+        setEditPageModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -53,21 +60,28 @@ function EditUser({ setEditUserModal, editUser }) {
       });
     }
   };
-
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
+          Edit Section Header
         </h1>
-        <div className="flex flex-col items-center w-full gap-3">
-          <form>
+        <div className="flex flex-col w-full gap-3">
+          <form className="grid gap-3">
             <input
-              placeholder={user}
+              placeholder={title}
               className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={user}
+              value={title}
               onChange={(e) => {
-                setUser(e.target.value);
+                setTitle(e.target.value);
+              }}
+            />
+            <textarea
+              placeholder={body}
+              className="w-[90%] h-20 bg-gray_bg px-3 py-1"
+              value={body}
+              onChange={(e) => {
+                setBody(e.target.value);
               }}
             />
           </form>
@@ -89,7 +103,7 @@ function EditUser({ setEditUserModal, editUser }) {
             )}
             <div>
               <button
-                onClick={() => submitEditUser()}
+                onClick={() => editPage()}
                 className="btn_green"
                 disabled={states.loading}
               >
@@ -103,4 +117,4 @@ function EditUser({ setEditUserModal, editUser }) {
   );
 }
 
-export default EditUser;
+export default EditPage;

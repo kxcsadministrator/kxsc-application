@@ -19,7 +19,7 @@ function SignUp() {
     e.preventDefault();
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.post(`http://15.186.62.53:3000/users/new`, {
+      const res = await axios.post(`http://15.188.62.53:3000/users/new`, {
         username: username,
         email: email,
         password: password,

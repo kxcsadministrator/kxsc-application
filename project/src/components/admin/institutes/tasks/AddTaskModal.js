@@ -34,7 +34,7 @@ function AddTaskModal({ setTaskModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.186.62.53:3001/tasks/new/${instituteId}`,
+        `http://15.188.62.53:3001/tasks/new/${instituteId}`,
         {
           name: name,
           author: user._id,

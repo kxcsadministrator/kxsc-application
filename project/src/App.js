@@ -40,6 +40,9 @@ import Landmobile from "./components/landing/Landmobile";
 import Compo from "./components/landing/Compo";
 import Production from "./components/landing/Production";
 import LandingSearchCategory from "./components/landing/LandingSearchCategory";
+import CreateFooterSection from "./pages/admin/public-portal/CreateFooterSection";
+import FooterSection from "./pages/admin/public-portal/FooterSection";
+import SingleSection from "./pages/admin/public-portal/SingleSection";
 
 function App() {
   const { user } = useContext(Context);
@@ -77,17 +80,26 @@ function App() {
           <Route path="/password-reset" element={<Reset />} />
           <Route path="/admin/profile" element={<Profile />} />
           <Route path="/admin/search" element={<Search />} />
+          <Route
+            path="/admin/create-section"
+            element={<CreateFooterSection />}
+          />
+          <Route path="/admin/sections" element={<FooterSection />} />
+          <Route path="/admin/sections/:name" element={<SingleSection />} />
 
           <Route path="/" element={<LandingPage />} />
           <Route
-            path="individualPage"
+            path="/resource_details"
             element={<LandingsearchIndividualpage />}
           />
           <Route path="cateLanding" element={<CategoryLanding />} />
           <Route path="footer" element={<Footer />} />
           <Route path="categorysinglepage" element={<CategorysinglePage />} />
-          <Route path="/landingsearch" element={<LandingsearchResult />} />
-          <Route path="/landing" element={<LandingSearchCategory />} />
+          <Route path="/resourceSearch" element={<LandingsearchResult />} />
+          <Route
+            path="/search_by_category"
+            element={<LandingSearchCategory />}
+          />
           <Route path="Modal" element={<ModalOne />} />
           <Route path="Modall" element={<ModalTwo />} />
           <Route path="Ham" element={<Ham />} />

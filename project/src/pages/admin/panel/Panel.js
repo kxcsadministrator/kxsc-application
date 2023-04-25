@@ -31,7 +31,7 @@ function Panel() {
       if (!user.superadmin) {
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3000/users/my-dashboard`,
+            `http://15.188.62.53:3000/users/my-dashboard`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -40,7 +40,7 @@ function Panel() {
         } catch (err) {}
       } else {
         try {
-          const res = await axios.get(`http://15.186.62.53:3000/users/all`, {
+          const res = await axios.get(`http://15.188.62.53:3000/users/all`, {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           });
           setUsers(res.data);
@@ -48,7 +48,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3000/users/all?page=1&limit=3`,
+            `http://15.188.62.53:3000/users/all?page=1&limit=3`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -60,7 +60,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3001/institutes/all`,
+            `http://15.188.62.53:3001/institutes/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -70,7 +70,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            `http://15.186.62.53:3002/resources/all`,
+            `http://15.188.62.53:3002/resources/all`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -199,7 +199,7 @@ function Panel() {
                             <img src="/default.png" alt="default" />
                           ) : (
                             <img
-                              src={`http://15.186.62.53:3002/${resource.avatar}`}
+                              src={`http://15.188.62.53:3002/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />
@@ -264,7 +264,7 @@ function Panel() {
                           <img src="/default.png" alt="default" />
                         ) : (
                           <img
-                            src={`http://15.186.62.53:3002/${resource.avatar}`}
+                            src={`http://15.188.62.53:3002/${resource.avatar}`}
                             alt="default"
                             className="object-cover h-full w-full"
                           />

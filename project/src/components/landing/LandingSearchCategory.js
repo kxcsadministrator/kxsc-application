@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
+import { Context } from "../../context/Context";
 import axios from "axios";
 import image6 from "../images/kxcc.png";
 import { IoIosSearch } from "react-icons/io";
@@ -13,6 +14,10 @@ import { AiOutlineShareAlt } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Ham from "./Ham";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
+import { useNavigate } from "react-router-dom";
 
 function LandingSearchCategory() {
   const [show, setShow] = useState(false);
@@ -20,22 +25,26 @@ function LandingSearchCategory() {
   const handleShow = () => setShow(true);
 
   const [resources, setResources] = useState([]);
+  const [allCat, setAllCat] = useState([]);
+  const [subCat, setSubCat] = useState([]);
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
   });
+  const { user } = useContext(Context);
 
+  const [searchResource, setSearchResource] = useState([]);
+  const navigate = useNavigate();
   const cat = sessionStorage.getItem("cat");
 
   //get categories
   useEffect(() => {
     const getResources = async () => {
       setStates({ loading: true, error: false });
-
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3002/resources/public?category=${cat}`
+          `http://15.188.62.53:3002/resources/public?category=${cat}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -52,7 +61,95 @@ function LandingSearchCategory() {
       }
     };
     getResources();
+
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
+
+    const getSubCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(
+          `http://15.188.62.53:3002/categories/subs?name=${cat}`
+        );
+        setStates({ loading: false, error: false });
+        setSubCat(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getSubCategories();
   }, [cat]);
+
+  //pagination Data
+  const countPerPage = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(resources.slice(0, countPerPage))
+  );
+
+  //updatePage Function
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(resources.slice(from, to)));
+    },
+    [resources]
+  );
+
+  //useEffect Search
+  useEffect(() => {
+    updatePage(1);
+  }, [updatePage]);
+
+  const newSearch = (cat) => {
+    sessionStorage.setItem("cat", cat);
+    window.location.reload(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (searchResource.length > 0) {
+      navigate(`/resourceSearch?query=${searchResource}`);
+      sessionStorage.setItem("search", searchResource);
+    } else {
+      alert("input field is empty");
+    }
+  };
+
+  const getProfile = () => {
+    if (user) {
+      navigate("/admin/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <div className="PageFive">
@@ -76,50 +173,60 @@ function LandingSearchCategory() {
           </div>
           <div className="inputt p-2">
             <div className="input-group">
-              <span className="in-search bg-light input-group-text">
-                Learning
-              </span>
-              <input
-                type="text"
-                className="form-control"
-                aria-label="Dollar amount (with dot and two decimal places)"
-                placeholder="Search skills, subjects or software"
-              />
-              <span className="in-search bg-light input-group-text">
-                <IoIosSearch />
-              </span>
+              <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
+                <span className="in-search bg-light input-group-text">
+                  Learning
+                </span>
+
+                <input
+                  type="text"
+                  className="form-control"
+                  aria-label="Dollar amount (with dot and two decimal places)"
+                  placeholder="Search skills, subjects or software"
+                  value={searchResource}
+                  onChange={(e) => setSearchResource(e.target.value)}
+                />
+                <button
+                  className="in-search bg-light input-group-text"
+                  type="submit"
+                >
+                  <IoIosSearch />
+                </button>
+              </form>
             </div>
           </div>
 
           <div className="sg d-flex  p-2">
-            <div className="profile p-1">
+            <div className="profile p-1" onClick={() => getProfile()}>
               <CgProfile />
             </div>
-            <Modal show={show} onHide={handleClose}>
-              <Modal.Header closeButton></Modal.Header>
-              <Modal.Body>{/* <ModalOne /> */}</Modal.Body>
-            </Modal>
-
-            <button type="button" class="btn btn-primary">
-              Sign in
-            </button>
+            <Link
+              to="/login"
+              type="button"
+              class=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+            >
+              Sign In
+            </Link>
           </div>
         </div>
       </div>
 
       <div className="inputtt p-2">
-        <div className="input-group">
+        <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
           <span className="in-search bg-light input-group-text">Learning</span>
+
           <input
             type="text"
             className="form-control"
             aria-label="Dollar amount (with dot and two decimal places)"
             placeholder="Search skills, subjects or software"
+            value={searchResource}
+            onChange={(e) => setSearchResource(e.target.value)}
           />
-          <span className="in-search bg-light input-group-text">
+          <button className="in-search bg-light input-group-text" type="submit">
             <IoIosSearch />
-          </span>
-        </div>
+          </button>
+        </form>
       </div>
       {/* <div className="main-dropdown">
         <div className="drop d-flex gap-2">
@@ -186,13 +293,13 @@ function LandingSearchCategory() {
             </div>
             {resources?.length > 0 ? (
               <div>
-                {resources.map((resource, index) => (
+                {collection.map((resource, index) => (
                   <div>
                     <div className="five-vid d-flex" key={index}>
                       {resource.avatar ? (
                         <div>
                           <img
-                            src={`http://15.186.62.53:3002/${resource.avatar}`}
+                            src={`http://15.188.62.53:3002/${resource.avatar}`}
                             alt="avatar resource"
                             className="object-cover h-full w-full"
                           />
@@ -228,7 +335,7 @@ function LandingSearchCategory() {
                         </div>
                       </div>
                     </div>
-                    <div className="mobile___dropdown">
+                    {/* <div className="mobile___dropdown">
                       <div className="mobile--buttons d-flex gap-2">
                         <button type="button" class="btn btn-secondary">
                           Save
@@ -240,7 +347,7 @@ function LandingSearchCategory() {
                           Share time
                         </button>
                       </div>
-                    </div>
+                    </div> */}
                     <br />
                     <div className="bl-line"></div>
                     <br />
@@ -255,39 +362,19 @@ function LandingSearchCategory() {
 
             <div className="info--techss">
               <div className="in4mation">
-                <h5>Explore Topics</h5>
+                <h5>Explore Sub-Categories</h5>
               </div>
               <div className="top-buttons d-flex gap-3">
-                <div>
-                  <button className="tech__btn">Security</button>
-                </div>
-                <div>
-                  <button className="tech__btn">Business</button>
-                </div>
-              </div>
-              <div className="top-buttons d-flex gap-3">
-                <div>
-                  <button className="tech__btn">Technology</button>
-                </div>
-                <div>
-                  <button className="tech__btn">Production</button>
-                </div>
-              </div>
-              <div className="top-buttons d-flex gap-3">
-                <div>
-                  <button className="tech__btn">Science</button>
-                </div>
-                <div>
-                  <button className="tech__btn">Business</button>
-                </div>
-              </div>
-              <div className="top-buttons d-flex gap-3">
-                <div>
-                  <button className="tech__btn">Manufacturing</button>
-                </div>
-                <div>
-                  <button className="tech__btn">Creative</button>
-                </div>
+                {subCat.map((cat, index) => (
+                  <div key={index}>
+                    <button
+                      className="tech__btn"
+                      onClick={() => newSearch(cat)}
+                    >
+                      {cat}
+                    </button>
+                  </div>
+                ))}
               </div>
               <div className="bl-line"></div>
               <div className="browseby">
@@ -295,12 +382,14 @@ function LandingSearchCategory() {
               </div>
               <div className="brow">
                 <div>
-                  <h5>Books</h5>
-                  <h5>Magazines</h5>
-                  <h5>Documents</h5>
+                  {allCat.map((cat, index) => (
+                    <h5 key={index} onClick={() => newSearch(cat.name)}>
+                      {cat.name}
+                    </h5>
+                  ))}
                 </div>
               </div>
-              <br />
+              {/* <br />
               <div className="browseby">
                 <h5>Interest</h5>
               </div>
@@ -317,14 +406,10 @@ function LandingSearchCategory() {
                   <h5>True Crime</h5>
                   <h5>Travel</h5>
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className="in4mation">
-              <h5>
-                Not seeing what you are looking for? Join now to see all 4,832
-                results
-              </h5>
-              <div className="sgg p-2">
+              {/* <div className="sgg p-2">
                 <Modal show={show} onHide={handleClose}>
                   <Modal.Header closeButton></Modal.Header>
                   <Modal.Body>
@@ -335,45 +420,32 @@ function LandingSearchCategory() {
                 <Button variant="primary" onClick={handleShow}>
                   Sign up
                 </Button>
+              </div> */}
+              <div className="paginate my-4">
+                {resources > countPerPage && (
+                  <Pagination
+                    pageSize={countPerPage}
+                    onChange={updatePage}
+                    current={currentPage}
+                    total={resources.length}
+                  />
+                )}
               </div>
             </div>
           </div>
 
           <div className="info--tech">
             <div className="in4mation">
-              <h5>Explore Topics</h5>
+              <h5>Explore Sub-Categories</h5>
             </div>
             <div className="top-buttons d-flex gap-3">
-              <div>
-                <button className="tech__btn">Security</button>
-              </div>
-              <div>
-                <button className="tech__btn">Business</button>
-              </div>
-            </div>
-            <div className="top-buttons d-flex gap-3">
-              <div>
-                <button className="tech__btn">Technology</button>
-              </div>
-              <div>
-                <button className="tech__btn">Production</button>
-              </div>
-            </div>
-            <div className="top-buttons d-flex gap-3">
-              <div>
-                <button className="tech__btn">Science</button>
-              </div>
-              <div>
-                <button className="tech__btn">Business</button>
-              </div>
-            </div>
-            <div className="top-buttons d-flex gap-3">
-              <div>
-                <button className="tech__btn">Manufacturing</button>
-              </div>
-              <div>
-                <button className="tech__btn">Creative</button>
-              </div>
+              {subCat.map((cat, index) => (
+                <div key={index}>
+                  <button className="tech__btn" onClick={() => newSearch(cat)}>
+                    {cat}
+                  </button>
+                </div>
+              ))}
             </div>
             <hr />
 
@@ -382,13 +454,15 @@ function LandingSearchCategory() {
             </div>
             <div className="brow">
               <div>
-                <h5>Books</h5>
-                <h5>Magazines</h5>
-                <h5>Documents</h5>
+                {allCat.map((cat, index) => (
+                  <h5 key={index} onClick={() => newSearch(cat.name)}>
+                    {cat.name}
+                  </h5>
+                ))}
               </div>
             </div>
             <br />
-            <div className="browseby">
+            {/* <div className="browseby">
               <h5>Interest</h5>
             </div>
             <div className="brow">
@@ -404,7 +478,7 @@ function LandingSearchCategory() {
                 <h5>True Crime</h5>
                 <h5>Travel</h5>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

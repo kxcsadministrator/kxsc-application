@@ -1,32 +1,35 @@
-import Topbar from "../../../components/admin/Topbar";
 import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-function CreateInstitues() {
+import { useNavigate } from "react-router-dom";
+
+function CreateFooterSection() {
   const { user } = useContext(Context);
-  const [instituteName, setInstituteName] = useState("");
+  const [sectionName, setSectionName] = useState("");
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
+    success: false,
   });
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3001/institutes/new`,
+        `http://15.188.62.53:3000/pages/new-section`,
         {
-          name: instituteName,
+          name: sectionName,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false });
-      navigate("/admin/institutes");
+      navigate("/admin/");
     } catch (err) {
       setStates({
         loading: false,
@@ -35,7 +38,6 @@ function CreateInstitues() {
       });
     }
   };
-
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -46,14 +48,14 @@ function CreateInstitues() {
           <Topbar />
         </div>
         <form className="institute_form">
-          <h1 className="form_header">Create Institute</h1>
+          <h1 className="form_header">Create Section</h1>
           <div className="institute_input_container">
             <div className="institute_input_row">
-              <label>Institues Name: </label>
+              <label>Section Name: </label>
               <input
-                placeholder="Institues Name"
-                value={instituteName}
-                onChange={(e) => setInstituteName(e.target.value)}
+                placeholder="Section Name"
+                value={sectionName}
+                onChange={(e) => setSectionName(e.target.value)}
               />
             </div>
             <div>
@@ -72,7 +74,7 @@ function CreateInstitues() {
             <div className="form_button_btn">
               <button
                 onClick={(e) => handleSubmit(e)}
-                className="institute_submit_button"
+                className="btn_green"
                 disabled={states.loading}
               >
                 Submit
@@ -85,4 +87,4 @@ function CreateInstitues() {
   );
 }
 
-export default CreateInstitues;
+export default CreateFooterSection;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useContext } from "react";
 import axios from "axios";
 import image6 from "../images/kxcc.png";
 import { IoIosSearch } from "react-icons/io";
@@ -13,12 +13,19 @@ import { AiOutlineShareAlt } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Ham from "./Ham";
+import { Context } from "../../context/Context";
+import { useNavigate } from "react-router-dom";
+import cloneDeep from "lodash/cloneDeep";
+import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
 
 function LandingsearchResult() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
   const [searchResource, setSearchResource] = useState("");
+  const [allCat, setAllCat] = useState([]);
+  const { user } = useContext(Context);
 
   const [resources, setResources] = useState([]);
   const [states, setStates] = useState({
@@ -26,6 +33,7 @@ function LandingsearchResult() {
     error: false,
     errMsg: "",
   });
+  const navigate = useNavigate();
 
   const search = sessionStorage.getItem("search");
 
@@ -36,7 +44,7 @@ function LandingsearchResult() {
 
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3002/resources/search?query=${search}`
+          `http://15.188.62.53:3002/resources/search?query=${search}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -53,29 +61,78 @@ function LandingsearchResult() {
       }
     };
     getResources();
+
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
   }, [search]);
+  //pagination Data
+  const countPerPage = 50;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [collection, setCollection] = useState(
+    cloneDeep(resources.slice(0, countPerPage))
+  );
 
-  // const handleSubmit = async (e) => {
-  //   setStates({ loading: true, error: false });
+  //updatePage Function
+  const updatePage = useCallback(
+    (p) => {
+      setCurrentPage(p);
+      const to = countPerPage * p;
+      const from = to - countPerPage;
+      setCollection(cloneDeep(resources.slice(from, to)));
+    },
+    [resources]
+  );
 
-  //   try {
-  //     const res = await axios.get(
-  //       `http://15.186.62.53:3002/resources/search?query=${search}`
-  //     );
-  //     setStates({ loading: false, error: false });
-  //     setResources(res.data);
-  //     console.log(res.data);
-  //   } catch (err) {
-  //     console.log(err);
-  //     setStates({
-  //       loading: false,
-  //       error: true,
-  //       errMsg: err.response.data.errors
-  //         ? err.response.data.errors[0].msg
-  //         : err.response.data.message,
-  //     });
-  //   }
-  // };
+  //useEffect Search
+  useEffect(() => {
+    updatePage(1);
+  }, [updatePage]);
+
+  const handleSubmit = async (e) => {
+    if (searchResource.length > 0) {
+      navigate(`/resourceSearch?query=${searchResource}`);
+      sessionStorage.setItem("search", searchResource);
+    } else {
+      alert("input field is empty");
+    }
+    window.location.reload(false);
+  };
+
+  const newSearch = (cat) => {
+    sessionStorage.setItem("cat", cat);
+    navigate(`/search_by_category?${cat}`);
+  };
+
+  const getDetails = (id) => {
+    sessionStorage.setItem("resourceId", id);
+    navigate(`/resource_details?${id}`);
+  };
+
+  const getProfile = () => {
+    if (user) {
+      navigate("/admin/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   return (
     <div>
@@ -99,40 +156,45 @@ function LandingsearchResult() {
               </div>
             </div>
             <div className="inputt p-2">
-              <div className="input-group">
+              <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
                 <span className="in-search bg-light input-group-text">
                   Learning
                 </span>
+
                 <input
                   type="text"
                   className="form-control"
                   aria-label="Dollar amount (with dot and two decimal places)"
                   placeholder="Search skills, subjects or software"
+                  value={searchResource}
+                  onChange={(e) => setSearchResource(e.target.value)}
                 />
-                <span className="in-search bg-light input-group-text">
+                <button
+                  className="in-search bg-light input-group-text"
+                  type="submit"
+                >
                   <IoIosSearch />
-                </span>
-              </div>
+                </button>
+              </form>
             </div>
 
             <div className="sg d-flex  p-2">
-              <div className="profile p-1">
+              <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
               </div>
-              <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body>{/* <ModalOne /> */}</Modal.Body>
-              </Modal>
-
-              <button type="button" class="btn btn-primary">
-                Sign in
-              </button>
+              <Link
+                to="/login"
+                type="button"
+                class=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+              >
+                Sign In
+              </Link>
             </div>
           </div>
         </div>
 
         <div className="inputtt p-2">
-          {/* <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
+          <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
             <span className="in-search bg-light input-group-text">
               Learning
             </span>
@@ -151,9 +213,8 @@ function LandingsearchResult() {
             >
               <IoIosSearch />
             </button>
-          </form> */}
+          </form>
         </div>
-        <br />
         {/* <div className="main-dropdown">
           <div className="drop d-flex gap-2">
             <Dropdown>
@@ -193,9 +254,6 @@ function LandingsearchResult() {
             </Dropdown>
           </div>
         </div> */}
-        <br />
-        <br />
-        <br />
         <div className="four-color bg-light">
           <div className="dd-d d-flex gap-3 pt-3">
             <div>
@@ -217,239 +275,87 @@ function LandingsearchResult() {
           <div className="exploretopics d-flex">
             <div className="infotech">
               <div className="in4mation">
-                <h5>Information Technology</h5>
+                {/* <h5>Information Technology</h5> */}
               </div>
               <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
+                {resources?.length > 0 ? (
+                  <div>
+                    {collection.map((resource, index) => (
+                      <div>
+                        <div
+                          className="five-vid d-flex"
+                          key={index}
+                          onClick={() => getDetails(resource._id)}
+                        >
+                          {resource.avatar ? (
+                            <div>
+                              <img
+                                src={`http://15.188.62.53:3002/${resource.avatar}`}
+                                alt="avatar resource"
+                                className="object-cover h-full w-full"
+                              />
+                            </div>
+                          ) : (
+                            <div className="fvv-image w-[28%]">
+                              <img
+                                src="/default.png"
+                                alt="default"
+                                className="object-cover h-full w-full"
+                              />
+                            </div>
+                          )}
+
+                          <div className="fv-vid p-3">
+                            <span>{resource.institute.name}</span>
+                            <h5>{resource.topic}</h5>
+                            <p>By: {resource.author.username}</p>
+                            <h3 className="dates">{resource.date}</h3>
+                            <div className="saves d-flex gap-3">
+                              {resource.rating <= 0 ? (
+                                <p></p>
+                              ) : (
+                                <div className="sa_ve-btn">
+                                  <span>Rating: {resource.rating}</span>
+                                </div>
+                              )}
+
+                              {/* <button className="sa_ve-btn">
+                            <AiOutlineShareAlt />
+                            Share Time
+                          </button> */}
+                            </div>
+                          </div>
+                        </div>
+                        {/* <div className="mobile___dropdown">
+                      <div className="mobile--buttons d-flex gap-2">
+                        <button type="button" class="btn btn-secondary">
+                          Save
+                        </button>
+                        <button type="button" class="btn btn-secondary">
+                          Viewed by
+                        </button>
+                        <button type="button" class="btn btn-secondary">
+                          Share time
+                        </button>
+                      </div>
+                    </div> */}
+                        <br />
+                        <div className="bl-line"></div>
+                        <br />
+                      </div>
+                    ))}
                   </div>
-                </div>
-              </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
-              <br />
-              <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
+                ) : (
+                  <div>
+                    <p>No Resources with the name {resources}</p>
                   </div>
-                </div>
+                )}
               </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
-              <br />
-              <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
-              <br />
-              <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
-              <br />
-              <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
-              <br />
-              <div className="five-vid d-flex">
-                <div className="fvv-image">
-                  <img src={image} alt="" />
-                </div>
-                <div className="fv-vid p-3">
-                  <span>Course</span>
-                  <h5>Introduction to Architecture</h5>
-                  <p>By: Ed Liberman</p>
-                  <h3 className="dates">11,121 views Released Dec 14, 2023</h3>
-                  <div className="saves d-flex gap-3">
-                    <button className="sa_ve-btn">
-                      <AiOutlineStar />
-                      Save
-                    </button>
-                    <div className="viewers">Viewed By 1000</div>
-                    <button className="sa_ve-btn">
-                      <AiOutlineShareAlt />
-                      Share Time
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <div className="mobile___dropdown">
-                <div className="mobile--buttons d-flex gap-2">
-                  <button type="button" class="btn btn-secondary">
-                    Save
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Viewed by
-                  </button>
-                  <button type="button" class="btn btn-secondary">
-                    Share time
-                  </button>
-                </div>
-              </div>
-              <br />
-              <div className="bl-line"></div>
               <br />
               <div className="info--techss">
+                {/*
                 <div className="in4mation">
-                  <h5>Explore Topics</h5>
+                    <h5>Explore Topics</h5>
                 </div>
                 <div className="top-buttons d-flex gap-3">
                   <div>
@@ -482,59 +388,50 @@ function LandingsearchResult() {
                   <div>
                     <button className="tech__btn">Creative</button>
                   </div>
-                </div>
+                </div> */}
                 <div className="bl-line"></div>
                 <div className="browseby">
                   <h5>Browse by</h5>
                 </div>
                 <div className="brow">
                   <div>
-                    <h5>Books</h5>
-                    <h5>Magazines</h5>
-                    <h5>Documents</h5>
+                    {allCat.map((cat, index) => (
+                      <h5 key={index} onClick={() => newSearch(cat.name)}>
+                        {cat.name}
+                      </h5>
+                    ))}
                   </div>
                 </div>
                 <br />
-                <div className="browseby">
-                  <h5>Interest</h5>
-                </div>
-                <div className="brow">
-                  <div>
-                    <h5>Career & growth</h5>
-                    <h5>Business</h5>
-                    <h5>Finance & Money Management</h5>
-                    <h5>Politics</h5>
-                    <h5>Sports & Recreation</h5>
-                    <h5>Games & Activities</h5>
-                    <h5>Comics & Graphics Novels</h5>
-                    <h5>Social Science</h5>
-                    <h5>True Crime</h5>
-                    <h5>Travel</h5>
-                  </div>
-                </div>
               </div>
               <div className="in4mation">
-                <h5>
-                  Not seeing what you are looking for? Join now to see all 4,832
-                  results
-                </h5>
-                <div className="sgg p-2">
-                  <Modal show={show} onHide={handleClose}>
-                    <Modal.Header closeButton></Modal.Header>
-                    <Modal.Body>
-                      <ModalTwo />
-                    </Modal.Body>
-                  </Modal>
+                {/* <div className="sgg p-2">
+                <Modal show={show} onHide={handleClose}>
+                  <Modal.Header closeButton></Modal.Header>
+                  <Modal.Body>
+                    <ModalTwo />
+                  </Modal.Body>
+                </Modal>
 
-                  <Button variant="primary" onClick={handleShow}>
-                    Sign up
-                  </Button>
+                <Button variant="primary" onClick={handleShow}>
+                  Sign up
+                </Button>
+              </div> */}
+                <div className="paginate my-4">
+                  {resources > countPerPage && (
+                    <Pagination
+                      pageSize={countPerPage}
+                      onChange={updatePage}
+                      current={currentPage}
+                      total={resources.length}
+                    />
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="info--tech">
-              <div className="in4mation">
+              {/* <div className="in4mation">
                 <h5>Explore Topics</h5>
               </div>
               <div className="top-buttons d-flex gap-3">
@@ -568,7 +465,7 @@ function LandingsearchResult() {
                 <div>
                   <button className="tech__btn">Creative</button>
                 </div>
-              </div>
+              </div> */}
               <hr />
 
               <div className="browseby">
@@ -576,29 +473,14 @@ function LandingsearchResult() {
               </div>
               <div className="brow">
                 <div>
-                  <h5>Books</h5>
-                  <h5>Magazines</h5>
-                  <h5>Documents</h5>
+                  {allCat.map((cat, index) => (
+                    <h5 key={index} onClick={() => newSearch(cat.name)}>
+                      {cat.name}
+                    </h5>
+                  ))}
                 </div>
               </div>
               <br />
-              <div className="browseby">
-                <h5>Interest</h5>
-              </div>
-              <div className="brow">
-                <div>
-                  <h5>Career & growth</h5>
-                  <h5>Business</h5>
-                  <h5>Finance & Money Management</h5>
-                  <h5>Politics</h5>
-                  <h5>Sports & Recreation</h5>
-                  <h5>Games & Activities</h5>
-                  <h5>Comics & Graphics Novels</h5>
-                  <h5>Social Science</h5>
-                  <h5>True Crime</h5>
-                  <h5>Travel</h5>
-                </div>
-              </div>
             </div>
           </div>
         </div>

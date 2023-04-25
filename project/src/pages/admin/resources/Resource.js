@@ -26,7 +26,7 @@ function Resource() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `http://15.186.62.53:3002/resources/one/${id}`,
+          `http://15.188.62.53:3002/resources/one/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -47,7 +47,7 @@ function Resource() {
       setRequestModal(true);
       const res = await axios({
         method: "post",
-        url: `http://15.186.62.53:3002/resources/request-institute-publish/${resource.id}`,
+        url: `http://15.188.62.53:3002/resources/request-institute-publish/${resource.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });
@@ -82,10 +82,7 @@ function Resource() {
                 <div className="resource_row">
                   <p>By: {resource.author.username}</p>
                   <p>Institute: {resource.institute.name}</p>
-                  <p>
-                    Rating: {resource.rating}/5{" "}
-                    {`(${resource.number_of_ratings})`}
-                  </p>
+                  {resource.rating > 0 && <p>Rating: {resource.rating}/5</p>}
                 </div>
                 <div className="resource_row -mt-2">
                   <p>Category: {resource.category}</p>

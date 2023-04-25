@@ -1,11 +1,7 @@
-import React, { useState } from "react";
-import image from "../images/macdonald1.jpg";
-import image3 from "../images/about.jpg";
-import image4 from "../images/background.jpg";
-import image7 from "../images/numbers.webp";
-import image5 from "../images/certificate.jpg";
+import { useState, useEffect, useContext } from "react";
+import { Context } from "../../context/Context";
+import axios from "axios";
 import image6 from "../images/kxcc.png";
-import image8 from "../images/beach.webp";
 import { IoIosSearch } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
 import ModalOne from "./ModalOne";
@@ -13,12 +9,89 @@ import Ham from "./Ham";
 import Modal from "react-bootstrap/Modal";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
+import ResourceFiles from "../admin/institutes/resources/resource_files/ResourceFiles";
+import RequestModalR from "../admin/institutes/resources/RequestModalR";
+import "../../pages/admin/resources/resource.css";
+import { useNavigate } from "react-router-dom";
 
 function LandingsearchIndividualpage() {
-  const [show, setShow] = useState(false);
+  // const [show, setShow] = useState(false);
+  // const handleClose = () => setShow(false);
+  // const handleShow = () => setShow(true);
 
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const { user } = useContext(Context);
+  const id = sessionStorage.getItem("resourceId");
+  const [searchResource, setSearchResource] = useState("");
+  const [resource, setResource] = useState({});
+  const [requestModal, setRequestModal] = useState(false);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+  const navigate = useNavigate();
+
+  //requestModal states
+
+  useEffect(() => {
+    const getResources = async () => {
+      try {
+        const res = await axios.get(
+          `http://15.188.62.53:3002/resources/one/${id}`
+        );
+        console.log(res.data);
+        setResource(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    getResources();
+  }, [id]);
+
+  // const publishRequest = async () => {
+  //   try {
+  //     setStates({ loading: true, error: false });
+  //     setRequestModal(true);
+  //     const res = await axios({
+  //       method: "post",
+  //       url: `http://15.188.62.53:3002/resources/request-institute-publish/${resource.id}`,
+  //       headers: { Authorization: `Bearer ${user.jwt_token}` },
+  //     });
+  //     setStates({ loading: false, error: false, success: true });
+  //     setTimeout(() => {
+  //       setRequestModal(false);
+  //       window.location.reload(false);
+  //     }, 3000);
+  //   } catch (err) {
+  //     console.log(err.response);
+  //     setStates({
+  //       loading: false,
+  //       error: false,
+  //       errMsg: err.response.data.message,
+  //     });
+  //   }
+  // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (searchResource.length > 0) {
+      navigate(`/resourceSearch?query=${searchResource}`);
+      sessionStorage.setItem("search", searchResource);
+    } else {
+      alert("input field is empty");
+    }
+    window.location.reload(false);
+  };
+
+  const getProfile = () => {
+    if (user) {
+      navigate("/admin/profile");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <div>
       <div className="LandingPgTwo">
@@ -38,237 +111,124 @@ function LandingsearchIndividualpage() {
               </div>
             </div>
             <div className="inputt p-2">
-              <div className="input-group">
+              <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
                 <span className="in-search bg-light input-group-text">
                   Learning
                 </span>
+
                 <input
                   type="text"
                   className="form-control"
                   aria-label="Dollar amount (with dot and two decimal places)"
                   placeholder="Search skills, subjects or software"
+                  value={searchResource}
+                  onChange={(e) => setSearchResource(e.target.value)}
                 />
-                <span className="in-search bg-light input-group-text">
+                <button
+                  className="in-search bg-light input-group-text"
+                  type="submit"
+                >
                   <IoIosSearch />
-                </span>
-              </div>
+                </button>
+              </form>
             </div>
             <div className="sg d-flex  p-2">
-              <div className="profile p-1">
+              <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
               </div>
-              <Modal show={show} onHide={handleClose}>
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body>
-                  <ModalOne />
-                </Modal.Body>
-              </Modal>
-
-              <button
+              <Link
+                to="/login"
                 type="button"
-                class="btn btn-primary"
-                onClick={handleShow}
+                class=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
               >
-                Sign in
-              </button>
+                Sign In
+              </Link>
             </div>
           </div>
         </div>
         <div className="inputtt p-2">
-          <div className="input-group">
+          <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
             <span className="in-search bg-light input-group-text">
               Learning
             </span>
+
             <input
               type="text"
               className="form-control"
               aria-label="Dollar amount (with dot and two decimal places)"
               placeholder="Search skills, subjects or software"
+              value={searchResource}
+              onChange={(e) => setSearchResource(e.target.value)}
             />
-            <span className="in-search bg-light input-group-text">
+            <button
+              className="in-search bg-light input-group-text"
+              type="submit"
+            >
               <IoIosSearch />
-            </span>
-          </div>
+            </button>
+          </form>
         </div>
-        <div className="cont-tainer">
-          <div className="container text-center p-3">
-            <div class="row">
-              <div class="col">What is Scribd?</div>
-              <div class="col">Ebooks</div>
-              <div class="col">Audiobooks</div>
-              <div class="col">Magazine</div>
-              <div class="col">Podcasts</div>
-              <div class="col">Sheet music</div>
-              <div class="col">Documents</div>
-              <div class="col">Snapshots</div>
-            </div>
-          </div>
-        </div>
-        <div className="landing-bk">
-          <div className="landing_display d-flex">
-            <div className="landing_endless p-4">
-              <h5>
-                Endless entertainment
-                <br /> and knowledge at your fingertips
-              </h5>
-              <button type="button" class="btn btn-dark">
-                Sign up for free
-              </button>
-              <p>
-                <span className="sp text-success">
-                  To get access from anywhere at anytime
-                </span>
-              </p>
-            </div>
-            <div className="landing-image">
-              <img src={image} alt="" />
-            </div>
-          </div>
 
-          <div className="mobileviewss">
-            <div className="mobbs">
-              <h5>
-                Endless entertainment
-                <br /> and knowledge at your fingertips
-              </h5>
-              <button type="button" class="btn btn-dark">
-                Sign up for free
-              </button>
-              <p>
-                <span className="sp text-success">
-                  To get access from anywhere at anytime
-                </span>
-              </p>
-            </div>
-            <div>
-              <img src={image} alt="" />
-            </div>
-          </div>
-          <br />
-        </div>
-        <div className="scroll-section">
-          <div className="appp d-flex">
-            <div>
-              <img src={image8} alt="" />
-            </div>
-            <div>
-              <img src={image8} alt="" />
-            </div>
-            <div>
-              <img src={image8} alt="" />
-            </div>
-            <div>
-              <img src={image8} alt="" />
-            </div>
-          </div>
-        </div>
-        <br />
-        <div className="students d-flex">
-          <div className="guides">
-            <h2>
-              Students' Guide to Information
-              <br /> Technology
-            </h2>
-            <div>
-              <h5>About this resources</h5>
-              <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero
-                perspiciatis
-                <br /> reprehenderit quam voluptate assumenda unde, nam
-                consequatur
-                <br /> quibusdam nihil? Maxime eaque atque sequi odit at eum ad
-                repellendus aliquam qui.
-              </p>
-              <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero
-                perspiciatis
-                <br /> reprehenderit quam voluptate assumenda unde, nam
-                consequatur
-                <br /> quibusdam nihil? Maxime eaque atque sequi odit at eum ad
-                repellendus aliquam qui.
-              </p>
-              <p>
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Libero
-                perspiciatis
-                <br /> reprehenderit quam voluptate assumenda unde, nam
-                consequatur
-                <br /> quibusdam nihil? Maxime eaque atque sequi odit at eum ad
-                repellendus aliquam qui.
-              </p>
-            </div>
-            <div className="stu-imagez">
-              <img src={image7} alt="" />
+        {resource.id ? (
+          <div className="grid gap-12 w-[87%] mx-auto">
+            <div className="flex flex-col w-full">
+              <h2 className="my-2">{resource.topic}</h2>
               <div>
-                <button className="stu-btn">Start your free 30 days</button>
+                <div className="resource_row">
+                  <p>By: {resource.author.username}</p>
+                  <p>Institute: {resource.institute.name}</p>
+                  {resource.rating > 0 && <p>Rating: {resource.rating}/5</p>}
+                </div>
+                <div className="resource_row -mt-2">
+                  <p>Category: {resource.category}</p>
+                  <p>
+                    Sub-categories:{" "}
+                    {resource.sub_categories.map((sub, index) => (
+                      <span key={index}>{sub}</span>
+                    ))}
+                  </p>
+                </div>
+                <p className="-mt-2 text-gray-500">
+                  Resource type: {resource.resource_type}
+                </p>
               </div>
               <div>
-                <button className="stu-btnn">Read preview</button>
+                {/* {(user.id === resource.author._id || user.superadmin) && (
+                  <button
+                    className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                    onClick={() => publishRequest()}
+                  >
+                    Publish
+                  </button>
+                )} */}
               </div>
             </div>
-          </div>
-          <div className="stu-image">
-            <img src={image7} alt="" />
-            <div>
-              <button className="stu-btn">Start your free 30 days</button>
-            </div>
-            <div>
-              <button className="stu-btnn">Read preview</button>
-            </div>
-          </div>
-        </div>
-        <br />
-        <div
-          className="horizontal-line"
-          style={{ width: "90%", margin: "auto" }}
-        ></div>
-        <br />
+            {resource.description && (
+              <div className="flex flex-col gap-0">
+                <h1>About</h1>
+                <div>
+                  <p
+                    dangerouslySetInnerHTML={{ __html: resource.description }}
+                  ></p>
+                </div>
+              </div>
+            )}
 
-        <div>
-          <div className="container">
-            <h5>Related to "Student's Guide To Information Technology"</h5>
-            <div className="row">
-              <div class="col">
-                <div className="slider">
-                  <img src={image4} alt="" />
-                  <span className="pub">PUBLICATIONS</span>
-                  <h5>The six morning habits of high performance</h5>
-                </div>
-              </div>
-              <div class="col">
-                <div className="slider">
-                  <img src={image3} alt="" />
-                  <span className="pub">PUBLICATIONS</span>
-                  <h5>The six morning habits of high performance</h5>
-                </div>
-              </div>
-              <div class="col">
-                <div className="slider">
-                  <img src={image4} alt="" />
-                  <span className="pub">PUBLICATIONS</span>
-                  <h5>The six morning habits of high performance</h5>
-                </div>
-              </div>
-              <div class="col">
-                <div className="slider">
-                  <img src={image5} alt="" />
-                  <span className="pub">PUBLICATIONS</span>
-                  <h5>The six morning habits of high performance</h5>
-                </div>
-              </div>
-              <div class="col">
-                <div className="slider">
-                  <img src={image5} alt="" />
-                  <span className="pub">PUBLICATIONS</span>
-                  <h5>The six morning habits of high performance</h5>
-                </div>
-              </div>
+            <div className="flex flex-col gap-0 w-full">
+              <h1>Files</h1>
+              <ResourceFiles resource={resource} />
             </div>
           </div>
-        </div>
-        <br />
-
-        <Footer />
+        ) : (
+          <div></div>
+        )}
+        {requestModal && (
+          <RequestModalR states={states} setRequestModal={setRequestModal} />
+        )}
       </div>
+      <br />
+
+      <Footer />
     </div>
   );
 }

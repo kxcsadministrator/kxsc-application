@@ -68,13 +68,14 @@
   .dash {
     @apply h-[1.5px] w-full mx-auto rounded-lg  bg-[#242527];
   }
-  .contents {
-    @apply flex gap-3 items-center text-base;
+
+  .content {
+    @apply flex gap-3 items-center text-base font-normal;
   }
   .content_1 {
     @apply flex gap-3 items-center px-2 py-1;
   }
-  .contents h5 {
+  .content h5 {
     @apply text-base md:text-sm lg:text-base;
   }
   .content_1 h5 {

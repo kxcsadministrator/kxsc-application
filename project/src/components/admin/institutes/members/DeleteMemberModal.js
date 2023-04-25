@@ -31,7 +31,7 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.186.62.53:3001/institutes/remove-members/${instituteId}`,
+        `http://15.188.62.53:3001/institutes/remove-members/${instituteId}`,
         {
           members: [member],
         },

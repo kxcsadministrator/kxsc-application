@@ -73,7 +73,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setMsgMenu(!msgMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <RiMessage2Line />
                   <h5>Manage Message</h5>
                 </div>
@@ -98,7 +98,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setCatMenu(!catMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <AiFillFormatPainter />
                   <h5>Manage Categories</h5>
                 </div>
@@ -123,7 +123,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setResourceMenu(!resourceMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <AiFillHdd />
                   <h5>Manage Resources</h5>
                 </div>
@@ -148,7 +148,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setMppMenu(!mppMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <FaGalacticRepublic />
                   <h5>Manage Public Portal</h5>
                 </div>
@@ -179,7 +179,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setMriMenu(!mriMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <SiRoamresearch />
                   <h5>Manage Research Institutes</h5>
                 </div>
@@ -204,7 +204,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setUsersMenu(!usersMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <FiUsers />
                   <h5>Manage Users</h5>
                 </div>
@@ -262,7 +262,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setMsgMenu(!msgMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <RiMessage2Line />
                   <h5>Messages</h5>
                 </div>
@@ -287,7 +287,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setResourceMenu(!resourceMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <AiFillHdd />
                   <h5>My Resources</h5>
                 </div>
@@ -318,7 +318,7 @@ function Sidebar() {
                 className="menu_contents"
                 onClick={() => setMriMenu(!mriMenu)}
               >
-                <div className="contents">
+                <div className="content">
                   <SiRoamresearch />
                   <h5>My Institutes</h5>
                 </div>

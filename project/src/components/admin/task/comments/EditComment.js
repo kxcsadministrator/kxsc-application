@@ -34,7 +34,7 @@ function EditComment({ setEditComModal, comment }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.186.62.53:3001/tasks/comments/edit/${comment._id}`,
+        `http://15.188.62.53:3001/tasks/comments/edit/${comment._id}`,
         {
           body: editComment,
         },

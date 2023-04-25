@@ -31,7 +31,7 @@ function EditPassword({ setEditPassModal, editUser }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.186.62.53:3000/users/change-password`,
+        `http://15.188.62.53:3000/users/change-password`,
         {
           old_password: oldPassword,
           new_password: newPassword,

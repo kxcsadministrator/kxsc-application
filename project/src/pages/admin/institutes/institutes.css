@@ -57,7 +57,7 @@
   }
 
   .form_button_btn {
-    @apply flex gap-3 items-center mt-6 justify-between;
+    @apply flex gap-3 items-center mt-6 justify-center;
   }
 
   .institute_submit_button {

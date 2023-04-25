@@ -28,7 +28,7 @@ function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.186.62.53:3002/resources/${resource.id}/delete-file/${file._id}`,
+        `http://15.188.62.53:3002/resources/${resource.id}/delete-file/${file._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

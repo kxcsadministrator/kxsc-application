@@ -37,7 +37,7 @@ function LandingPage() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.186.62.53:3002/categories/all`);
+        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);
@@ -57,12 +57,13 @@ function LandingPage() {
 
   const getCat = (name) => {
     sessionStorage.setItem("cat", name);
+    navigate(`/search_by_category?${name}`);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (searchResource.length > 0) {
-      navigate("/landingsearch");
+      navigate(`/resourceSearch?query=${searchResource}`);
       sessionStorage.setItem("search", searchResource);
     } else {
       setErrText("Input field is empty");
@@ -246,13 +247,13 @@ function LandingPage() {
             </div> */}
             {allCat.map((cat, index) => (
               <div className="col">
-                <Link
-                  to="/landing"
+                <div
                   className="link text-gray-500 hover:text-green_bg"
                   onClick={() => getCat(cat.name)}
+                  key={index}
                 >
                   {cat.name}
-                </Link>
+                </div>
               </div>
             ))}
           </div>

@@ -15,7 +15,7 @@ function Topbar() {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `http://15.186.62.53:3000/messages/notifications/${user.id}`,
+      `http://15.188.62.53:3000/messages/notifications/${user.id}`,
       {
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       }
@@ -47,7 +47,7 @@ function Topbar() {
     try {
       const res = await axios({
         method: "delete",
-        url: `http://15.186.62.53:3000/messages/notifications`,
+        url: `http://15.188.62.53:3000/messages/notifications`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
     } catch (err) {
@@ -84,7 +84,7 @@ function Topbar() {
           {user.profile_picture ? (
             <div className="md:w-8 w-6 cursor-pointer">
               <img
-                src={`http://15.186.62.53:3000/${user.profile_picture.path}`}
+                src={`http://15.188.62.53:3000/${user.profile_picture.path}`}
                 alt="profile_picture"
                 className="w-full  rounded-full"
               />
