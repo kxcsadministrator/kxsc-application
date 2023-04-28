@@ -4,35 +4,32 @@ import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AddPageModal from "../../../components/admin/public-portal/AddPageModal";
+import { RiDeleteBinLine } from "react-icons/ri";
+import { FaRegEdit } from "react-icons/fa";
+import DeleteBlog from "../../../components/admin/blog/DeleteBlog";
 
-function SingleSection() {
+function Blog() {
   const { user } = useContext(Context);
   const navigate = useNavigate();
-  const [pages, setPages] = useState([]);
+  const [blogs, setBlogs] = useState([]);
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
   });
-  const section = sessionStorage.getItem("section");
-  const [addPageModal, setAddPageModal] = useState(false);
-  const [edit, setEdit] = useState({});
+  const [deleteBlogModal, setDeleteBlogModal] = useState(false);
+  const [blog, setBlog] = useState();
 
-  //load pages
   useEffect(() => {
-    const getPages = async () => {
+    const getBlogs = async () => {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/pages/section/${section}`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`http://15.188.62.53:3000/blog/all`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
-        setPages(res.data);
+        setBlogs(res.data);
         console.log(res.data);
       } catch (err) {
         setStates({
@@ -42,14 +39,18 @@ function SingleSection() {
         });
       }
     };
-    getPages();
-  }, [section, user.jwt_token]);
+    getBlogs();
+  }, [user.jwt_token]);
 
-  const navPage = (page) => {
-    sessionStorage.setItem("page", page.title);
-    navigate(`/admin/sections/${section.name}/${page.title}`);
+  const navBlog = (blog) => {
+    sessionStorage.setItem("blogId", blog._id);
+    navigate(`/admin/blog/${blog.title}`);
   };
 
+  const deleteBlog = (blog) => {
+    setBlog(blog);
+    setDeleteBlogModal(true);
+  };
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -69,28 +70,30 @@ function SingleSection() {
           ) : (
             <div className="flex flex-col gap-8">
               <div className="all_heading">
-                <h1>{section}</h1>
-                <button
-                  className="btn_green"
-                  onClick={() => setAddPageModal(true)}
-                >
-                  Add Pages
-                </button>
+                <h1>Blogs</h1>
               </div>
-              {pages.children?.length > 0 ? (
+              {blogs?.length > 0 ? (
                 <div>
-                  {pages.children?.map((page, index) => (
+                  {blogs.map((blog, index) => (
                     <div className="flex flex-col gap-6" key={index}>
                       <div className="flex flex-col ">
-                        <div className="flex items-start justify-between">
+                        <div className="flex items-center justify-between">
                           <p className="text-lg font-bold text-[#1f1f1f]">
                             <span className="font-normal mr-2">Title:</span>
-                            {page.title}
+                            {blog.title}
                           </p>
+                          <button
+                            onClick={() => deleteBlog(blog)}
+                            className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
+                          >
+                            <RiDeleteBinLine />
+                          </button>
                         </div>
+
+                        <p>By: {blog.author.username}</p>
                         <p
                           className="text-sm ml-2 text-green_bg cursor-pointer hover:text-gray-400 -mt-2"
-                          onClick={() => navPage(page)}
+                          onClick={() => navBlog(blog)}
                         >
                           View pages
                         </p>
@@ -106,8 +109,8 @@ function SingleSection() {
               )}
             </div>
           )}
-          {addPageModal && (
-            <AddPageModal setAddPageModal={setAddPageModal} section={section} />
+          {deleteBlogModal && (
+            <DeleteBlog setDeleteBlogModal={setDeleteBlogModal} blog={blog} />
           )}
         </div>
       </div>
@@ -115,4 +118,4 @@ function SingleSection() {
   );
 }
 
-export default SingleSection;
+export default Blog;

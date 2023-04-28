@@ -3,7 +3,6 @@ import Topbar from "../../../components/admin/Topbar";
 import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
-
 import { useNavigate } from "react-router-dom";
 
 function CreateFooterSection() {
@@ -28,8 +27,8 @@ function CreateFooterSection() {
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setStates({ loading: false, error: false });
-      navigate("/admin/");
+      setStates({ loading: false, error: false, success: true });
+      navigate("/admin/sections");
     } catch (err) {
       setStates({
         loading: false,
@@ -66,6 +65,10 @@ function CreateFooterSection() {
               ) : states.err ? (
                 <div>
                   <p>{states.errMsg}</p>
+                </div>
+              ) : states.success ? (
+                <div>
+                  <p className="text-green-500">success</p>
                 </div>
               ) : (
                 <div></div>

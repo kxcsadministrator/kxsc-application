@@ -43,6 +43,13 @@ import LandingSearchCategory from "./components/landing/LandingSearchCategory";
 import CreateFooterSection from "./pages/admin/public-portal/CreateFooterSection";
 import FooterSection from "./pages/admin/public-portal/FooterSection";
 import SingleSection from "./pages/admin/public-portal/SingleSection";
+import CreateBlog from "./pages/admin/blog/CreateBlog";
+import Blog from "./pages/admin/blog/Blog";
+import SingleBlog from "./pages/admin/blog/SingleBlog";
+import SinglePage from "./pages/admin/public-portal/SinglePage";
+import LandingBlog from "./components/landing/LandingBlog";
+import LandingBlogDetails from "./components/landing/LandingBlogDetails";
+import LandingSectionPage from "./components/landing/LandingSectionPage";
 
 function App() {
   const { user } = useContext(Context);
@@ -86,15 +93,23 @@ function App() {
           />
           <Route path="/admin/sections" element={<FooterSection />} />
           <Route path="/admin/sections/:name" element={<SingleSection />} />
+          <Route path="/admin/sections/:name/:page" element={<SinglePage />} />
+          <Route path="/admin/create-blog" element={<CreateBlog />} />
+          <Route path="/admin/blog" element={<Blog />} />
+          <Route path="/admin/blog/:name" element={<SingleBlog />} />
 
           <Route path="/" element={<LandingPage />} />
           <Route
             path="/resource_details"
             element={<LandingsearchIndividualpage />}
           />
+          <Route path="/blog" element={<LandingBlog />} />
+          <Route path="/blog/:name" element={<LandingBlogDetails />} />
           <Route path="cateLanding" element={<CategoryLanding />} />
-          <Route path="footer" element={<Footer />} />
-          <Route path="categorysinglepage" element={<CategorysinglePage />} />
+          <Route
+            path="/sections/:name/:name"
+            element={<LandingSectionPage />}
+          />
           <Route path="/resourceSearch" element={<LandingsearchResult />} />
           <Route
             path="/search_by_category"

@@ -75,9 +75,11 @@ function Resource() {
           <Topbar />
         </div>
         {resource.id ? (
-          <div className="py-4 px-6 grid gap-12">
+          <div className="py-4 px-6 grid gap-8">
             <div className="flex flex-col">
-              <h2 className="my-2">{resource.topic}</h2>
+              <h2 className="my-2 text-lg md:text-2xl lg:text-3xl">
+                {resource.topic}
+              </h2>
               <div>
                 <div className="resource_row">
                   <p>By: {resource.author.username}</p>
@@ -110,7 +112,7 @@ function Resource() {
             </div>
             {resource.description && (
               <div className="flex flex-col gap-0">
-                <h1>About</h1>
+                <h1 className="text-lg md:text-2xl lg:text-3xl">About</h1>
                 <div>
                   <p
                     dangerouslySetInnerHTML={{ __html: resource.description }}
@@ -120,7 +122,7 @@ function Resource() {
             )}
 
             <div className="flex flex-col gap-0">
-              <h1>Files</h1>
+              <h1 className="text-lg md:text-2xl lg:text-3xl">Files</h1>
               <ResourceFiles resource={resource} />
             </div>
           </div>

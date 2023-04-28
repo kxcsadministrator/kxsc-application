@@ -48,12 +48,12 @@ function Profile() {
         </div>
         <div className="py-2 px-4">
           <div className="flex md:flex-row flex-col gap-5 items-center mt-9">
-            <div className="w-[25%] flex flex-col gap-5">
+            <div className="md:w-[25%] w-[90%] flex flex-col gap-5">
               {user?.profile_picture ? (
                 <img
                   src={`http://15.188.62.53:3000/${user.profile_picture.path}`}
                   alt="profile_picture"
-                  className="w-full  rounded-full"
+                  className="w-full object-cover h-[200px] rounded-md"
                 />
               ) : (
                 <img src="/default.png" className="rounded-md" alt="default" />
@@ -74,7 +74,7 @@ function Profile() {
                 </button>
               </div>
             </div>
-            <div className="flex flex-col gap-2 text-lg">
+            <div className="flex flex-col gap-2 text-lg md:-mt-12 w-[90%] md:w-fit text-sm md:text-base">
               <div className="flex gap-3 items-center">
                 <p className="w-[80%] mt-3">
                   <span className="pr-3">username:</span> {user.username}

@@ -22,6 +22,7 @@ function Sidebar() {
   const [mriMenu, setMriMenu] = useState(false);
   const [usersMenu, setUsersMenu] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
+  const [blogOpen, setBlogOpen] = useState(false);
   const navigate = useNavigate();
 
   //show hamburger menu
@@ -158,17 +159,11 @@ function Sidebar() {
               </div>
               {/* Resource Menu*/}
               <div className="dropdown_menu">
-                <Link className="link" to="/">
-                  <p>Manage Header Section</p>
-                </Link>
-                <Link className="link" to="/">
+                <Link className="link" to="/admin/sections">
                   <p>Manage Footer Section</p>
                 </Link>
-                <Link className="link" to="/">
-                  <p>Create Pages</p>
-                </Link>
-                <Link className="link" to="/">
-                  <p>List of Pages</p>
+                <Link className="link" to="/admin/create-section">
+                  <p>Create Footer Section</p>
                 </Link>
               </div>
               <div className="dash" />
@@ -230,10 +225,30 @@ function Sidebar() {
             </div>
 
             {/* Blog Items */}
-            <Link to="/admin" className="content_1 link">
-              <SiRoamresearch />
-              <h5>Manage Blog Items</h5>
-            </Link>
+            <div className={"menus " + (blogOpen && "active")}>
+              <div
+                className="menu_contents"
+                onClick={() => setBlogOpen(!blogOpen)}
+              >
+                <div className="content">
+                  <SiRoamresearch />
+                  <h5>Manage Blog Items</h5>
+                </div>
+                <div className="toggleImg">
+                  <CgChevronDown />
+                </div>
+              </div>
+
+              {/* User Menu*/}
+              <div className="dropdown_menu">
+                <Link className="link" to="/admin/create-blog">
+                  <p>Create Blog</p>
+                </Link>
+                <Link className="link" to="/admin/blog">
+                  <p>All Blogs</p>
+                </Link>
+              </div>
+            </div>
 
             {/* Blog Items */}
             <Link to="/admin" className="content_1 link">
@@ -355,7 +370,7 @@ function Sidebar() {
         )}
       </div>
       <div className="toggleMenu" onClick={() => displayMenu()}>
-        <div className="hamburger">
+        <div className="hamburgers">
           <RiMenu2Line />
         </div>
         <div className="close">

@@ -17,18 +17,22 @@ function ResourceFiles({ resource }) {
   };
 
   const downloadBtn = async (file) => {
-    try {
-      const res = await axios.get(
-        `http://15.188.62.53:3002/resources/download-file/${file._id}`,
-        {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
-          responseType: "blob",
-        }
-      );
-      fileDownload(res.data, `${file.original_name}`);
-      console.log(res.data);
-    } catch (err) {
-      console.log(err);
+    if (user) {
+      try {
+        const res = await axios.get(
+          `http://15.188.62.53:3002/resources/download-file/${file._id}`,
+          {
+            headers: { Authorization: `Bearer ${user?.jwt_token}` },
+            responseType: "blob",
+          }
+        );
+        fileDownload(res.data, `${file.original_name}`);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      alert("Sign Up or Login to download files");
     }
   };
 
@@ -36,7 +40,7 @@ function ResourceFiles({ resource }) {
 
   return (
     <div>
-      {(user.superadmin || user.id === resource.author._id) && (
+      {(user?.superadmin || user?.id === resource.author._id) && (
         <button
           className="p-2 my-2 bg-[#52cb83] rounded-md w-44 text-white"
           onClick={() => setAddFileModal(true)}
@@ -65,7 +69,7 @@ function ResourceFiles({ resource }) {
                     >
                       Download
                     </button>
-                    {user.superadmin && (
+                    {user?.superadmin && (
                       <button
                         className="btn_red"
                         onClick={() => deleteBtn(file)}

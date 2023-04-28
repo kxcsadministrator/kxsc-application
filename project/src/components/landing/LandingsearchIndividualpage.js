@@ -170,27 +170,23 @@ function LandingsearchIndividualpage() {
         </div>
 
         {resource.id ? (
-          <div className="grid gap-12 w-[87%] mx-auto">
+          <div className="grid gap-8 w-[87%] mx-auto">
             <div className="flex flex-col w-full">
-              <h2 className="my-2">{resource.topic}</h2>
-              <div>
-                <div className="resource_row">
-                  <p>By: {resource.author.username}</p>
-                  <p>Institute: {resource.institute.name}</p>
-                  {resource.rating > 0 && <p>Rating: {resource.rating}/5</p>}
-                </div>
-                <div className="resource_row -mt-2">
-                  <p>Category: {resource.category}</p>
-                  <p>
-                    Sub-categories:{" "}
-                    {resource.sub_categories.map((sub, index) => (
-                      <span key={index}>{sub}</span>
-                    ))}
-                  </p>
-                </div>
-                <p className="-mt-2 text-gray-500">
-                  Resource type: {resource.resource_type}
+              <h2 className="my-2 text-lg md:text-2xl lg:text-3xl">
+                {resource.topic}
+              </h2>
+              <div className="flex flex-wrap gap-3  text-sm md:text-[15px] ">
+                <p>By: {resource.author.username}</p>
+                <p>Institute: {resource.institute.name}</p>
+                {resource.rating > 0 && <p>Rating: {resource.rating}/5</p>}
+                <p>Category: {resource.category}</p>
+                <p>
+                  Sub-categories:{" "}
+                  {resource.sub_categories.map((sub, index) => (
+                    <span key={index}>{sub}</span>
+                  ))}
                 </p>
+                <p className="">Resource type: {resource.resource_type}</p>
               </div>
               <div>
                 {/* {(user.id === resource.author._id || user.superadmin) && (
@@ -205,7 +201,7 @@ function LandingsearchIndividualpage() {
             </div>
             {resource.description && (
               <div className="flex flex-col gap-0">
-                <h1>About</h1>
+                <h1 className="my-2 text-lg md:text-xl lg:text-2xl">About</h1>
                 <div>
                   <p
                     dangerouslySetInnerHTML={{ __html: resource.description }}
@@ -215,7 +211,7 @@ function LandingsearchIndividualpage() {
             )}
 
             <div className="flex flex-col gap-0 w-full">
-              <h1>Files</h1>
+              <h1 className="my-2 text-lg md:text-xl lg:text-2xl">Files</h1>
               <ResourceFiles resource={resource} />
             </div>
           </div>

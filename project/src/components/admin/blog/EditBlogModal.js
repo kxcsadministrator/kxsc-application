@@ -4,9 +4,9 @@ import { Context } from "../../../context/Context";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-function AddPageModal({ setAddPageModal, section }) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+function EditBlogModal({ setEditBlogModal, id, edit }) {
+  const [title, setTitle] = useState(edit.title);
+  const [body, setBody] = useState(edit.body);
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -20,7 +20,7 @@ function AddPageModal({ setAddPageModal, section }) {
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setAddPageModal(false);
+        setEditBlogModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -28,16 +28,16 @@ function AddPageModal({ setAddPageModal, section }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setAddPageModal]);
+  }, [setEditBlogModal]);
 
-  const addPage = async () => {
+  const editBlog = async () => {
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.post(
-        `http://15.188.62.53:3000/pages/new-page/${section}`,
+      const res = await axios.patch(
+        `http://15.188.62.53:3000/blog/edit/${id}`,
         {
-          title: title,
-          body: body,
+          title: title !== edit.title ? title : null,
+          body: body !== edit.body ? body : null,
         },
         {
           headers: {
@@ -47,7 +47,7 @@ function AddPageModal({ setAddPageModal, section }) {
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setAddPageModal(false);
+        setEditBlogModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -62,16 +62,17 @@ function AddPageModal({ setAddPageModal, section }) {
       });
     }
   };
+
   return (
     <div className="modal_container">
-      <div className="modal_content md:w-[50%]" ref={menuRef}>
+      <div className="modal_content md:w-[50%] " ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Add Page
+          Edit Article
         </h1>
         <div className="flex flex-col w-full gap-3">
           <form className="grid gap-3 w-[100%] relative mx-auto">
             <input
-              placeholder="title"
+              placeholder={title}
               className="w-[90%] h-10 border-2 border-gray-200 px-3 py-1"
               value={title}
               onChange={(e) => {
@@ -107,7 +108,7 @@ function AddPageModal({ setAddPageModal, section }) {
             )}
             <div>
               <button
-                onClick={() => addPage()}
+                onClick={() => editBlog()}
                 className="btn_green"
                 disabled={states.loading}
               >
@@ -121,4 +122,4 @@ function AddPageModal({ setAddPageModal, section }) {
   );
 }
 
-export default AddPageModal;
+export default EditBlogModal;

@@ -4,21 +4,12 @@ import { IoIosSearch } from "react-icons/io";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
 import Landmobile from "./Landmobile";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLayerGroup,
-  faBook,
-  faFileWord,
-  faNewspaper,
-  faQuoteLeft,
-  faPlaneArrival,
-  faNoteSticky,
-  faMobile,
-} from "@fortawesome/free-solid-svg-icons";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { GoPrimitiveDot } from "react-icons/go";
+import { SiBookstack } from "react-icons/si";
 
 function LandingPage() {
   const [allCat, setAllCat] = useState([]);
@@ -246,13 +237,16 @@ function LandingPage() {
               Mediawiki
             </div> */}
             {allCat.map((cat, index) => (
-              <div className="col">
+              <div className="col" key={index}>
                 <div
-                  className="link text-gray-500 hover:text-green_bg"
+                  className="link text-gray-700 hover:text-green_bg flex items-center gap-2 md:text-xl text-base"
                   onClick={() => getCat(cat.name)}
                   key={index}
                 >
-                  {cat.name}
+                  <p>
+                    <SiBookstack />
+                  </p>
+                  <p>{cat.name}</p>
                 </div>
               </div>
             ))}

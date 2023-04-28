@@ -4,13 +4,6 @@ import axios from "axios";
 import image6 from "../images/kxcc.png";
 import { IoIosSearch } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
-import image from "../images/beach.webp";
-import ModalTwo from "./ModalTwo";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-import Dropdown from "react-bootstrap/Dropdown";
-import { AiOutlineStar } from "react-icons/ai";
-import { AiOutlineShareAlt } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Footer from "./Footer";
 import Ham from "./Ham";
@@ -149,6 +142,11 @@ function LandingSearchCategory() {
     } else {
       navigate("/login");
     }
+  };
+
+  const getDetails = (id) => {
+    sessionStorage.setItem("resourceId", id);
+    navigate(`/resource_details?${id}`);
   };
 
   return (
@@ -302,6 +300,7 @@ function LandingSearchCategory() {
                             src={`http://15.188.62.53:3002/${resource.avatar}`}
                             alt="avatar resource"
                             className="object-cover h-full w-full"
+                            onClick={() => getDetails(resource._id)}
                           />
                         </div>
                       ) : (

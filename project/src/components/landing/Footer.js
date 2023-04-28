@@ -1,4 +1,6 @@
-import React from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import image3 from "../images/google-removebg.png";
 import { BsFacebook } from "react-icons/bs";
 import { AiOutlineTwitter } from "react-icons/ai";
@@ -6,42 +8,64 @@ import { IoLogoInstagram } from "react-icons/io";
 import { ImPinterest } from "react-icons/im";
 
 function Footer() {
+  const navigate = useNavigate();
+  const [sections, setSections] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+
+  //get sections
+  useEffect(() => {
+    const getSections = async () => {
+      try {
+        const res = await axios.get(
+          `http://15.188.62.53:3000/pages/all-sections`
+        );
+        setStates({ loading: false, error: false });
+        setSections(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
+      }
+    };
+    getSections();
+  }, []);
+
+  const navPage = (page, section) => {
+    sessionStorage.setItem("page", page.title);
+    sessionStorage.setItem("section", section.name);
+    navigate(`/sections/${section.name}/${page.title}`);
+  };
+
   return (
     <div>
       <div className="footer">
         <div className="foo-ter d-flex">
           <div className="ffter d-flex">
-            <div className="footer-content">
-              <h5>About</h5>
-              <ul>
-                <li>About</li>
-                <li>Press</li>
-                <li>Our blog</li>
-                <li>Join our team</li>
-                <li>Contact us</li>
-                <li>Invite us</li>
-              </ul>
-            </div>
-            <div className="footer-content">
-              <h5>Support</h5>
-              <ul>
-                <li>Help/FAQ</li>
-                <li>Acessibility</li>
-                <li>Purchase help</li>
-                <li>Adchoices</li>
-                <li>Publishers</li>
-              </ul>
-            </div>
-            <div className="footer-content">
-              <h5>Legal</h5>
-              <ul>
-                <li>Terms</li>
-                <li>Privacy</li>
-                <li>Copyright</li>
-                <li>Cookie preferences</li>
-              </ul>
-            </div>
-            <div className="footer-content">
+            {sections?.map((section, index) => (
+              <div className="footer-content" key={index}>
+                <h5>{section.name}</h5>
+                <ul>
+                  {section.children.map((page, index) => (
+                    <li
+                      key={index}
+                      onClick={() => navPage(page, section)}
+                      className="cursor-pointer hover:text-gray-400"
+                    >
+                      {page.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+
+            {/* <div className="footer-content">
               <h5>Social</h5>
               <ul>
                 <li>Instagram</li>
@@ -49,7 +73,7 @@ function Footer() {
                 <li>Twitter</li>
                 <li>Pininterest</li>
               </ul>
-            </div>
+            </div> */}
           </div>
           <div className="appimage">
             <h5>Get our free apps</h5>
@@ -69,43 +93,19 @@ function Footer() {
       <div className="mobile--footer">
         <div className="f_conts">
           <div className="f-cont d-flex pt-5">
-            <div className="footer-content">
-              <h5>About</h5>
-              <ul className="">
-                <li>About</li>
-                <li>Press</li>
-                <li>Our blog</li>
-                <li>Join our team</li>
-                <li>Contact us</li>
-                <li>Invite us</li>
-              </ul>
-            </div>
-            <div className="footer-content">
-              <h5>Support</h5>
-              <ul>
-                <li>Help / FAQ</li>
-                <li>Acessibility</li>
-                <li>Purchase help</li>
-                <li>Adchoices</li>
-                <li>Publishers</li>
-              </ul>
-            </div>
-          </div>
-          <div className="f-cont d-flex pt-5">
-            <div className="footer-content">
-              <h5>Legal</h5>
-              <ul className="">
-                <li>Terms</li>
-                <li>Privacy</li>
-                <li>Copyright</li>
-                <li>Cookie preferences</li>
-                <li>
-                  Do not sell or share my
-                  <br /> personal information
-                </li>
-              </ul>
-            </div>
-            <div className="footer--content">
+            {sections?.map((section, index) => (
+              <div className="footer-content" key={index}>
+                <h5>{section.name}</h5>
+                <ul>
+                  {section.children.map((page, index) => (
+                    <li key={index} onClick={() => navPage(page, section)}>
+                      {page.title}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            {/* <div className="footer--content">
               <h5>Social</h5>
               <div className="facebook d-flex gap-2">
                 <div>
@@ -132,8 +132,8 @@ function Footer() {
                 Pininterest
               </div>
             </div>
+            */}
           </div>
-
           <div className="appimage">
             <h5>Get our free apps</h5>
             <div className="images-app d-flex gap-1">

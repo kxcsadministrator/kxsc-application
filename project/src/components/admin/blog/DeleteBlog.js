@@ -1,12 +1,9 @@
+import React from "react";
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
-function AddPageModal({ setAddPageModal, section }) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
+function DeleteBlog({ setDeleteBlogModal, blog }) {
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -15,12 +12,10 @@ function AddPageModal({ setAddPageModal, section }) {
     success: false,
   });
   let menuRef = useRef();
-
-  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setAddPageModal(false);
+        setDeleteBlogModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -28,17 +23,13 @@ function AddPageModal({ setAddPageModal, section }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setAddPageModal]);
+  }, [setDeleteBlogModal]);
 
-  const addPage = async () => {
+  const deleteBlog = async () => {
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.post(
-        `http://15.188.62.53:3000/pages/new-page/${section}`,
-        {
-          title: title,
-          body: body,
-        },
+      const res = await axios.delete(
+        `http://15.188.62.53:3000/blog/delete/${blog._id}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,
@@ -47,7 +38,7 @@ function AddPageModal({ setAddPageModal, section }) {
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setAddPageModal(false);
+        setDeleteBlogModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -64,31 +55,14 @@ function AddPageModal({ setAddPageModal, section }) {
   };
   return (
     <div className="modal_container">
-      <div className="modal_content md:w-[50%]" ref={menuRef}>
+      <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Add Page
+          Delete Article
         </h1>
-        <div className="flex flex-col w-full gap-3">
-          <form className="grid gap-3 w-[100%] relative mx-auto">
-            <input
-              placeholder="title"
-              className="w-[90%] h-10 border-2 border-gray-200 px-3 py-1"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-              }}
-            />
-            <div className="w-[95%] relative">
-              <CKEditor
-                editor={ClassicEditor}
-                data={body}
-                onChange={(event, editor) => {
-                  const data = editor.getData();
-                  setBody(data);
-                }}
-              />
-            </div>
-          </form>
+        <div className="flex flex-col items-center w-full gap-3">
+          <div>
+            <p>Are you sure you want to remove Section {blog.title}</p>
+          </div>
           <div>
             {states.loading ? (
               <div>
@@ -105,13 +79,20 @@ function AddPageModal({ setAddPageModal, section }) {
             ) : (
               <div></div>
             )}
-            <div>
+            <div className="flex items-center gap-5">
               <button
-                onClick={() => addPage()}
+                onClick={() => setDeleteBlogModal(false)}
                 className="btn_green"
                 disabled={states.loading}
               >
-                submit
+                Back
+              </button>
+              <button
+                onClick={() => deleteBlog()}
+                className="btn_red"
+                disabled={states.loading}
+              >
+                Continue
               </button>
             </div>
           </div>
@@ -121,4 +102,4 @@ function AddPageModal({ setAddPageModal, section }) {
   );
 }
 
-export default AddPageModal;
+export default DeleteBlog;

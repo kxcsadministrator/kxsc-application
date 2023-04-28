@@ -1,6 +1,8 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import { CKEditor } from "@ckeditor/ckeditor5-react";
+import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 function EditPage({ setEditPageModal, section, edit }) {
   const [title, setTitle] = useState(edit.title);
@@ -34,8 +36,8 @@ function EditPage({ setEditPageModal, section, edit }) {
       const res = await axios.patch(
         `http://15.188.62.53:3000/pages/edit-page/${section}/${edit.title}`,
         {
-          new_title: title,
-          new_body: body,
+          title: title !== edit.title ? title : null,
+          body: body !== edit.body ? body : null,
         },
         {
           headers: {
@@ -62,28 +64,30 @@ function EditPage({ setEditPageModal, section, edit }) {
   };
   return (
     <div className="modal_container">
-      <div className="modal_content" ref={menuRef}>
+      <div className="modal_content  md:w-[50%]" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Section Header
+          Edit Page
         </h1>
         <div className="flex flex-col w-full gap-3">
-          <form className="grid gap-3">
+          <form className="grid gap-3 w-[100%] relative mx-auto">
             <input
               placeholder={title}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+              className="w-[90%] h-10 border-2 border-gray-200 px-3 py-1"
               value={title}
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
             />
-            <textarea
-              placeholder={body}
-              className="w-[90%] h-20 bg-gray_bg px-3 py-1"
-              value={body}
-              onChange={(e) => {
-                setBody(e.target.value);
-              }}
-            />
+            <div className="w-[95%] relative">
+              <CKEditor
+                editor={ClassicEditor}
+                data={body}
+                onChange={(event, editor) => {
+                  const data = editor.getData();
+                  setBody(data);
+                }}
+              />
+            </div>
           </form>
           <div>
             {states.loading ? (

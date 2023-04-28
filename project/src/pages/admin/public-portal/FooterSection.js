@@ -5,7 +5,6 @@ import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { FaEye } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
 import EditSectionModal from "../../../components/admin/public-portal/EditSectionModal";
 import RemoveSectionModal from "../../../components/admin/public-portal/RemoveSectionModal";

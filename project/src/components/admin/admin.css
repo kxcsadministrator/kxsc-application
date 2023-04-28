@@ -93,10 +93,10 @@
   .sidebar.active .toggleMenu .close {
     @apply block;
   }
-  .sidebar .toggleMenu .hamburger {
+  .sidebar .toggleMenu .hamburgers {
     @apply block;
   }
-  .sidebar.active .toggleMenu .hamburger {
+  .sidebar.active .toggleMenu .hamburgers {
     @apply hidden;
   }
   .sidebar.active .sidebar_container {
