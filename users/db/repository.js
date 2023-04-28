@@ -666,7 +666,7 @@ const get_section = async(name) => {
 }
 
 const get_all_sections = async() => {
-    const result = await Model.footerSection.find({}, {_id: 1, name: 1})
+    const result = await Model.footerSection.find({}, {_id: 1, name: 1, children: 1})
     return result
 }
 
@@ -754,6 +754,7 @@ const get_all_articles = async(offset, limit) => {
             _id: article._id,
             author: user,
             title: article.title,
+            body: article.body,
             date: date
         }
         data.push(r)

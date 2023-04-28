@@ -50,7 +50,9 @@ services:
       - ./project:/app
       - /app/node_modules
     environment:
-      - REACT_APP_PORT=http://13.39.47.227
+      - USERS_SERVICE=http://users:3000/users
+      - INSTITUTE_SERVICE=http://institutes:3000/institutes
+      - RESOURCES_SERVICE=http://resources:3000/resources
     ports:
       - "3003:80"
 volumes:
