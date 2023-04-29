@@ -441,6 +441,7 @@ const search_resource = async (keyword) => {
                 "topic": 1,
                 "author": 1,
                 "institute": 1,
+                "visibility": 1,
                 "rating": 1,
                 "date": 1,
                 "score": { "$meta": "searchScore"},
@@ -450,19 +451,21 @@ const search_resource = async (keyword) => {
     let data = []
     for (let i = 0; i < result.length; i++) {
         const resource = result[i];
-        let resource_result = await resource_data(resource)
-        let date  = new Date(resource.date).toDateString()
-        let r = {
-            _id: resource._id,
-            topic: resource.topic,
-            author: resource_result[0],
-            institute: resource_result[1],
-            rating: resource.rating,
-            date: date,
-            avatar: resource.avatar,
-            avatar: resource.avatar
+        if (resource.visibility == 'public'){
+            let resource_result = await resource_data(resource)
+            let date  = new Date(resource.date).toDateString()
+            let r = {
+                _id: resource._id,
+                topic: resource.topic,
+                author: resource_result[0],
+                institute: resource_result[1],
+                rating: resource.rating,
+                date: date,
+                avatar: resource.avatar,
+                avatar: resource.avatar
+            }
+            data.push(r)
         }
-        data.push(r)
     }
     return data;
 }
