@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import image3 from "../images/google-removebg.png";
 import { BsFacebook } from "react-icons/bs";
 import { AiOutlineTwitter } from "react-icons/ai";
@@ -50,7 +50,7 @@ function Footer() {
           <div className="ffter d-flex">
             {sections?.map((section, index) => (
               <div className="footer-content" key={index}>
-                <h5>{section.name}</h5>
+                {section.children[0] && <h5>{section.name}</h5>}
                 <ul>
                   {section.children.map((page, index) => (
                     <li
@@ -87,6 +87,9 @@ function Footer() {
         <div className="border_line"></div>
         <br />
         <div className="f-list">
+          <Link to="/blog" className="f-list no-underline text-black ">
+            <p className="hover:text-gray-400">Our Blog</p>
+          </Link>
           <h5>Copyright &copy; kxc Inc.2023</h5>
         </div>
       </div>
@@ -146,11 +149,15 @@ function Footer() {
 
         <div className="border_line"></div>
 
+        <br />
         <div className="f-list">
-          <br />
-          <div className="f-list">
-            <h5>Copyright &copy; kxc Inc.2023</h5>
-          </div>
+          <Link
+            to="/blog"
+            className="footer-content mt-2 no-underline text-black hover:text-gray-400"
+          >
+            <p className="hover:text-gray-400">Our Blog</p>
+          </Link>
+          <h5>Copyright &copy; kxc Inc.2023</h5>
         </div>
       </div>
     </div>

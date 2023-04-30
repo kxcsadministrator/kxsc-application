@@ -84,13 +84,13 @@ function LandingBlog() {
     window.location.reload(false);
   };
 
-  const getProfile = () => {
-    if (user) {
-      navigate("/admin/profile");
-    } else {
-      navigate("/login");
-    }
-  };
+  // const getProfile = () => {
+  //   if (user) {
+  //     navigate("/admin/profile");
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // };
 
   return (
     <div>
@@ -103,14 +103,17 @@ function LandingBlog() {
             <div className="hamburger--menu">
               <Ham />
             </div>
-            <div className="nav-bar d-flex mt-2">
+            <Link
+              to="/"
+              className="nav-bar d-flex mt-2 no-underline text-black"
+            >
               <div className="link-image">
                 <img src={image6} alt="" />
               </div>
-              <div className="nav-txt">
+              <div className="nav-txt ">
                 <h5>Knowledge Exchange</h5>
               </div>
-            </div>
+            </Link>
             <div className="inputt p-2">
               <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
                 <span className="in-search bg-light input-group-text">
@@ -135,9 +138,9 @@ function LandingBlog() {
             </div>
 
             <div className="sg d-flex  p-2">
-              <div className="profile p-1" onClick={() => getProfile()}>
+              {/* <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
-              </div>
+              </div> */}
               <Link
                 to="/login"
                 type="button"
@@ -171,7 +174,7 @@ function LandingBlog() {
             </button>
           </form>
         </div>
-
+        {/* 
         <div className="four-color bg-light">
           <div className="dd-d d-flex gap-3 pt-3">
             <div>
@@ -187,7 +190,7 @@ function LandingBlog() {
               <h5>Government</h5>
             </div>
           </div>
-        </div>
+        </div> */}
         <br />
         {blogs?.length > 0 ? (
           <div className="flex md:flex-row flex-col gap-4 justify-between w-[80%] mx-auto flex-wrap">
@@ -220,7 +223,7 @@ function LandingBlog() {
           </div>
         ) : (
           <div>
-            <p>No Articles</p>
+            <p>No Articles Found</p>
           </div>
         )}
       </div>

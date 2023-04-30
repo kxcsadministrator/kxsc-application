@@ -57,13 +57,13 @@ function LandingSectionPage() {
     window.location.reload(false);
   };
 
-  const getProfile = () => {
-    if (user) {
-      navigate("/admin/profile");
-    } else {
-      navigate("/login");
-    }
-  };
+  // const getProfile = () => {
+  //   if (user) {
+  //     navigate("/admin/profile");
+  //   } else {
+  //     navigate("/login");
+  //   }
+  // };
 
   return (
     <div>
@@ -76,14 +76,17 @@ function LandingSectionPage() {
             <div className="hamburger--menu">
               <Ham />
             </div>
-            <div className="nav-bar d-flex mt-2">
+            <Link
+              to="/"
+              className="nav-bar d-flex mt-2 no-underline text-black"
+            >
               <div className="link-image">
                 <img src={image6} alt="" />
               </div>
-              <div className="nav-txt">
+              <div className="nav-txt ">
                 <h5>Knowledge Exchange</h5>
               </div>
-            </div>
+            </Link>
             <div className="inputt p-2">
               <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
                 <span className="in-search bg-light input-group-text">
@@ -108,9 +111,9 @@ function LandingSectionPage() {
             </div>
 
             <div className="sg d-flex  p-2">
-              <div className="profile p-1" onClick={() => getProfile()}>
+              {/* <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
-              </div>
+              </div> */}
               <Link
                 to="/login"
                 type="button"
@@ -144,7 +147,7 @@ function LandingSectionPage() {
             </button>
           </form>
         </div>
-
+        {/* 
         <div className="four-color bg-light">
           <div className="dd-d d-flex gap-3 pt-3">
             <div>
@@ -160,7 +163,7 @@ function LandingSectionPage() {
               <h5>Government</h5>
             </div>
           </div>
-        </div>
+        </div> */}
         <br />
         <div className="flex flex-col md:gap-3 gap-2 md:w-[70%] w-[90%] mx-auto b_head">
           <h1 className="lg:text-3xl md:2xl text-xl text-center md:text-start ">
