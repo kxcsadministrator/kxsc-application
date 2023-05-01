@@ -196,7 +196,7 @@ function LandingBlog() {
           <div className="flex md:flex-row flex-col gap-4 justify-between w-[80%] mx-auto flex-wrap">
             {collection.map((blog, index) => (
               <div
-                className="lg:w-[28%] md:w-[35%] w-full flex flex-col gap-3 p-3 shadow-sm bg-white min-w-[250px] md:min-h-[300px] min-h-fit"
+                className="lg:w-[28%] md:w-[35%] w-full flex flex-col gap-3 p-3 shadow-sm bg-white min-w-[250px] md:min-h-[300px] min-h-fit cursor-pointer"
                 key={index}
                 onClick={() => navBlog(blog)}
               >

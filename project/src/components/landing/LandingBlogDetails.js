@@ -167,7 +167,7 @@ function LandingBlogDetails() {
             {blog?.title}
           </h1>
           <div className="flex gap-4 items-center text-gray-400">
-            <p className="mb-1 border-b-[2px]">{blog?.author.username}</p>
+            <p className="mb-1 border-b-[2px]">By: {blog?.author.username}</p>
             <p className="mt-3 h-[20px] w-[2px] bg-gray-400" />
             <p className="mb-1">{blog?.date_created}</p>
           </div>

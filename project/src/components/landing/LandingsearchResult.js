@@ -284,7 +284,7 @@ function LandingsearchResult() {
                     {collection.map((resource, index) => (
                       <div>
                         <div
-                          className="five-vid d-flex"
+                          className="five-vid d-flex cursor-pointer"
                           key={index}
                           onClick={() => getDetails(resource._id)}
                         >

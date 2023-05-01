@@ -239,7 +239,7 @@ function LandingPage() {
             {allCat.map((cat, index) => (
               <div className="col" key={index}>
                 <div
-                  className="link text-gray-700 hover:text-green_bg flex items-center gap-2 md:text-xl text-base"
+                  className="link text-gray-800 hover:text-gray-300 flex items-center gap-2 md:text-xl text-base cursor-pointer"
                   onClick={() => getCat(cat.name)}
                   key={index}
                 >

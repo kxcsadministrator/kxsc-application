@@ -291,14 +291,17 @@ function LandingSearchCategory() {
               <div>
                 {collection.map((resource, index) => (
                   <div>
-                    <div className="five-vid d-flex" key={index}>
+                    <div
+                      className="five-vid d-flex cursor-pointer"
+                      key={index}
+                      onClick={() => getDetails(resource._id)}
+                    >
                       {resource.avatar ? (
                         <div>
                           <img
                             src={`http://15.188.62.53:3002/${resource.avatar}`}
                             alt="avatar resource"
                             className="object-cover h-full w-full"
-                            onClick={() => getDetails(resource._id)}
                           />
                         </div>
                       ) : (
@@ -380,7 +383,11 @@ function LandingSearchCategory() {
               <div className="brow">
                 <div>
                   {allCat.map((cat, index) => (
-                    <h5 key={index} onClick={() => newSearch(cat.name)}>
+                    <h5
+                      key={index}
+                      onClick={() => newSearch(cat.name)}
+                      className="cursor-pointer"
+                    >
                       {cat.name}
                     </h5>
                   ))}
@@ -452,7 +459,11 @@ function LandingSearchCategory() {
             <div className="brow">
               <div>
                 {allCat.map((cat, index) => (
-                  <h5 key={index} onClick={() => newSearch(cat.name)}>
+                  <h5
+                    key={index}
+                    onClick={() => newSearch(cat.name)}
+                    className="cursor-pointer"
+                  >
                     {cat.name}
                   </h5>
                 ))}
