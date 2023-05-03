@@ -6,6 +6,9 @@
 .a-pp {
   gap: 45px;
 }
+.landing-nav {
+  z-index: 100;
+}
 .main {
   height: 100vh;
   display: flex;

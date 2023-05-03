@@ -25,7 +25,7 @@ function LandingsearchResult() {
   const handleShow = () => setShow(true);
   const [searchResource, setSearchResource] = useState("");
   const [allCat, setAllCat] = useState([]);
-  const { user } = useContext(Context);
+  const { user, dispatch } = useContext(Context);
 
   const [resources, setResources] = useState([]);
   const [states, setStates] = useState({
@@ -134,6 +134,11 @@ function LandingsearchResult() {
   //   }
   // };
 
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    navigate("/");
+  };
+
   return (
     <div>
       <div className="PageFive">
@@ -183,13 +188,23 @@ function LandingsearchResult() {
               {/* <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
               </div> */}
-              <Link
-                to="/login"
-                type="button"
-                class=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
-              >
-                Sign In
-              </Link>
+              {user ? (
+                <div
+                  onClick={() => {
+                    logout();
+                  }}
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign Out
+                </div>
+              ) : (
+                <Link
+                  to="/login?from=landing"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         </div>

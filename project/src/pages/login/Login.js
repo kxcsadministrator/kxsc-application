@@ -1,6 +1,6 @@
 import axios from "axios";
-import { useRef, useContext, React } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useRef, useContext, React, useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./login.css";
 
@@ -8,7 +8,17 @@ function Login() {
   const userRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
+  const location = useLocation();
   const { dispatch, isFetching, error } = useContext(Context);
+  const [fromLandingPage, setFromLandingPage] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("from") === "landing") {
+      setFromLandingPage(true);
+    }
+  }, [fromLandingPage, location.search]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
@@ -18,8 +28,11 @@ function Login() {
         password: passwordRef.current.value,
       });
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
-      console.log(res.data);
-      navigate("/admin");
+      if (fromLandingPage) {
+        navigate("/");
+      } else {
+        navigate("/admin");
+      }
     } catch (err) {
       console.log(err);
       dispatch({

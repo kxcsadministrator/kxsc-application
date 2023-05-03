@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import image6 from "../images/kxcc.png";
 import image9 from "../images/google-removebg.png";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Ham() {
   const [burger_class, setBurgerClass] = useState("burger-bar unclicked");
   const [menu_class, setMenuClass] = useState("menu hidden");
   const [isMenuClicked, setIsMenuClicked] = useState(false);
+  const [allCat, setAllCat] = useState([]);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+  });
+  const navigate = useNavigate();
 
   const updateMenu = () => {
     if (!isMenuClicked) {
@@ -16,6 +25,35 @@ function Ham() {
       setMenuClass("burger hidden");
     }
     setIsMenuClicked(!isMenuClicked);
+  };
+
+  //get categories
+  useEffect(() => {
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
+  }, []);
+
+  const getCat = (name) => {
+    sessionStorage.setItem("cat", name);
+    navigate(`/search_by_category?${name}`);
   };
 
   return (
@@ -45,30 +83,16 @@ function Ham() {
                 <h5>Browse by</h5>
                 <div className="brwse d-flex">
                   <div>
-                    <div>
-                      <h5>Books</h5>
-                    </div>
-                    <div>
-                      <h5>Magazines</h5>
-                    </div>
-                    <div>
-                      <h5>Documents</h5>
-                    </div>
+                    {allCat.map((cat, index) => (
+                      <h5
+                        key={index}
+                        onClick={() => getCat(cat.name)}
+                        className="cursor-pointer"
+                      >
+                        {cat.name}
+                      </h5>
+                    ))}
                   </div>
-                </div>
-                <br />
-                <h5>Interests</h5>
-                <div className="ints">
-                  <h5>Career & Growth</h5>
-                  <h5>Business</h5>
-                  <h5>Finance & Money Management</h5>
-                  <h5>Politics</h5>
-                  <h5>Sports & Recreation</h5>
-                  <h5>Games & Activities</h5>
-                  <h5>Social Science</h5>
-                  <h5>True Crime</h5>
-                  <h5>Travel</h5>
-                  <h5>Comic & Graphic Novels</h5>
                 </div>
               </div>
               <br />

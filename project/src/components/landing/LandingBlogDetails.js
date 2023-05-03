@@ -22,7 +22,7 @@ function LandingBlogDetails() {
     errMsg: "",
   });
   const id = sessionStorage.getItem("blogId");
-  const { user } = useContext(Context);
+  const { user, dispatch } = useContext(Context);
   const [searchResource, setSearchResource] = useState([]);
 
   useEffect(() => {
@@ -61,6 +61,11 @@ function LandingBlogDetails() {
   //     navigate("/login");
   //   }
   // };
+
+  const logout = () => {
+    dispatch({ type: "LOGOUT" });
+    navigate("/");
+  };
 
   return (
     <div>
@@ -111,13 +116,23 @@ function LandingBlogDetails() {
               {/* <div className="profile p-1" onClick={() => getProfile()}>
                 <CgProfile />
               </div> */}
-              <Link
-                to="/login"
-                type="button"
-                class=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
-              >
-                Sign In
-              </Link>
+              {user ? (
+                <div
+                  onClick={() => {
+                    logout();
+                  }}
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign Out
+                </div>
+              ) : (
+                <Link
+                  to="/login?from=landing"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
           </div>
         </div>

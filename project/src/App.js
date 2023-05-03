@@ -57,7 +57,7 @@ function App() {
     <BrowserRouter>
       <div className="App">
         <Routes>
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={user ? <Panel /> : <Login />} />
           <Route path="/sign_up" element={<SignUp />} />
           <Route path="/admin" element={<Panel />} />
           <Route path="/admin/users" element={<Users />} />
