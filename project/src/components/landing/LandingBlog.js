@@ -206,6 +206,7 @@ function LandingBlog() {
             </div>
           </div>
         </div> */}
+
         <br />
         {blogs?.length > 0 ? (
           <div className="flex md:flex-row flex-col gap-4 justify-between w-[80%] mx-auto flex-wrap">

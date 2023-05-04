@@ -59,44 +59,104 @@ function App() {
         <Routes>
           <Route path="/login" element={user ? <Panel /> : <Login />} />
           <Route path="/sign_up" element={<SignUp />} />
-          <Route path="/admin" element={<Panel />} />
-          <Route path="/admin/users" element={<Users />} />
-          <Route path="/admin/user_requests" element={<UserRequests />} />
-          <Route path="/admin/create-user" element={<CreateUser />} />
-          <Route path="/admin/messages" element={<Messages />} />
-          <Route path="/admin/create-message" element={<CreateMessage />} />
-          <Route path="/admin/institutes" element={<Institutes />} />
+          <Route path="/admin" element={user ? <Panel /> : <Login />} />
+          <Route path="/admin/users" element={user ? <Users /> : <Login />} />
+          <Route
+            path="/admin/user_requests"
+            element={user ? <UserRequests /> : <Login />}
+          />
+          <Route
+            path="/admin/create-user"
+            element={user ? <CreateUser /> : <Login />}
+          />
+          <Route
+            path="/admin/messages"
+            element={user ? <Messages /> : <Login />}
+          />
+          <Route
+            path="/admin/create-message"
+            element={user ? <CreateMessage /> : <Login />}
+          />
+          <Route
+            path="/admin/institutes"
+            element={user ? <Institutes /> : <Login />}
+          />
           <Route
             path="/admin/create-institutes"
-            element={<CreateInstitutes />}
+            element={user ? <CreateInstitutes /> : <Login />}
           />
-          <Route path="/admin/institutes/:name" element={<Institute />} />
-          <Route path="/admin/tasks/:name" element={<Task />} />
-          <Route path="/admin/resources/:name" element={<Resource />} />
-          <Route path="/admin/resources" element={<Resources />} />
+          <Route
+            path="/admin/institutes/:name"
+            element={user ? <Institute /> : <Login />}
+          />
+          <Route
+            path="/admin/tasks/:name"
+            element={user ? <Task /> : <Login />}
+          />
+          <Route
+            path="/admin/resources/:name"
+            element={user ? <Resource /> : <Login />}
+          />
+          <Route
+            path="/admin/resources"
+            element={user ? <Resources /> : <Login />}
+          />
           <Route
             path="/admin/resources/pending"
-            element={<PendingResources />}
+            element={user ? <PendingResources /> : <Login />}
           />
-          <Route path="/admin/public_resources" element={<PublicResources />} />
-          <Route path="/admin/other_resources" element={<OtherResources />} />
-          <Route path="/admin/categories" element={<Categories />} />
-          <Route path="/admin/category/:name" element={<Category />} />
-          <Route path="/admin/create-category" element={<CreateCategory />} />
+          <Route
+            path="/admin/public_resources"
+            element={user ? <PublicResources /> : <Login />}
+          />
+          <Route
+            path="/admin/other_resources"
+            element={user ? <OtherResources /> : <Login />}
+          />
+          <Route
+            path="/admin/categories"
+            element={user ? <Categories /> : <Login />}
+          />
+          <Route
+            path="/admin/category/:name"
+            element={user ? <Category /> : <Login />}
+          />
+          <Route
+            path="/admin/create-category"
+            element={user ? <CreateCategory /> : <Login />}
+          />
           <Route path="/admin/forgot-password" element={<ResetEmail />} />
           <Route path="/password-reset" element={<Reset />} />
-          <Route path="/admin/profile" element={<Profile />} />
-          <Route path="/admin/search" element={<Search />} />
+          <Route
+            path="/admin/profile"
+            element={user ? <Profile /> : <Login />}
+          />
+          <Route path="/admin/search" element={user ? <Search /> : <Login />} />
           <Route
             path="/admin/create-section"
-            element={<CreateFooterSection />}
+            element={user ? <CreateFooterSection /> : <Login />}
           />
-          <Route path="/admin/sections" element={<FooterSection />} />
-          <Route path="/admin/sections/:name" element={<SingleSection />} />
-          <Route path="/admin/sections/:name/:page" element={<SinglePage />} />
-          <Route path="/admin/create-blog" element={<CreateBlog />} />
-          <Route path="/admin/blog" element={<Blog />} />
-          <Route path="/admin/blog/:name" element={<SingleBlog />} />
+          <Route
+            path="/admin/sections"
+            element={user ? <FooterSection /> : <Login />}
+          />
+          <Route
+            path="/admin/sections/:name"
+            element={user ? <SingleSection /> : <Login />}
+          />
+          <Route
+            path="/admin/sections/:name/:page"
+            element={user ? <SinglePage /> : <Login />}
+          />
+          <Route
+            path="/admin/create-blog"
+            element={user ? <CreateBlog /> : <Login />}
+          />
+          <Route path="/admin/blog" element={user ? <Blog /> : <Login />} />
+          <Route
+            path="/admin/blog/:name"
+            element={user ? <SingleBlog /> : <Login />}
+          />
 
           <Route path="/" element={<LandingPage />} />
           <Route
