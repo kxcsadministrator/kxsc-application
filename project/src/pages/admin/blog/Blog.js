@@ -95,7 +95,7 @@ function Blog() {
                           className="text-sm ml-2 text-green_bg cursor-pointer hover:text-gray-400 -mt-2"
                           onClick={() => navBlog(blog)}
                         >
-                          View pages
+                          View
                         </p>
                       </div>
                       <div className="h-[1.5px] w-full bg-[#cecece] mb-3 -mt-5" />

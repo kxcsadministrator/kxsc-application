@@ -242,10 +242,10 @@ function Sidebar() {
               {/* User Menu*/}
               <div className="dropdown_menu">
                 <Link className="link" to="/admin/create-blog">
-                  <p>Create Blog</p>
+                  <p>new Post</p>
                 </Link>
                 <Link className="link" to="/admin/blog">
-                  <p>All Blogs</p>
+                  <p>Blogs Posts</p>
                 </Link>
               </div>
             </div>
