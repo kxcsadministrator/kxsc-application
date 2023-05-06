@@ -54,6 +54,6 @@ services:
       - INSTITUTE_SERVICE=http://institutes:3000
       - RESOURCES_SERVICE=http://resources:3000
     ports:
-      - "3003:80"
+      - "80:3000"
 volumes:
   uploads:

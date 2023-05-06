@@ -1,5 +1,4 @@
 const express = require('express');
-const axios = require('axios');
 const validator = require('express-validator');
 
 const Model = require('../db/models');
@@ -62,9 +61,7 @@ router.post('/new',
             return res.status(401).json({message: "Token not found"});
         }
 
-        const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
-            token: token
-        });
+        const auth_user_res = await helpers.validateUser(req.headers)
         if (auth_user_res.status != 200) {
             helpers.log_request_error(`POST categories/new - 401: Unauthorized access. Invalid User`)
             return res.status(401).json({message: "Unauthorized access. Invalid User"});
@@ -198,6 +195,30 @@ router.get('/all', async (req, res) => {
 
 /** 
  * @swagger
+ * /categories/globe:
+ *  get:
+ *      summary: Gets all categories to be displayed on frontend globe
+ * 
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/globe', async (req, res) => {
+    try{
+        const data = await repository.globe_categories()
+        helpers.log_request_info(`GET categories/all - 200`)
+        res.status(200).json(data);
+    }
+    catch(error){
+        helpers.log_request_error(`GET categories/all - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
  * /categories/subs:
  *  get:
  *      summary: Gets all sub-categories for a given category
@@ -291,9 +312,7 @@ router.patch('/rename/:id',
             return res.status(401).json({message: "Token not found"});
         }
 
-        const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
-            token: token
-        });
+        const auth_user_res = await helpers.validateUser(req.headers)
         if (auth_user_res.status != 200) {
             helpers.log_request_error(`PATCH categories/rename/${req.params.id} - 401: Unauthorized access. Invalid User`)
             return res.status(401).json({message: "Unauthorized access. Invalid User"});
@@ -383,9 +402,7 @@ router.patch('/add-subcategories/:id',
             return res.status(401).json({message: "Token not found"});
         }
 
-        const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
-            token: token
-        });
+        const auth_user_res = await helpers.validateUser(req.headers)
         if (auth_user_res.status != 200) {
             helpers.log_request_error(`PATCH categories/add-subcategories/${req.params.id} - 401: Unauthorized access. Invalid User`)
             return res.status(401).json({message: "Unauthorized access. Invalid User"});
@@ -469,9 +486,7 @@ router.patch('/remove-subcategories/:id',
             return res.status(401).json({message: "Token not found"});
         }
 
-        const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
-            token: token
-        });
+        const auth_user_res = await helpers.validateUser(req.headers)
         if (auth_user_res.status != 200) {
             helpers.log_request_error(`PATCH categories/remove-subcategories/${req.params.id} - 401: Unauthorized access. Invalid User`)
             return res.status(401).json({message: "Unauthorized access. Invalid User"});
@@ -541,9 +556,7 @@ router.delete('/delete/:id', async (req, res) => {
             return res.status(401).json({message: "Token not found"});
         }
  
-         const auth_user_res = await axios.post(`${USERS_BASE_URL}/get-user-from-token`, {
-             token: token
-         });
+         const auth_user_res = await helpers.validateUser(req.headers)
          if (auth_user_res.status != 200) {
             helpers.log_request_error(`DELETE categories/delete/${req.params.id} - 401: Unauthorized access. Invalid User`)
             return res.status(401).json({message: "Unauthorized access. Invalid User"});

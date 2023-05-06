@@ -6,7 +6,7 @@ const validator = require("express-validator");
 
 const repository = require('../db/repository');
 const helpers = require('../helpers');
-const schemas = require('../schemas/resource-schemas');
+const Model = require('../db/models');
 
 const router = express.Router()
 
@@ -22,7 +22,7 @@ const upload = multer({ storage: storage });
 
 /** 
  * @swagger
- * /resources/rate:
+ * /resources/rate/{id}:
  *  post:
  *      summary: Rates a resource given an id from 1 to 5
  *      description: |
@@ -30,8 +30,8 @@ const upload = multer({ storage: storage });
  * 
  *          Requires a bearer token for authentication
  *          ## Schema
- *          ### id: {required: true, type: string}
- *          ### value: {required: true, type: number, min: 1, max: 5}
+ *          ### score: {required: true, type: integer, min: 1, max: 5}
+ *          ### review: {required: false, type: string}
  * responses:
  *    '201':
  *      description: Ok
@@ -42,9 +42,17 @@ const upload = multer({ storage: storage });
  *    '401':
  *      description: Unauthorized
 */
-router.post('/rate/:id/:score',  
+router.post('/rate/:id',
+    validator.check("score").isFloat({ min: 1, max: 5 }).withMessage("score must be between 1 and 5"),  
     async (req, res) => {
     try {
+        //input validation
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
         // Authorization and validation
         if (!req.headers.authorization) {
             helpers.log_request_error('POST resources/rate - 401: Token not found')
@@ -69,12 +77,13 @@ router.post('/rate/:id/:score',
             return res.status(409).json({message: `User ${user._id} has already rated resource ${resource._id.toString()}`});
         }
 
-        const data = await repository.rate_resource(req.params.id, user._id.toString(), req.params.score);
+        const data = await repository.rate_resource(req.params.id, user._id.toString(), parseInt(req.body.score), req.body.review);
 
         helpers.log_request_info(`POST resources/rate - 200`)
         res.status(200).json(data);
     }
     catch (error) {
+        console.error(error)
         helpers.log_request_error(`POST resources/rate - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
@@ -107,11 +116,9 @@ router.post('/rate/:id/:score',
 */
 router.get('/rating/:id', async (req, res) => {
     try{
-        const resource = await repository.get_resource_by_id(req.params.id)
-        const data = await repository.get_rating(req.params.id);
-        if (resource.visibility == "public"){
-            return res.status(200).json(data);
-        }
+        // if (resource.visibility == "public"){
+        //     return res.status(200).json(data);
+        // }
 
         // Authorization and validation
         if (!req.headers.authorization){ 
@@ -124,12 +131,17 @@ router.get('/rating/:id', async (req, res) => {
             return res.status(validateUser.status).json({message: validateUser.message});
         }
 
-        const user = validateUser.data
-        if (user._id.toString() == resource.author && user.superadmin == false) {
+        // const user = validateUser.data
+        // if (user._id.toString() == resource.author && user.superadmin == false) {
+        //     helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
+        //     return res.status(404).json({message: "Resource not found"});
+        // }
+        const resource = await repository.get_resource_by_id(req.params.id)
+        if (!resource){
             helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
             return res.status(404).json({message: "Resource not found"});
         }
-
+        const data = await repository.get_resource_rating_reviews(req.params.id);
         helpers.log_request_info(`GET resources/rating/${req.params.id} - 200`)
 
         return res.status(200).json(data);
@@ -214,7 +226,6 @@ router.get('/similar/:id', async (req, res) => {
         let query = resource.topic
         if (resource.description) query = resource.description
 
-        console.log(query)
         const result = await repository.similarity(query, id);
 
         helpers.log_request_info(`GET resources/similar/${req.params.id} - 200`)
@@ -621,5 +632,268 @@ router.delete("/:resource_id/delete-file/:file_id", async (req, res) => {
         res.status(400).json({message: error.message});
     }
 });
+
+//----------------------------------------- Resource Type ------------------------------------------------------------
+/** 
+ * @swagger
+ * /resources/new-resource-type:
+ *  post:
+ *      summary: Creates a new resource type 
+ *      description: |
+ *          Only superadmins can create resource types.
+ * 
+ *          Requires a bearer token for authentication.
+ *          Will only insert if the resource type doesn't exist.
+ *          ## Schema
+ *          ### name: {required: true, type: string}
+ *      
+ * responses:
+ *    '201':
+ *      description: Created
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+ *    '409':
+ *      description: Duplicate
+*/
+router.post('/new-resource-type', 
+    validator.check("name").isLength({min: 2}).withMessage("name field must be at least 2 characters"),
+    async (req, res) => {
+    try {
+        //input validation
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST resources/new-resource-type - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+         // user authentication
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST resources/new-resource-type - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`POST resources/new-resource-type - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        // const auth_user_res = await helpers.validateUser(req.headers);
+        // if (auth_user_res.status != 200) {
+        //     helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Invalid User`)
+        //     return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        // }
+
+        // const user = auth_user_res.data
+        // if (!user.superadmin) {
+        //     helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Only superadmins can create resource types`)
+        //     return res.status(401).json({message: 'Unauthorized access. Only superadmins can create resource types'});
+        // }
+
+        const rt = await repository.get_resource_type(req.body.name);
+        if (rt) {
+            helpers.log_request_error(`POST resources/new-resource-type - 409: type already exists`)
+            return res.status(409).json({message: "type already exists"});
+        }
+
+        const data = new Model.resourceType({
+            name: req.body.name
+        })
+        const dataToSave = await data.save()
+
+        helpers.log_request_info('POST resources/new-resource-type - 200')
+        res.status(201).json(dataToSave);
+    } catch (error) {
+        helpers.log_request_error(`POST resources/new-resource-type - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+    
+})
+
+/** 
+ * @swagger
+ * /resources/resource-types:
+ *  get:
+ *      summary: Gets all resource types
+ *      description: returns an empty payload if there are no types
+ * 
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/resource-types', async (req, res) => {
+    try{
+        const data = await repository.get_all_resource_types()
+        helpers.log_request_info(`GET resources/resource-types - 200`)
+        res.status(200).json(data);
+    }
+    catch(error){
+        helpers.log_request_error(`GET resources/resource-types : ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /resources/rename-type/{id}:
+ *  patch:
+ *      summary: Updates the name of a resource type given an id.
+ *      description: |
+ *          Only superadmins can rename.
+ * 
+ *          Requires a bearer token for authentication.
+ *          ## Schema
+ *          ### name: {required: true, type: String} 
+ * 
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the category to update
+ * responses:
+ *    '201':
+ *      description: Updated
+ *    '404':
+ *      description: type not found
+ *    '400':
+ *      description: Bad request
+ *    '409':
+ *      description: Duplicate
+ *    '401':
+ *      description: Unauthorized
+*/
+router.patch('/rename-type/:id', 
+    validator.check("name").isLength({min: 2}).withMessage("name field must be at least 2 characters"), 
+    async (req, res) => {
+    try {
+        //input validation
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        // user authentication
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const auth_user_res = await helpers.validateUser(req.headers)
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
+
+        const user = auth_user_res.data
+        if (!user.superadmin) {
+            helpers.log_request_error(`
+                PATCH esources/rename-type/${req.params.id} - 401: nauthorized access. Only superadmins can update types`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can update types'});
+        }
+
+        const rt = await repository.get_resource_type_by_id(req.params.id)
+        if (!rt) {
+            helpers.log_request_error(`PATCH esources/rename-type/${req.params.id} - 404: Resource type not found`)
+            return res.status(404).json({message: "Resource type not found"});
+        }
+        
+        const dup_rt = await repository.get_resource_type(req.body.name);
+        if (dup_rt) {
+            helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 409: Type ${req.body.name} already exists`)
+            return res.status(409).json({message: `Type ${req.body.name} already exists`})
+        }
+
+        const result = await repository.edit_resource_type(req.params.id, req.body.name);
+
+        helpers.log_request_info(`PATCH resources/rename-type/${req.params.id} - 201`)
+        res.status(201).json(result);
+    }
+    catch (error) {
+        helpers.log_request_error(`PATCH resources/rename-type/${req.params.id} - 400:${error.message}`)
+        res.status(400).json({ message: error.message })
+    }
+})
+
+/** 
+ * @swagger
+ * /resources/delete-type/{id}:
+ *  delete:
+ *      summary: Deletes a resource type given an ID
+ *      description: |
+ *          Only superadmins can delete.
+ * 
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: id of the category to delete
+ *  responses:
+ *    '204':
+ *      description: deleted
+ *    '404':
+ *      description: category not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.delete('/delete-type/:id', async (req, res) => {
+    try {
+         // user authentication
+         if (!req.headers.authorization) {
+            helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+         const token = req.headers.authorization.split(' ')[1];
+         if (!token){
+            helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
+ 
+        const auth_user_res = await helpers.validateUser(req.headers)
+         if (auth_user_res.status != 200) {
+            helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
+
+         const user = auth_user_res.data
+         if (!user.superadmin) {
+            helpers.log_request_error(
+                `DELETE resources/delete-type/${req.params.id} - 401: Unauthorized access. Only superadmins can delete types`
+            )
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can delete types'});
+        }
+
+        const category = await repository.get_resource_type_by_id(req.params.id);
+        if (!category) {
+            helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 404: Type not found`)
+            return res.status(404).json({message: "Type not found"});
+        }
+
+        const data = await repository.delete_resource_type(req.params.id);
+
+        helpers.log_request_info(`DELETE resources/delete-type/${req.params.id} - 204`)
+        res.status(204).json() 
+    }
+    catch (error) {
+        helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({ message: error.message })
+    }
+})
 
 module.exports = router;

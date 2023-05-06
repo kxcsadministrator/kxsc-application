@@ -1,7 +1,8 @@
 const Model = require('./models');
 const Retrieval = require("retrieval");
 const fs = require('fs');
-const axios = require('axios')
+const axios = require('axios');
+const { model } = require('mongoose');
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
 const LOG_BASE_URL = process.env.LOG_URL
@@ -45,7 +46,8 @@ const clean_resource = async (resource, id, headers) => {
         "rating": resource.rating,
         "number_of_ratings": num_ratings.length,
         "files": files,
-        "date_created": resource.date
+        "date_created": resource.date,
+        "has_rated": await validateRate()
     }
     return result
 }
@@ -181,7 +183,7 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
 }
 
 const get_public_resources = async (offset, limit, category="None", sub_cat="None")=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
+    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1, citations: 1}
     let data = []
     const results = []
 
@@ -209,7 +211,8 @@ const get_public_resources = async (offset, limit, category="None", sub_cat="Non
             institute: resource_data.institute,
             rating: resource.rating,
             date: date,
-            avatar: resource.avatar
+            avatar: resource.avatar,
+            citations: resource.citations
         }
         results.push(r)
     }
@@ -296,11 +299,12 @@ const delete_resource_by_id = async (req) => {
     return data;
 }
 
-const rate_resource = async (resource_id, user_id, value) => {
+const rate_resource = async (resource_id, user_id, value, review_msg) => {
     const data = new Model.rating({
         resource: resource_id,
         author: user_id,
-        score: value
+        score: value,
+        review: review_msg
     })
     const result = await data.save();
     const new_rating = await get_rating(resource_id)
@@ -383,6 +387,23 @@ const get_rating = async (id) => {
     if (!ratings.length) return 0;
     let result = ratings.reduce((acc, c) => acc + c, 0) / ratings.length
     return result;
+}
+
+const get_resource_rating_reviews = async(id) => {
+    let res = []
+    const data = await Model.rating.find({resource: id});
+    for (let i = 0; i < data.length; i++) {
+        author_info = await Model.user.findById(data[i].author, {id: 1, username: 1})
+        // data[i].author_info = {id: author_info._id, username: author_info.username}
+        let r = {
+            id: data[i].id,
+            author: author_info,
+            score: data[i].score,
+            review: data[i].review,
+        }
+        res.push(r)
+    }
+    return res
 }
 
 const get_monthly_stats =  async () => {
@@ -491,6 +512,22 @@ const get_all_categories = async ()=>{
     return data;
 }
 
+const globe_categories = async () => {
+    let category_data = []
+    const data = await Model.category.find();
+    for (let i = 0; i < data.length; i++) {
+        let cat = data[i];
+        let r = {
+            'name': cat.name,
+            'resources': await Model.resource.find({category: cat.name}).count(),
+            'id': cat.id,
+            'sub_categories': cat.sub_categories
+        }
+        category_data.push(r)
+    }
+    return category_data
+}
+
 const add_sub_categories =  async (id, subs) => {
     await Model.category.findByIdAndUpdate(id, {$addToSet: {sub_categories: subs}});
     const result = await Model.category.findById(id);
@@ -521,12 +558,11 @@ const delete_category_by_id = async (req) => {
 
 /*----------------------------------- BM25 Similarity Search -------------------------------*/
 const similarity = async (query, id) => {
-    let resources = await Model.resource.find({_id: {$ne: id}})
+    let resources = await Model.resource.find({_id: {$ne: id}, visibility: "public"})
     let docs = [];
     
     resources.forEach(element => {
         let data = element.topic
-        if (element.description) data = element.description
         docs.push(data);
     });
     
@@ -536,8 +572,51 @@ const similarity = async (query, id) => {
  
     // 3rd step: search. In other words, multiply the document-term matrix and the indicator vector representing the query.
     let data = rt.search(query, 10)
-    let results = await Model.resource.find({"description": data}, {_id: 1, topic: 1})
+    let results = await Model.resource.find({topic: data}, {_id: 1, topic: 1, avatar: 1})
     return results;
+}
+
+/* ----------------------------------------------- Resource type ------------------------------------------ */
+const get_resource_type = async(name) => {
+    const data = await Model.resourceType.findOne({name: name});
+    return data
+}
+
+const get_resource_type_by_id = async(id) => {
+    const data = await Model.resourceType.findById(id)
+    return data
+}
+
+const get_all_resource_types = async() => {
+    return await Model.resourceType.find()
+}
+
+const edit_resource_type = async(id, new_name) => {
+    await Model.resourceType.findByIdAndUpdate(id, {name: new_name})
+    return await Model.resourceType.findById(id)
+}
+
+const delete_resource_type = async(id) => {
+    await Model.resourceType.findByIdAndDelete(id);
+}
+
+const similar_resource = async (keyword, id) => {
+    const re = new RegExp(keyword, "i")
+    let data = []
+    let result = await Model.resource.find({topic: {$regex: re}, institute: id}, {_id: 1, topic: 1, author: 1, rating: 1})
+    
+    for (let i = 0; i < result.length; i++) {
+        const item = result[i];
+        let obj = {
+            _id: item._id,
+            topic: item.topic,
+            author: await Model.user.findById(item.author, {username: 1}),
+            rating: item.rating,
+            avatar: item.avatar
+        }
+        data.push(obj)
+    }
+    return data;
 }
 
 module.exports = {
@@ -548,5 +627,6 @@ module.exports = {
     update_visibility, update_resource_type, add_resource_sub_categories, remove_resource_sub_categories, add_resource_citations,
     remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
     get_resource_data, get_group_stats, update_resource_fields, delete_resource_file, get_resource_file_by_id, update_resource_avatar,
-    remove_resource_avatar
+    remove_resource_avatar, globe_categories, get_resource_type, edit_resource_type, delete_resource_type, get_all_resource_types,
+    get_resource_type_by_id, get_resource_rating_reviews, similar_resource
 }
