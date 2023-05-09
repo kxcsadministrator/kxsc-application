@@ -443,6 +443,12 @@ router.get('/all', async (req, res) => {
  *              type: string
  *            required: false
  *            description: name of the sub-category to get. Will fail if category isn't provided
+ *          - in: query  
+ *            name: type
+ *            schema:
+ *              type: string
+ *            required: false
+ *            description: filter results by result type
  * responses:
  *    '200':
  *      description: Ok
@@ -458,8 +464,14 @@ router.get('/public', async (req, res) => {
 
         let sub = req.query.sub;
         let category = req.query.category;
+        let type = req.query.type
         let data = null;
         
+        if (type) {
+            data = await repository.get_public_resources(page, limit, category='None', sub='None', type=type)
+            return res.status(200).json(data);
+        }
+
         if (category){
             if (sub){
                 data = await repository.get_public_resources(page, limit, category=category, sub_cat=sub)
@@ -472,6 +484,7 @@ router.get('/public', async (req, res) => {
 
         res.status(200).json(data);
     } catch (error) {
+        console.error(error)
         helpers.log_request_error(`GET /resources/public - 400: ${error.message}`)
 
         res.status(400).json({message: error.message});
