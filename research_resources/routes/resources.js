@@ -196,6 +196,12 @@ router.post('/new',
  *              type: UUID/Object ID
  *            required: true
  *            description: id of the resource to get
+ *          - in: query
+ *            name: public
+ *            schema:
+ *              type: boolean
+ *            required: false
+ *            description: indicator if request came from public
  *  responses:
  *    '200':
  *      description: Ok
@@ -232,7 +238,8 @@ router.get('/one/:id', async (req, res) => {
         //         return res.status(401).json({message: 'Unauthorized access to get'});
         //     }
         // }
-        
+        const from_public = req.query.public;
+        if (from_public) repository.add_view_count(req.params.id)
         helpers.log_request_info(`GET /resources/one/${req.params.id} - 200`)
         res.status(200).json(resource);
     }
@@ -459,6 +466,12 @@ router.get('/all', async (req, res) => {
 */
 router.get('/public', async (req, res) => {
     try {
+        let user_id = null
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status === 200) {
+            const user = validateUser.data;
+            user_id = user._id
+        }
         const page = req.query.page || 1
         const limit = req.query.limit || 20
 
@@ -468,17 +481,17 @@ router.get('/public', async (req, res) => {
         let data = null;
         
         if (type) {
-            data = await repository.get_public_resources(page, limit, category='None', sub='None', type=type)
+            data = await repository.get_public_resources(page, limit, category='None', sub_cat='None', type=type, user=user_id)
             return res.status(200).json(data);
         }
 
         if (category){
             if (sub){
-                data = await repository.get_public_resources(page, limit, category=category, sub_cat=sub)
+                data = await repository.get_public_resources(page, limit, category=category, sub_cat=sub, type='', user=user_id)
             }
-            else data = await repository.get_public_resources(page, limit, category=category)
+            else data = await repository.get_public_resources(page, limit, category=category, sub_cat='None', type='', user=user_id)
         }
-        else data = await repository.get_public_resources(page, limit)
+        else data = await repository.get_public_resources(page, limit, "None", "None", '', user_id)
 
         helpers.log_request_info(`GET /resources/public - 200`)
 

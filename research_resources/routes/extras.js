@@ -679,17 +679,17 @@ router.post('/new-resource-type',
             return res.status(401).json({message: "Token not found"});
         }
 
-        // const auth_user_res = await helpers.validateUser(req.headers);
-        // if (auth_user_res.status != 200) {
-        //     helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Invalid User`)
-        //     return res.status(401).json({message: "Unauthorized access. Invalid User"});
-        // }
+        const auth_user_res = await helpers.validateUser(req.headers);
+        if (auth_user_res.status != 200) {
+            helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
 
-        // const user = auth_user_res.data
-        // if (!user.superadmin) {
-        //     helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Only superadmins can create resource types`)
-        //     return res.status(401).json({message: 'Unauthorized access. Only superadmins can create resource types'});
-        // }
+        const user = auth_user_res.data
+        if (!user.superadmin) {
+            helpers.log_request_error(`POST resources/new-resource-type - 401: Unauthorized access. Only superadmins can create resource types`)
+            return res.status(401).json({message: 'Unauthorized access. Only superadmins can create resource types'});
+        }
 
         const rt = await repository.get_resource_type(req.body.name);
         if (rt) {
@@ -841,7 +841,7 @@ router.patch('/rename-type/:id',
  *            schema:
  *              type: string
  *            required: true
- *            description: id of the category to delete
+ *            description: id of the resource type to delete
  *  responses:
  *    '204':
  *      description: deleted
@@ -855,7 +855,7 @@ router.patch('/rename-type/:id',
 router.delete('/delete-type/:id', async (req, res) => {
     try {
          // user authentication
-         if (!req.headers.authorization) {
+        if (!req.headers.authorization) {
             helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
@@ -894,6 +894,174 @@ router.delete('/delete-type/:id', async (req, res) => {
         helpers.log_request_error(`DELETE resources/delete-type/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({ message: error.message })
     }
+})
+
+/* ----------------------------------------------- View Count ----------------------------------------------- */
+
+/** 
+ * @swagger
+ * /resources/update-view-count/{id}:
+ *  post:
+ *      summary: Adds the view count for a given resource.
+ *      description: |
+ *          Should only be used when a user clicks on a public resource 
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: id of the resource to update the view count
+ *      
+ * responses:
+ *    '200':
+ *      description: Updated
+ *    '400':
+ *      description: Bad request
+*/
+router.post('/update-view-count/:id', async (req, res) => {
+    try {
+        const resource_id = req.params.id
+
+        const resource = await repository.get_resource_by_id(resource_id)
+        if (!resource){
+            helpers.log_request_error(`POST resources/update-view-count/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
+        const result = await repository.add_view_count(resource_id);
+        helpers.log_request_info(`POST resources/update-view-count/${req.params.id} - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`POST resources/update-view-count/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+    
+})
+
+/* ----------------------------------------------- Likes ----------------------------------------------- */
+
+/** 
+ * @swagger
+ * /resources/like/{id}:
+ *  post:
+ *      summary: Likes a resource.
+ *      description: |
+ *          Requires a bearer token for authentication 
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: id of the resource to like
+ *      
+ * responses:
+ *    '200':
+ *      description: Updated
+ *    '400':
+ *      description: Bad request
+ *    '409':
+ *      description: Duplicate request
+*/
+router.post('/like/:id', async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST resources/like/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+         const token = req.headers.authorization.split(' ')[1];
+         if (!token){
+            helpers.log_request_error(`POST resources/like/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
+ 
+        const auth_user_res = await helpers.validateUser(req.headers)
+         if (auth_user_res.status != 200) {
+            helpers.log_request_error(`POST resources/like/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
+
+        const user = auth_user_res.data
+        const resource_id = req.params.id
+
+        const resource = await repository.get_resource_by_id(resource_id)
+        if (!resource){
+            helpers.log_request_error(`POST resources/like/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
+        const has_liked = await repository.has_user_liked_resource(resource_id, user._id)
+        if (has_liked){
+            helpers.log_request_error(`POST resources/like/${req.params.id} - 409: Resource already liked by user`)
+            return res.status(409).json({message: "Resource already liked by user"});
+        }
+        const result = await repository.like_resource(resource_id, user._id)
+        helpers.log_request_info(`POST resources/like/${req.params.id} - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`POST resources/like/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+    
+})
+
+/** 
+ * @swagger
+ * /resources/unlike/{id}:
+ *  post:
+ *      summary: Un-likes a resource.
+ *      description: |
+ *          Requires a bearer token for authentication 
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: string
+ *            required: true
+ *            description: id of the resource to unlike
+ *      
+ * responses:
+ *    '200':
+ *      description: Updated
+ *    '400':
+ *      description: Bad request
+ *    '409':
+ *      description: Duplicate request
+*/
+router.post('/unlike/:id', async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST resources/unlike/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+         const token = req.headers.authorization.split(' ')[1];
+         if (!token){
+            helpers.log_request_error(`POST resources/unlike/${req.params.id} - 401: Token not found`) 
+            return res.status(401).json({message: "Token not found"});
+        }
+ 
+        const auth_user_res = await helpers.validateUser(req.headers)
+         if (auth_user_res.status != 200) {
+            helpers.log_request_error(`POST resources/unlike/${req.params.id} - 401: Unauthorized access. Invalid User`)
+            return res.status(401).json({message: "Unauthorized access. Invalid User"});
+        }
+
+        const user = auth_user_res.data
+        const resource_id = req.params.id
+
+        const resource = await repository.get_resource_by_id(resource_id)
+        if (!resource){
+            helpers.log_request_error(`POST resources/unlike/${req.params.id} - 404: Resource not found`)
+            return res.status(404).json({message: "Resource not found"});
+        }
+        
+        const result = await repository.unlike_resource(resource_id, user._id)
+        helpers.log_request_info(`POST resources/unlike/${req.params.id} - 200`)
+        res.status(200).json(result);
+    } catch (error) {
+        helpers.log_request_error(`POST resources/unlike/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+    
 })
 
 module.exports = router;

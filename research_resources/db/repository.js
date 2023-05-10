@@ -182,8 +182,10 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
     return results
 }
 
-const get_public_resources = async (offset, limit, category="None", sub_cat="None", type='')=>{
-    const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1, citations: 1, resource_type: 1}
+const get_public_resources = async (offset, limit, category="None", sub_cat="None", type='', user_id=null)=>{
+    const projection = {
+        _id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1, citations: 1, resource_type: 1, view_count: 1
+    }
     let data = []
     const results = []
 
@@ -220,7 +222,10 @@ const get_public_resources = async (offset, limit, category="None", sub_cat="Non
             date: date,
             avatar: resource.avatar,
             citations: resource.citations,
-            type: resource.resource_type
+            type: resource.resource_type,
+            view_count: resource.view_count || 0,
+            likes: await like_count(resource._id),
+            has_user_liked: await has_user_liked_resource(resource._id, user_id)
         }
         results.push(r)
     }
@@ -627,6 +632,39 @@ const similar_resource = async (keyword, id) => {
     return data;
 }
 
+/* ----------------------------------------------- View Count ----------------------------------------------- */
+const add_view_count = async (resource_id) => {
+    const resource = await Model.resource.findById(resource_id);
+    resource.view_count += 1;
+    resource.save()
+    return resource
+}
+
+/* ----------------------------------------------- Likes ----------------------------------------------- */
+const like_resource = async (resource_id, user_id) => {
+    const data = new Model.resourceLikes({
+        resource: resource_id,
+        user: user_id
+    })
+    return await data.save();
+}
+
+const has_user_liked_resource = async (resource_id, user_id) => {
+    const res = await Model.resourceLikes.findOne({user: user_id, resource: resource_id});
+    if (!res) return false;
+    return true;
+}
+
+const unlike_resource = async (resource_id, user_id) => {
+    const data = await Model.resourceLikes.findOneAndDelete({resource: resource_id, user: user_id})
+    return data;
+}
+
+const like_count = async (resource_id) => {
+    const count = await Model.resourceLikes.find({resource: resource_id}).count()
+    return count;
+}
+
 module.exports = {
     get_resource_by_id, get_all_resources, create_new_resource, delete_resource_by_id, create_new_category, 
     get_category_by_id, get_all_categories, update_category_by_id, delete_category_by_id, get_category_by_name, 
@@ -636,5 +674,6 @@ module.exports = {
     remove_resource_citations, add_resource_file, get_public_resources, get_monthly_stats, validateRate, get_user_resources,
     get_resource_data, get_group_stats, update_resource_fields, delete_resource_file, get_resource_file_by_id, update_resource_avatar,
     remove_resource_avatar, globe_categories, get_resource_type, edit_resource_type, delete_resource_type, get_all_resource_types,
-    get_resource_type_by_id, get_resource_rating_reviews, similar_resource
+    get_resource_type_by_id, get_resource_rating_reviews, similar_resource, add_view_count, like_resource, unlike_resource, 
+    has_user_liked_resource
 }
