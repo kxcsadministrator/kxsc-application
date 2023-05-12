@@ -6,7 +6,7 @@ const resourceFileSchema =  new mongoose.Schema({
     name: { required: true, type: String },
     path: { required: true, type: String },
     parent: { required: true, type: Schema.Types.ObjectId, ref: "resources" },
-    date_created: {type: Date, default: Date.now} 
+    date_created: {type: Date, default: Date.now}, 
 });
 
 /* ---------------------- Resource Schema --------------------------- */
@@ -74,6 +74,11 @@ const resourceSchema = new mongoose.Schema({
     avatar: {
         type: String,
         required: false
+    },
+    view_count : {
+        type: Number,
+        default: 0,
+        required: true
     }
 });
 
@@ -90,6 +95,7 @@ const categorySchema = new mongoose.Schema({
     }
 });
 
+// --------------------------------- Rating ----------------------------------------
 const ratingSchema = new mongoose.Schema({
     resource: {
         required: true,
@@ -105,8 +111,39 @@ const ratingSchema = new mongoose.Schema({
         type: Number,
         min: 1,
         max: 5
-    }
+    },
+    review: {
+        type: String,
+        required: false
+    },
+    date_created: {type: Date, default: Date.now}
 })
+
+// --------------------------------- Likes ----------------------------------------
+const likeSchema = new mongoose.Schema({
+    resource: {
+        required: true,
+        type: Schema.Types.ObjectId,
+        ref: "resource"
+
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: "user",
+        required: true
+    },
+    date_created: {type: Date, default: Date.now}
+})
+
+// --------------------------------- Resource Type ----------------------------------------
+const resourceTypeSchema = new mongoose.Schema({
+    name: {
+        required: true,
+        type: String
+    }
+});
+
+
 
 // --------------------------------- User ----------------------------------------
 const userSchema = new mongoose.Schema({
@@ -180,12 +217,15 @@ const instituteSchema = new mongoose.Schema({
     }]
 })
 
+
 const resource = mongoose.model('Resource', resourceSchema);
 const category = mongoose.model("Category", categorySchema);
 const resourceFile = mongoose.model("resourcefile", resourceFileSchema);
 const rating = mongoose.model("rating", ratingSchema);
+const resourceType = mongoose.model("resourcetype", resourceTypeSchema);
+const resourceLikes = mongoose.model("resourcelikes", likeSchema);
 
 const user = mongoose.model("user", userSchema);
 const institute = mongoose.model("ResearchInstitute", instituteSchema);
 
-module.exports = { resource, category, resourceFile, rating, user, institute }
+module.exports = { resource, category, resourceFile, rating, user, institute, resourceType, resourceLikes }
