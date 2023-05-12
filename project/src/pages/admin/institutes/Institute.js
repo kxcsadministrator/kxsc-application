@@ -10,6 +10,7 @@ import Topbar from "../../../components/admin/Topbar";
 import Request from "../../../components/admin/institutes/requests.js/Request";
 import axios from "axios";
 import "./institutes.css";
+import API_URL from "../../../url";
 
 function Institute() {
   const { user } = useContext(Context);
@@ -26,7 +27,7 @@ function Institute() {
     const getInstitute = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3001/institutes/one/${id}`,
+          `${API_URL.institute}/institutes/one/${id}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setInstitute(res.data);

@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../url";
 
 function CreateMessage() {
   //states
@@ -34,7 +35,7 @@ function CreateMessage() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3000/users/search-user?name=${recipient}`,
+            `${API_URL.user}/users/search-user?name=${recipient}`,
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
@@ -44,7 +45,7 @@ function CreateMessage() {
       } else {
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3001/institutes/${user.main_institute._id}/search-member?name=${recipient}`,
+            `${API_URL.institute}/institutes/${user.main_institute._id}/search-member?name=${recipient}`,
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
@@ -64,7 +65,7 @@ function CreateMessage() {
     if (adminMsg) {
       try {
         const res = await axios.post(
-          `http://15.188.62.53:3000/messages/broadcast/`,
+          `${API_URL.user}/messages/broadcast/`,
           {
             body: message,
           },
@@ -85,7 +86,7 @@ function CreateMessage() {
     } else {
       try {
         const res = await axios.post(
-          `http://15.188.62.53:3000/messages/new`,
+          `${API_URL.user}/messages/new`,
           {
             body: message,
             recipient: recipient,

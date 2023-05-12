@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../url";
 
 function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
   const { user } = useContext(Context);
@@ -34,7 +35,7 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3000/users/delete/${deleteUser.id}`,
+        `${API_URL.user}/users/delete/${deleteUser.id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

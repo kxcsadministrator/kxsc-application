@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function EditSectionModal({ setEditSectionModal, editSection }) {
   const [name, setName] = useState(editSection.name);
@@ -31,7 +32,7 @@ function EditSectionModal({ setEditSectionModal, editSection }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/pages/edit-section/${editSection.name}`,
+        `${API_URL.user}/pages/edit-section/${editSection.name}`,
         {
           new_name: name,
         },

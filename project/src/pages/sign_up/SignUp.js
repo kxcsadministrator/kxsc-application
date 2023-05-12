@@ -2,6 +2,7 @@ import axios from "axios";
 import { useRef, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./sign_up.css";
+import API_URL from "../../url";
 
 function SignUp() {
   const [username, setUsername] = useState("");
@@ -19,7 +20,7 @@ function SignUp() {
     e.preventDefault();
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.post(`http://15.188.62.53:3000/users/new`, {
+      const res = await axios.post(`${API_URL.user}/users/new`, {
         username: username,
         email: email,
         password: password,

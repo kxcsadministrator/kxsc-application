@@ -8,6 +8,7 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function PublicResources() {
   const { user } = useContext(Context);
@@ -24,12 +25,9 @@ function PublicResources() {
     const getResources = async () => {
       if (user.superadmin) {
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3002/resources/public`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.resource}/resources/public`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
           console.log(res.data);
@@ -44,12 +42,9 @@ function PublicResources() {
         }
       } else {
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3002/resources/public`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.resource}/resources/public`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
           console.log(res.data);
@@ -163,7 +158,7 @@ function PublicResources() {
                               ) : (
                                 <div className="h-full w-[28%]">
                                   <img
-                                    src={`http://15.188.62.53:3002/${resource.avatar}`}
+                                    src={`${API_URL.resource}/${resource.avatar}`}
                                     alt="default"
                                     className="object-cover h-full w-full"
                                   />

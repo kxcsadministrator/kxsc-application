@@ -5,6 +5,7 @@ import { Context } from "../../../context/Context";
 import { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../url";
 
 function CreateCategory() {
   const { user } = useContext(Context);
@@ -21,7 +22,7 @@ function CreateCategory() {
     setErr(false);
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3002/categories/new`,
+        `${API_URL.resource}/categories/new`,
         {
           name: cat,
           sub_categories: [subCat],

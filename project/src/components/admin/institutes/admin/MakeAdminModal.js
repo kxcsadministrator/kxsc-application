@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
+import API_URL from "../../../../url";
 
 function MakeAdminModal({ setAdminModal, instituteId }) {
   //states declaration
@@ -38,7 +39,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `${API_URL.institute}/institutes/${instituteId}/search-member?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -55,7 +56,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3001/institutes/add-admins/${instituteId}`,
+        `${API_URL.institute}/institutes/add-admins/${instituteId}`,
         { admins: [username] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

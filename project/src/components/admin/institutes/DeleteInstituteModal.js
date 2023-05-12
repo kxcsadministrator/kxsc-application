@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 function DeleteInstituteModal({ setDeleteInstituteModal, modalInstitute }) {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ function DeleteInstituteModal({ setDeleteInstituteModal, modalInstitute }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3001/institutes/delete/${modalInstitute._id}`,
+        `${API_URL.institute}/institutes/delete/${modalInstitute._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

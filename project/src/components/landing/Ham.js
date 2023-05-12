@@ -3,6 +3,7 @@ import image6 from "../images/kxcc.png";
 import image9 from "../images/google-removebg.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../url";
 
 function Ham() {
   const [burger_class, setBurgerClass] = useState("burger-bar unclicked");
@@ -33,7 +34,7 @@ function Ham() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);

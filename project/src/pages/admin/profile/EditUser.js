@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import API_URL from "../../../url";
 
 function EditUser({ setEditUserModal, editUser }) {
   //   states
@@ -30,7 +31,7 @@ function EditUser({ setEditUserModal, editUser }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/users/edit-username/${editUser.id}`,
+        `${API_URL.user}/users/edit-username/${editUser.id}`,
         {
           new_username: user,
         },

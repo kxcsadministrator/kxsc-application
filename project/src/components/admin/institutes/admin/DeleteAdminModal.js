@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
   const { user } = useContext(Context);
@@ -31,7 +32,7 @@ function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
     setErr(false);
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3001/institutes/remove-admins/${instituteId}`,
+        `${API_URL.institute}/institutes/remove-admins/${instituteId}`,
         {
           admins: [admin.username],
         },

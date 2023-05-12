@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
-function RemovePic({ setRemovePicModal }) {
-  //   states
+function DeleteType({ setDeleteTypeModal, type }) {
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -13,11 +13,10 @@ function RemovePic({ setRemovePicModal }) {
   });
   let menuRef = useRef();
 
-  //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setRemovePicModal(false);
+        setDeleteTypeModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -25,22 +24,21 @@ function RemovePic({ setRemovePicModal }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setRemovePicModal]);
+  }, [setDeleteTypeModal]);
 
-  const removePic = async () => {
+  const submitType = async () => {
+    setStates({ loading: true, error: false });
     try {
-      const res = await axios({
-        method: "post",
-        url: `${API_URL.user}/users/remove-profile-photo/${user.id}`,
-        headers: { Authorization: `Bearer ${user.jwt_token}` },
-      });
+      const res = await axios.delete(
+        `${API_URL.resource}/resources/delete-type/${type._id}`,
+        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+      );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setRemovePicModal(false);
+        setDeleteTypeModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -54,12 +52,13 @@ function RemovePic({ setRemovePicModal }) {
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
-        </h1>
+        <h1 className="modal_heading">Delete Type</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <div>
-            <p>Are you sure you want to remove profile picture</p>
+            <p>
+              Are you sure you want to delete
+              <span className="font-bold ml-2">{type.name}</span>
+            </p>
           </div>
           <div>
             {states.loading ? (
@@ -77,20 +76,20 @@ function RemovePic({ setRemovePicModal }) {
             ) : (
               <div></div>
             )}
-            <div className="flex items-center gap-5">
+
+            <div className="flex items-center gap-3">
               <button
-                onClick={() => setRemovePicModal(false)}
-                className="btn_green"
-                disabled={states.loading}
+                onClick={() => setDeleteTypeModal(false)}
+                className="bg-green_bg rounded-sm h-[35px] w-full py-1 px-2 text-white"
               >
-                Back
+                back
               </button>
               <button
-                onClick={() => removePic()}
-                className="btn_red"
+                onClick={() => submitType()}
+                className="bg-[#d14949] rounded-sm h-[35px] w-full py-1 px-2 text-white"
                 disabled={states.loading}
               >
-                Continue
+                continue
               </button>
             </div>
           </div>
@@ -100,4 +99,4 @@ function RemovePic({ setRemovePicModal }) {
   );
 }
 
-export default RemovePic;
+export default DeleteType;

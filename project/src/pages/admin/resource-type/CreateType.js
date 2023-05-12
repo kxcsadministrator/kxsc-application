@@ -1,33 +1,37 @@
-import Topbar from "../../../components/admin/Topbar";
 import Sidebar from "../../../components/admin/Sidebar";
+import Topbar from "../../../components/admin/Topbar";
+import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
-import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import API_URL from "../../../url";
 
-function CreateInstitues() {
+function CreateType() {
   const { user } = useContext(Context);
-  const [instituteName, setInstituteName] = useState("");
+  const [typeName, setTypeName] = useState("");
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
+    success: false,
   });
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `${API_URL.institute}/institutes/new`,
+        `${API_URL.resource}/resources/new-resource-type`,
         {
-          name: instituteName,
+          name: typeName,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
-      setStates({ loading: false, error: false });
-      navigate("/admin/institutes");
+      setStates({ loading: false, error: false, success: true });
+      setTimeout(() => {
+        navigate("/admin/resource-types");
+      }, 2000);
     } catch (err) {
       setStates({
         loading: false,
@@ -36,7 +40,6 @@ function CreateInstitues() {
       });
     }
   };
-
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -47,14 +50,14 @@ function CreateInstitues() {
           <Topbar />
         </div>
         <form className="institute_form">
-          <h1 className="form_header">Create Institute</h1>
+          <h1 className="form_header">Create Resource Type</h1>
           <div className="institute_input_container">
             <div className="institute_input_row">
-              <label>Institues Name: </label>
+              <label> Name: </label>
               <input
-                placeholder="Institues Name"
-                value={instituteName}
-                onChange={(e) => setInstituteName(e.target.value)}
+                placeholder="resource Type Name"
+                value={typeName}
+                onChange={(e) => setTypeName(e.target.value)}
               />
             </div>
             <div>
@@ -66,6 +69,10 @@ function CreateInstitues() {
                 <div>
                   <p>{states.errMsg}</p>
                 </div>
+              ) : states.success ? (
+                <div>
+                  <p className="text-green-500">success</p>
+                </div>
               ) : (
                 <div></div>
               )}
@@ -73,7 +80,7 @@ function CreateInstitues() {
             <div className="form_button_btn">
               <button
                 onClick={(e) => handleSubmit(e)}
-                className="institute_submit_button"
+                className="btn_green"
                 disabled={states.loading}
               >
                 Submit
@@ -86,4 +93,4 @@ function CreateInstitues() {
   );
 }
 
-export default CreateInstitues;
+export default CreateType;

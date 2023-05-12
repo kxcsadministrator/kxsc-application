@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./reset.css";
+import API_URL from "../../../url";
 
 function ResetEmail() {
   const [username, setUsername] = useState("");
@@ -18,7 +19,7 @@ function ResetEmail() {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3000/users/reset-password-request`,
+        `${API_URL.user}/users/reset-password-request`,
         {
           username: username,
         }

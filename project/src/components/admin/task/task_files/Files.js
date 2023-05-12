@@ -6,6 +6,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import AddFiles from "./AddFiles";
+import API_URL from "../../../../url";
 
 function Files({ files, admin }) {
   //states
@@ -63,7 +64,7 @@ function Files({ files, admin }) {
   const downloadBtn = async (file) => {
     try {
       const res = await axios.get(
-        `http://15.188.62.53:3001/tasks/${id}/download-file/${file._id}`,
+        `${API_URL.institute}/tasks/${id}/download-file/${file._id}`,
         {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
           responseType: "blob",

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 function RemovePage({ setRemovePageModal, edit, section }) {
   const { user } = useContext(Context);
   const [states, setStates] = useState({
@@ -29,7 +30,7 @@ function RemovePage({ setRemovePageModal, edit, section }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3000/pages/delete-page/${section}/${edit.title}`,
+        `${API_URL.user}/pages/delete-page/${section}/${edit.title}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,

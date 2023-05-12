@@ -50,6 +50,9 @@ import SinglePage from "./pages/admin/public-portal/SinglePage";
 import LandingBlog from "./components/landing/LandingBlog";
 import LandingBlogDetails from "./components/landing/LandingBlogDetails";
 import LandingSectionPage from "./components/landing/LandingSectionPage";
+import ResourceType from "./pages/admin/resource-type/ResourceType";
+import CreateType from "./pages/admin/resource-type/CreateType";
+import LandingSearchTypes from "./components/landing/LandingSearchTypes";
 
 function App() {
   const { user } = useContext(Context);
@@ -114,6 +117,14 @@ function App() {
             element={user ? <OtherResources /> : <Login />}
           />
           <Route
+            path="/admin/resource-types"
+            element={user ? <ResourceType /> : <Login />}
+          />
+          <Route
+            path="/admin/create-resource-type"
+            element={user ? <CreateType /> : <Login />}
+          />
+          <Route
             path="/admin/categories"
             element={user ? <Categories /> : <Login />}
           />
@@ -175,6 +186,7 @@ function App() {
             path="/search_by_category"
             element={<LandingSearchCategory />}
           />
+          <Route path="/search_by_type" element={<LandingSearchTypes />} />
           <Route path="Modal" element={<ModalOne />} />
           <Route path="Modall" element={<ModalTwo />} />
           <Route path="Ham" element={<Ham />} />

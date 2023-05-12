@@ -5,6 +5,7 @@ import RequestModal from "./RequestModal";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../../url";
 
 function Request({ instituteId, admin }) {
   //states
@@ -25,7 +26,7 @@ function Request({ instituteId, admin }) {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3001/institutes/publish-requests/${id}`,
+          `${API_URL.institute}/institutes/publish-requests/${id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -91,7 +92,7 @@ function Request({ instituteId, admin }) {
     try {
       const res = await axios({
         method: "post",
-        url: `http://15.188.62.53:3001/institutes/publish-to-institute/${instituteId}/${resourceId}`,
+        url: `${API_URL.institute}/institutes/publish-to-institute/${instituteId}/${resourceId}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

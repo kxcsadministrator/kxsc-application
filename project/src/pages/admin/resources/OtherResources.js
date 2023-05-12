@@ -8,6 +8,7 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function OtherResources() {
   const { user } = useContext(Context);
@@ -24,7 +25,7 @@ function OtherResources() {
     const getResources = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/users/other-institute-resources/${user.id}`,
+          `${API_URL.user}/users/other-institute-resources/${user.id}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -135,7 +136,7 @@ function OtherResources() {
                               {resource.avatar ? (
                                 <div className="md:h-full h-36 md:w-[28%] w-[90%]">
                                   <img
-                                    src={`http://15.188.62.53:3002/${resource.avatar}`}
+                                    src={`${API_URL.resource}/${resource.avatar}`}
                                     alt="resource avatar"
                                     className="object-cover h-full w-full"
                                   />

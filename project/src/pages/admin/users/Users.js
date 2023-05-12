@@ -7,6 +7,7 @@ import axios from "axios";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function Users() {
   //useStates
@@ -23,7 +24,7 @@ function Users() {
     const getUsers = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(`http://15.188.62.53:3000/users/all`, {
+        const res = await axios.get(`${API_URL.user}/users/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });

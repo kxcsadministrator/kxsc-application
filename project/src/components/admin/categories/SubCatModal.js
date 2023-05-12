@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function SubCatModal({ deleteSubCat, setSubCatModal, category }) {
   //states
@@ -32,7 +33,7 @@ function SubCatModal({ deleteSubCat, setSubCatModal, category }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3002/categories/remove-subcategories/${category._id}`,
+        `${API_URL.resource}/categories/remove-subcategories/${category._id}`,
         { sub_categories: [deleteSubCat] },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );

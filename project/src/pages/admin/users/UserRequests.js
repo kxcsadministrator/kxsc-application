@@ -8,6 +8,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
+import API_URL from "../../../url";
 
 function UserRequests() {
   const { user } = useContext(Context);
@@ -24,12 +25,9 @@ function UserRequests() {
     const getUsers = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/users/new-user-requests`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL.user}/users/new-user-requests`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setAllUsers(res.data);
       } catch (err) {
@@ -92,7 +90,7 @@ function UserRequests() {
     try {
       const res = await axios({
         method: "post",
-        url: `http://15.188.62.53:3000/users/approve-user-request/${id}`,
+        url: `${API_URL.user}/users/approve-user-request/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

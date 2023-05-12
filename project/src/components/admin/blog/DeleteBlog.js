@@ -2,6 +2,7 @@ import React from "react";
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function DeleteBlog({ setDeleteBlogModal, blog }) {
   const { user } = useContext(Context);
@@ -29,7 +30,7 @@ function DeleteBlog({ setDeleteBlogModal, blog }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3000/blog/delete/${blog._id}`,
+        `${API_URL.user}/blog/delete/${blog._id}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,

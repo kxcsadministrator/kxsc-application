@@ -18,6 +18,7 @@ import {
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../url";
 
 function Landmobile() {
   const [allCat, setAllCat] = useState([]);
@@ -36,7 +37,7 @@ function Landmobile() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);

@@ -6,6 +6,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../url";
 
 function CreateBlog() {
   const { user } = useContext(Context);
@@ -24,7 +25,7 @@ function CreateBlog() {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3000/blog/new`,
+        `${API_URL.user}/blog/new`,
         {
           title: title,
           body: body,

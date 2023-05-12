@@ -10,6 +10,7 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function Institutes() {
   const { user } = useContext(Context);
@@ -29,12 +30,9 @@ function Institutes() {
       setStates({ loading: true, error: false });
       if (user.superadmin) {
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3001/institutes/all`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.institute}/institutes/all`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setAllInstitutes(res.data);
           setStates({ loading: false, error: false });
           console.log(res.data);
@@ -48,7 +46,7 @@ function Institutes() {
       } else {
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3001/institutes/my-institutes`,
+            `${API_URL.institute}/institutes/my-institutes`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../url";
 
 function EditPage({ setEditPageModal, section, edit }) {
   const [title, setTitle] = useState(edit.title);
@@ -34,7 +35,7 @@ function EditPage({ setEditPageModal, section, edit }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/pages/edit-page/${section}/${edit.title}`,
+        `${API_URL.user}/pages/edit-page/${section}/${edit.title}`,
         {
           title: title !== edit.title ? title : null,
           body: body !== edit.body ? body : null,

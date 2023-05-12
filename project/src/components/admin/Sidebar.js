@@ -18,6 +18,7 @@ function Sidebar() {
   const [msgMenu, setMsgMenu] = useState(false);
   const [catMenu, setCatMenu] = useState(false);
   const [resourceMenu, setResourceMenu] = useState(false);
+  const [resourceTypeMenu, setResourceTypeMenu] = useState(false);
   const [mppMenu, setMppMenu] = useState(false);
   const [mriMenu, setMriMenu] = useState(false);
   const [usersMenu, setUsersMenu] = useState(false);
@@ -139,6 +140,31 @@ function Sidebar() {
                 </Link>
                 <Link className="link" to="/admin/resources">
                   <p>View All Resource Items</p>
+                </Link>
+              </div>
+              <div className="dash" />
+            </div>
+            {/* Resource Section - text and Menu*/}
+            <div className={"menus " + (resourceTypeMenu && "active")}>
+              <div
+                className="menu_contents"
+                onClick={() => setResourceTypeMenu(!resourceTypeMenu)}
+              >
+                <div className="content">
+                  <AiFillHdd />
+                  <h5>Manage Resources Types</h5>
+                </div>
+                <div className="toggleImg">
+                  <CgChevronDown />
+                </div>
+              </div>
+              {/* Resource Menu*/}
+              <div className="dropdown_menu">
+                <Link className="link" to="/admin/resource-types">
+                  <p>Resource Types</p>
+                </Link>
+                <Link className="link" to="/admin/create-resource-type">
+                  <p>Create Resource Type</p>
                 </Link>
               </div>
               <div className="dash" />

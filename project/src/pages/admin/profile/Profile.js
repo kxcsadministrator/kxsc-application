@@ -8,6 +8,7 @@ import EditPic from "./EditPic";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import RemovePic from "./RemovePic";
+import API_URL from "../../../url";
 
 function Profile() {
   const { user } = useContext(Context);
@@ -51,7 +52,7 @@ function Profile() {
             <div className="md:w-[25%] w-[90%] flex flex-col gap-5">
               {user?.profile_picture ? (
                 <img
-                  src={`http://15.188.62.53:3000/${user.profile_picture.path}`}
+                  src={`${API_URL.user}/${user.profile_picture.path}`}
                   alt="profile_picture"
                   className="w-full object-cover h-[200px] rounded-md"
                 />

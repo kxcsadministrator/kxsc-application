@@ -9,6 +9,7 @@ import Footer from "./Footer";
 import Ham from "./Ham";
 import { Context } from "../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../url";
 
 function LandingSectionPage() {
   const [show, setShow] = useState(false);
@@ -31,7 +32,7 @@ function LandingSectionPage() {
 
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/pages/page/${section}/${name}`
+          `${API_URL.user}/pages/page/${section}/${name}`
         );
         setStates({ loading: false, error: false });
         setPage(res.data);

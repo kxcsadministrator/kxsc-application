@@ -8,6 +8,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditPage from "../../../components/admin/public-portal/EditPage";
 import RemovePage from "../../../components/admin/public-portal/RemovePage";
+import API_URL from "../../../url";
 
 function SinglePage() {
   const { user } = useContext(Context);
@@ -31,7 +32,7 @@ function SinglePage() {
 
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/pages/page/${section}/${name}`,
+          `${API_URL.user}/pages/page/${section}/${name}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

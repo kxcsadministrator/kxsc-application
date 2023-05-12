@@ -6,6 +6,7 @@ import { BsFacebook } from "react-icons/bs";
 import { AiOutlineTwitter } from "react-icons/ai";
 import { IoLogoInstagram } from "react-icons/io";
 import { ImPinterest } from "react-icons/im";
+import API_URL from "../../url";
 
 function Footer() {
   const navigate = useNavigate();
@@ -20,9 +21,7 @@ function Footer() {
   useEffect(() => {
     const getSections = async () => {
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/pages/all-sections`
-        );
+        const res = await axios.get(`${API_URL.user}/pages/all-sections`);
         setStates({ loading: false, error: false });
         setSections(res.data);
         console.log(res.data);

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function DeleteCategory({ setDeleteCatModal, deleteCat }) {
   const { user } = useContext(Context);
@@ -29,7 +30,7 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3002/catgories/delete/${deleteCat._id}`,
+        `${API_URL.resource}/catgories/delete/${deleteCat._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
@@ -47,8 +48,6 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
           ? err.response.data.errors[0].msg
           : err.response.data.message
       );
-
-      console.log(err);
     }
   };
   return (

@@ -4,6 +4,7 @@ import { Chart, registerables } from "chart.js";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import "../../../pages/admin/panel/panel.css";
+import API_URL from "../../../url";
 
 function BarChart() {
   Chart.register(...registerables);
@@ -27,7 +28,7 @@ function BarChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3002/resources/monthly-stats`,
+          `${API_URL.resource}/resources/monthly-stats`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -36,7 +37,7 @@ function BarChart() {
         console.log(res.data);
       } catch (err) {}
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/resources/all`, {
+        const res = await axios.get(`${API_URL.resource}/resources/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setResources(res.data);

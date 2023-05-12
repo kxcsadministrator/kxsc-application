@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function AddCollaborators({ setAddCollaboratorsModal }) {
   const [username, setUsername] = useState("");
@@ -36,7 +37,7 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3001/institutes/${instituteId}/search-member?name=${username}`,
+          `${API_URL.institute}/institutes/${instituteId}/search-member?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -53,7 +54,7 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3001/tasks/add-collabs/${id}`,
+        `${API_URL.institute}/tasks/add-collabs/${id}`,
         {
           collaborators: [username],
         },

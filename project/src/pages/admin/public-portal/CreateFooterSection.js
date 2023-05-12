@@ -4,6 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../url";
 
 function CreateFooterSection() {
   const { user } = useContext(Context);
@@ -21,7 +22,7 @@ function CreateFooterSection() {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3000/pages/new-section`,
+        `${API_URL.user}/pages/new-section`,
         {
           name: sectionName,
         },

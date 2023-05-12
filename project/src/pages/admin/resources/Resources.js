@@ -11,6 +11,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import "./resource.css";
+import API_URL from "../../../url";
 
 function Resources() {
   const { user } = useContext(Context);
@@ -30,12 +31,9 @@ function Resources() {
       setStates({ loading: true, error: false });
       if (user.superadmin) {
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3002/resources/all`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.resource}/resources/all`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
           console.log(res.data);
@@ -50,7 +48,7 @@ function Resources() {
       } else {
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3002/resources/my-resources`,
+            `${API_URL.resource}/resources/my-resources`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -178,7 +176,7 @@ function Resources() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://15.188.62.53:3002/${resource.avatar}`}
+                              src={`${API_URL.resource}/${resource.avatar}`}
                               alt="avatar resource"
                               className="object-cover h-full w-full"
                             />

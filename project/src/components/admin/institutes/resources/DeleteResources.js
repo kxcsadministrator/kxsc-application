@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function DeleteResources({
   deleteResource,
@@ -35,7 +36,7 @@ function DeleteResources({
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3002/resources/delete/${deleteResource._id}`,
+        `${API_URL.resource}/resources/delete/${deleteResource._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

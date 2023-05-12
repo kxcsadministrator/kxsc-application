@@ -10,6 +10,7 @@ import DeleteCategory from "../../../components/admin/categories/DeleteCategory"
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function Categories() {
   //states
@@ -31,7 +32,7 @@ function Categories() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`, {
+        const res = await axios.get(`${API_URL.resource}/categories/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });
@@ -126,7 +127,7 @@ function Categories() {
                 <h1>All Category</h1>
                 <div>
                   <input
-                    placeholder="Search Resources"
+                    placeholder="Search Categories"
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
                   />
@@ -136,32 +137,35 @@ function Categories() {
                 <div>
                   {collection?.map((cat, index) => (
                     <div className="grid gap-6" key={index}>
-                      <div className="flex flex-col ">
-                        <p className="text-base font-bold text-[#1f1f1f]">
-                          {cat.name}
-                        </p>
-                        {cat?.sub_categories.map((sub, index) => (
-                          <p className="text-sm -mt-3" key={index}>
-                            {sub}
+                      <div className="flex justify-between">
+                        <div>
+                          <p className="text-base font-bold text-[#1f1f1f]">
+                            {cat.name}
                           </p>
-                        ))}
-
-                        <p className="flex gap-1 items-center -mt-1">
-                          <button
-                            onClick={() => viewCat(cat)}
-                            className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
-                          >
-                            <FaEye />
-                          </button>
-                          {user.superadmin && (
+                          {cat?.sub_categories.map((sub, index) => (
+                            <p className="text-sm -mt-3" key={index}>
+                              {sub}
+                            </p>
+                          ))}
+                        </div>
+                        <div>
+                          <p className="flex gap-1 items-center -mt-1">
                             <button
-                              className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
-                              onClick={() => deleteBtn(cat)}
+                              onClick={() => viewCat(cat)}
+                              className="hover:text-green_bg px-2 py-1 border-gray_bg bg-[#e9e9e9] rounded-sm "
                             >
-                              <RiDeleteBinLine />
+                              <FaEye />
                             </button>
-                          )}
-                        </p>
+                            {user.superadmin && (
+                              <button
+                                className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
+                                onClick={() => deleteBtn(cat)}
+                              >
+                                <RiDeleteBinLine />
+                              </button>
+                            )}
+                          </p>
+                        </div>
                       </div>
                       <div className="h-[1.5px] w-full bg-[#cecece] mb-3" />
                     </div>

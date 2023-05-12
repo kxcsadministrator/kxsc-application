@@ -3,6 +3,7 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../url";
 
 function EditBlogModal({ setEditBlogModal, id, edit }) {
   const [title, setTitle] = useState(edit.title);
@@ -34,7 +35,7 @@ function EditBlogModal({ setEditBlogModal, id, edit }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/blog/edit/${id}`,
+        `${API_URL.user}/blog/edit/${id}`,
         {
           title: title !== edit.title ? title : null,
           body: body !== edit.body ? body : null,

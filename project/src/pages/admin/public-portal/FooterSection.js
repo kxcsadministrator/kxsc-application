@@ -8,6 +8,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditSectionModal from "../../../components/admin/public-portal/EditSectionModal";
 import RemoveSectionModal from "../../../components/admin/public-portal/RemoveSectionModal";
+import API_URL from "../../../url";
 
 function FooterSection() {
   //states
@@ -29,12 +30,9 @@ function FooterSection() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/pages/all-sections`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL.user}/pages/all-sections`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setSections(res.data);
         console.log(res.data);

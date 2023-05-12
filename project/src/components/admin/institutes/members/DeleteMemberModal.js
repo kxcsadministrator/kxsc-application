@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
   const { user } = useContext(Context);
@@ -31,7 +32,7 @@ function DeleteMemberModal({ member, setDeleteModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3001/institutes/remove-members/${instituteId}`,
+        `${API_URL.institute}/institutes/remove-members/${instituteId}`,
         {
           members: [member],
         },

@@ -12,6 +12,7 @@ import { HiUser } from "react-icons/hi";
 import { FaSchool } from "react-icons/fa";
 import { GiBookCover } from "react-icons/gi";
 import { FaEye } from "react-icons/fa";
+import API_URL from "../../../url";
 
 // import image from './image/user2.jpg';
 
@@ -30,17 +31,14 @@ function Panel() {
     const getAll = async () => {
       if (!user.superadmin) {
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3000/users/my-dashboard`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.user}/users/my-dashboard`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setDashboard(res.data);
         } catch (err) {}
       } else {
         try {
-          const res = await axios.get(`http://15.188.62.53:3000/users/all`, {
+          const res = await axios.get(`${API_URL.user}/users/all`, {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           });
           setUsers(res.data);
@@ -48,7 +46,7 @@ function Panel() {
 
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3000/users/all?page=1&limit=3`,
+            `${API_URL.user}/users/all?page=1&limit=3`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -59,22 +57,16 @@ function Panel() {
         }
 
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3001/institutes/all`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.institute}/institutes/all`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setInstitutes(res.data);
         } catch (err) {}
 
         try {
-          const res = await axios.get(
-            `http://15.188.62.53:3002/resources/all`,
-            {
-              headers: { Authorization: `Bearer ${user.jwt_token}` },
-            }
-          );
+          const res = await axios.get(`${API_URL.resource}/resources/all`, {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          });
           setResources(res.data);
         } catch (err) {}
       }
@@ -199,7 +191,7 @@ function Panel() {
                             <img src="/default.png" alt="default" />
                           ) : (
                             <img
-                              src={`http://15.188.62.53:3002/${resource.avatar}`}
+                              src={`${API_URL.resource}/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />
@@ -264,7 +256,7 @@ function Panel() {
                           <img src="/default.png" alt="default" />
                         ) : (
                           <img
-                            src={`http://15.188.62.53:3002/${resource.avatar}`}
+                            src={`${API_URL.resource}/${resource.avatar}`}
                             alt="default"
                             className="object-cover h-full w-full"
                           />

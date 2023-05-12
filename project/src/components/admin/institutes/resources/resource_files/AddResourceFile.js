@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../../context/Context";
 import { useForm } from "react-hook-form";
+import API_URL from "../../../../../url";
 
 function AddResourceFile({ setAddFileModal, resourceId }) {
   const { user } = useContext(Context);
@@ -36,7 +37,7 @@ function AddResourceFile({ setAddFileModal, resourceId }) {
 
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3002/resources/upload-files/${resourceId}`,
+        `${API_URL.resource}/resources/upload-files/${resourceId}`,
         formData,
         {
           headers: {

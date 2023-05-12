@@ -9,6 +9,7 @@ import Footer from "./Footer";
 import Ham from "./Ham";
 import { Context } from "../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../url";
 
 function LandingBlogDetails() {
   const [show, setShow] = useState(false);
@@ -29,7 +30,7 @@ function LandingBlogDetails() {
     const getBlog = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(`http://15.188.62.53:3000/blog/one/${id}`);
+        const res = await axios.get(`${API_URL.user}/blog/one/${id}`);
         setStates({ loading: false, error: false });
         setBlog(res.data);
         console.log(res.data);

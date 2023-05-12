@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../url";
 
 function LandingsearchResult() {
   const [show, setShow] = useState(false);
@@ -44,7 +45,7 @@ function LandingsearchResult() {
 
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3002/resources/search?query=${search}`
+          `${API_URL.resource}/resources/search?query=${search}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -66,7 +67,7 @@ function LandingsearchResult() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);
@@ -306,7 +307,7 @@ function LandingsearchResult() {
                           {resource.avatar ? (
                             <div>
                               <img
-                                src={`http://15.188.62.53:3002/${resource.avatar}`}
+                                src={`${API_URL.resource}/${resource.avatar}`}
                                 alt="avatar resource"
                                 className="object-cover h-full w-full"
                               />

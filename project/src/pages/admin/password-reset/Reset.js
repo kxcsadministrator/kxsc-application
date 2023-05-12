@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import "./reset.css";
+import API_URL from "../../../url";
 
 function Reset() {
   const [password, setPassword] = useState("");
@@ -23,7 +24,7 @@ function Reset() {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/users/password-reset/${id}`,
+        `${API_URL.user}/users/password-reset/${id}`,
         {
           new_password: password,
           token: token,

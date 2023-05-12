@@ -5,6 +5,7 @@ import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AddPageModal from "../../../components/admin/public-portal/AddPageModal";
+import API_URL from "../../../url";
 
 function SingleSection() {
   const { user } = useContext(Context);
@@ -26,7 +27,7 @@ function SingleSection() {
 
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/pages/section/${section}`,
+          `${API_URL.user}/pages/section/${section}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

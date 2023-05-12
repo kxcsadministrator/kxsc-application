@@ -3,6 +3,7 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../url";
 
 function AddPageModal({ setAddPageModal, section }) {
   const [title, setTitle] = useState("");
@@ -34,7 +35,7 @@ function AddPageModal({ setAddPageModal, section }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3000/pages/new-page/${section}`,
+        `${API_URL.user}/pages/new-page/${section}`,
         {
           title: title,
           body: body,

@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function DeleteFileModal({ setDeleteFileModal, file, instituteId }) {
   const { user } = useContext(Context);
@@ -31,7 +32,7 @@ function DeleteFileModal({ setDeleteFileModal, file, instituteId }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3001/institutes/delete-file/${file._id}`,
+        `${API_URL.institute}/institutes/delete-file/${file._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

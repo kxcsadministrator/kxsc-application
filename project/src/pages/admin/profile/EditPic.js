@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function EditPic({ setEditPicModal, editUser }) {
   //   states
@@ -35,7 +36,7 @@ function EditPic({ setEditPicModal, editUser }) {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3000/users/change-profile-photo/${user.id}`,
+        `${API_URL.user}/users/change-profile-photo/${user.id}`,
         formData,
         {
           headers: {

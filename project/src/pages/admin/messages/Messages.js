@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import DeleteMsg from "../../../components/admin/users/DeleteMsg";
+import API_URL from "../../../url";
 
 function Messages() {
   //states
@@ -29,12 +30,9 @@ function Messages() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/messages/my-messages`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL.user}/messages/my-messages`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setAllMsg(res.data);
         console.log(res.data);
@@ -51,12 +49,9 @@ function Messages() {
     const sentMessages = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3000/messages/sent-messages`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL.user}/messages/sent-messages`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         setStates({ loading: false, error: false });
         setSentMsg(res.data);
         console.log(res.data);

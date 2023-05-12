@@ -2,6 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../../url";
 
 function AddMemberModal({ setMemberModal, instituteId }) {
   //states
@@ -47,7 +48,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/users/search-user?name=${username}`,
+          `${API_URL.user}/users/search-user?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
@@ -65,7 +66,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     if (newUser) {
       try {
         const res = await axios.post(
-          `http://15.188.62.53:3001/institutes/new-user-request/${instituteId}`,
+          `${API_URL.institute}/institutes/new-user-request/${instituteId}`,
           {
             username: newUsername,
             email: newEmail,
@@ -89,7 +90,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     } else {
       try {
         const res = await axios.patch(
-          `http://15.188.62.53:3001/institutes/add-members/${instituteId}`,
+          `${API_URL.institute}/institutes/add-members/${instituteId}`,
           {
             members: [username],
           },

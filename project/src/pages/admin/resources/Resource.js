@@ -6,6 +6,7 @@ import Topbar from "../../../components/admin/Topbar";
 import "./resource.css";
 import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
 import ResourceFiles from "../../../components/admin/institutes/resources/resource_files/ResourceFiles";
+import API_URL from "../../../url";
 
 function Resource() {
   //states
@@ -25,12 +26,9 @@ function Resource() {
   useEffect(() => {
     const getResources = async () => {
       try {
-        const res = await axios.get(
-          `http://15.188.62.53:3002/resources/one/${id}`,
-          {
-            headers: { Authorization: `Bearer ${user.jwt_token}` },
-          }
-        );
+        const res = await axios.get(`${API_URL.resource}/resources/one/${id}`, {
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
         console.log(res.data);
         setResource(res.data);
       } catch (err) {
@@ -47,7 +45,7 @@ function Resource() {
       setRequestModal(true);
       const res = await axios({
         method: "post",
-        url: `http://15.188.62.53:3002/resources/request-institute-publish/${resource.id}`,
+        url: `${API_URL.resource}/resources/request-institute-publish/${resource.id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });

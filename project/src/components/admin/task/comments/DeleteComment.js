@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import { Context } from "../../../../context/Context";
 import axios from "axios";
+import API_URL from "../../../../url";
 
 function DeleteComment({ setDeleteComModal, comment }) {
   //   states
@@ -34,7 +35,7 @@ function DeleteComment({ setDeleteComModal, comment }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3001/tasks/comments/delete/${comment._id}`,
+        `${API_URL.institute}/tasks/comments/delete/${comment._id}`,
         {
           body: comment.body,
         },

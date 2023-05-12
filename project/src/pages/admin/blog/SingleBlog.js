@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditBlogModal from "../../../components/admin/blog/EditBlogModal";
+import API_URL from "../../../url";
 
 function SingleBlog() {
   const { user } = useContext(Context);
@@ -26,7 +27,7 @@ function SingleBlog() {
     const getBlog = async () => {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.get(`http://15.188.62.53:3000/blog/one/${id}`, {
+        const res = await axios.get(`${API_URL.user}/blog/one/${id}`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });

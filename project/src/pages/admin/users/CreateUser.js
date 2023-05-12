@@ -4,6 +4,7 @@ import { Context } from "../../../context/Context";
 import { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API_URL from "../../../url";
 
 function CreateUser() {
   const { user } = useContext(Context);
@@ -24,7 +25,7 @@ function CreateUser() {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.post(
-          `http://15.188.62.53:3000/users/new/super-admin`,
+          `${API_URL.user}/users/new/super-admin`,
           {
             username: username,
             email: email,
@@ -44,7 +45,7 @@ function CreateUser() {
     } else {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.post(`http://15.188.62.53:3000/users/new`, {
+        const res = await axios.post(`${API_URL.user}/users/new`, {
           username: username,
           email: email,
           password: password,

@@ -1,9 +1,10 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
-function RemovePic({ setRemovePicModal }) {
-  //   states
+function EditTypeModal({ setEditTypeModal, type }) {
+  //states
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -11,13 +12,14 @@ function RemovePic({ setRemovePicModal }) {
     errMsg: "",
     success: false,
   });
+  const [newType, setNewType] = useState(type.name);
   let menuRef = useRef();
 
   //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setRemovePicModal(false);
+        setEditTypeModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -25,22 +27,23 @@ function RemovePic({ setRemovePicModal }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setRemovePicModal]);
+  }, [setEditTypeModal]);
 
-  const removePic = async () => {
+  //submit subCat
+  const submitType = async () => {
+    setStates({ loading: true, error: false });
     try {
-      const res = await axios({
-        method: "post",
-        url: `${API_URL.user}/users/remove-profile-photo/${user.id}`,
-        headers: { Authorization: `Bearer ${user.jwt_token}` },
-      });
+      const res = await axios.patch(
+        `${API_URL.resource}/resources/rename-type/${type._id}`,
+        { name: newType },
+        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+      );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setRemovePicModal(false);
+        setEditTypeModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -54,13 +57,18 @@ function RemovePic({ setRemovePicModal }) {
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
-        </h1>
+        <h1 className="modal_heading">Edit Type Name</h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <div>
-            <p>Are you sure you want to remove profile picture</p>
-          </div>
+          <form>
+            <input
+              placeholder={newType}
+              className="single_input"
+              value={newType}
+              onChange={(e) => {
+                setNewType(e.target.value);
+              }}
+            />
+          </form>
           <div>
             {states.loading ? (
               <div>
@@ -77,22 +85,10 @@ function RemovePic({ setRemovePicModal }) {
             ) : (
               <div></div>
             )}
-            <div className="flex items-center gap-5">
-              <button
-                onClick={() => setRemovePicModal(false)}
-                className="btn_green"
-                disabled={states.loading}
-              >
-                Back
-              </button>
-              <button
-                onClick={() => removePic()}
-                className="btn_red"
-                disabled={states.loading}
-              >
-                Continue
-              </button>
-            </div>
+
+            <button onClick={() => submitType()} className="btn_green">
+              submit
+            </button>
           </div>
         </div>
       </div>
@@ -100,4 +96,4 @@ function RemovePic({ setRemovePicModal }) {
   );
 }
 
-export default RemovePic;
+export default EditTypeModal;

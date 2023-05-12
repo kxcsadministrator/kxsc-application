@@ -4,6 +4,7 @@ import { Chart, registerables } from "chart.js";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import "../../../pages/admin/panel/panel.css";
+import API_URL from "../../../url";
 
 function PieChart() {
   Chart.register(...registerables);
@@ -25,7 +26,7 @@ function PieChart() {
     const getAll = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3002/resources/group-stats`,
+          `${API_URL.resource}/resources/group-stats`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

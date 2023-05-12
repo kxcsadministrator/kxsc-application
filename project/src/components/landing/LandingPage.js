@@ -10,6 +10,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GoPrimitiveDot } from "react-icons/go";
 import { SiBookstack } from "react-icons/si";
+import API_URL from "../../url";
 
 function LandingPage() {
   const [allCat, setAllCat] = useState([]);
@@ -20,6 +21,7 @@ function LandingPage() {
   });
   const [searchResource, setSearchResource] = useState("");
   const [errText, setErrText] = useState("");
+  const [types, setTypes] = useState();
   const navigate = useNavigate();
 
   //get categories
@@ -28,7 +30,7 @@ function LandingPage() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`);
+        const res = await axios.get(`${API_URL.resource}/categories/globe`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
         console.log(res.data);
@@ -44,11 +46,34 @@ function LandingPage() {
       }
     };
     getCategories();
+    const getTypes = async () => {
+      setStates({ loading: true, error: false });
+      try {
+        const res = await axios.get(
+          `${API_URL.resource}/resources/resource-types`
+        );
+        setStates({ loading: false, error: false });
+        setTypes(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
+      }
+    };
+    getTypes();
   }, []);
 
   const getCat = (name) => {
     sessionStorage.setItem("cat", name);
     navigate(`/search_by_category?${name}`);
+  };
+
+  const getType = (name) => {
+    sessionStorage.setItem("type", name);
+    navigate(`/search_by_type?${name}`);
   };
 
   const handleSubmit = async (e) => {
@@ -76,14 +101,22 @@ function LandingPage() {
         </div>
         <div className="landing--cont d-flex">
           <div className="ict">
-            <Link to={"/categorysinglepage"} className="line">
-              <h5>ICT </h5>
-            </Link>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[0]?.name)}
+            >
+              <h5>{allCat?.[0]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
           <div className="ict">
-            <h5>Production</h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[1]?.name)}
+            >
+              <h5>{allCat?.[1]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
         <div className="landing--conttt">
@@ -93,49 +126,89 @@ function LandingPage() {
         </div>
         <div className="landing--contt d-flex">
           <div className="ict">
-            <h5>Science & Technology </h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[2]?.name)}
+            >
+              <h5>{allCat?.[2]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
           <div></div>
           <div className="ict">
-            <h5>Mechanize Agriculture</h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[3]?.name)}
+            >
+              <h5>{allCat?.[3]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
         <div className="landing---contt d-flex">
           <div className="ict">
-            <h5>Nano Technologies </h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[4]?.name)}
+            >
+              <h5>{allCat?.[4]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
           <div></div>
           <div className="ict">
-            <h5>Safety & Security</h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[5]?.name)}
+            >
+              <h5>{allCat?.[5]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
         <div className="landing---contt d-flex">
           <div className="ict">
-            <h5>Blockchain </h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[6]?.name)}
+            >
+              <h5>{allCat?.[6]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
           <div></div>
           <div className="ict">
-            <h5>Robotics</h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[7]?.name)}
+            >
+              <h5>{allCat?.[7]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
         <div className="landing---conttt d-flex">
           <div className="ict">
-            <h5>Fintech </h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[8]?.name)}
+            >
+              <h5>{allCat?.[8]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
           <div className="ict">
-            <h5>AI</h5>
-            <p>200/478+ articles</p>
+            <div
+              className="line cursor-pointer"
+              onClick={() => getCat(allCat?.[9]?.name)}
+            >
+              <h5>{allCat?.[9]?.name}</h5>
+            </div>
+            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
         <br />
-        <form className="input" onSubmit={(e) => handleSubmit(e)}>
+        <form className="input mt-20" onSubmit={(e) => handleSubmit(e)}>
           <div className="input-group">
             <input
               type="text"
@@ -236,17 +309,16 @@ function LandingPage() {
               ></FontAwesomeIcon>
               Mediawiki
             </div> */}
-            {allCat.map((cat, index) => (
+            {types?.map((type, index) => (
               <div className="col" key={index}>
                 <div
                   className="link text-gray-800 hover:text-gray-300 flex items-center gap-2 md:text-xl text-base cursor-pointer"
-                  onClick={() => getCat(cat.name)}
-                  key={index}
+                  onClick={() => getType(type.name)}
                 >
                   <p>
                     <SiBookstack />
                   </p>
-                  <p>{cat.name}</p>
+                  <p>{type.name}</p>
                 </div>
               </div>
             ))}

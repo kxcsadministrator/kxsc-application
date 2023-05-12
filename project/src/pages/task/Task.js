@@ -7,6 +7,7 @@ import Topbar from "../../components/admin/Topbar";
 import Collaborators from "../../components/admin/task/collaborators/Collaborators";
 import Files from "../../components/admin/task/task_files/Files";
 import Comments from "../../components/admin/task/comments/Comments";
+import API_URL from "../../url";
 
 function Task() {
   //states
@@ -24,7 +25,7 @@ function Task() {
       try {
         const res = await axios({
           method: "get",
-          url: `http://15.188.62.53:3001/tasks/one/${id}`,
+          url: `${API_URL.institute}/tasks/one/${id}`,
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         console.log(res.data);

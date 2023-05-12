@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import DeleteBlog from "../../../components/admin/blog/DeleteBlog";
+import API_URL from "../../../url";
 
 function Blog() {
   const { user } = useContext(Context);
@@ -25,7 +26,7 @@ function Blog() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3000/blog/all`, {
+        const res = await axios.get(`${API_URL.user}/blog/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setStates({ loading: false, error: false });

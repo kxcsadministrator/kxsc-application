@@ -50,9 +50,9 @@ services:
       - ./project:/app
       - /app/node_modules
     environment:
-      - USERS_SERVICE=http://users:3000/users
-      - INSTITUTE_SERVICE=http://institutes:3000/institutes
-      - RESOURCES_SERVICE=http://resources:3000/resources
+      - USERS_SERVICE=http://users:3000
+      - INSTITUTE_SERVICE=http://institutes:3000
+      - RESOURCES_SERVICE=http://resources:3000
     ports:
       - "3003:80"
 volumes:

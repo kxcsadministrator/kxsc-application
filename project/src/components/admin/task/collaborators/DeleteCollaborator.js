@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
+import API_URL from "../../../../url";
 
 function DeleteCollaborator({ setDeleteCollabModal, member }) {
   //   states
@@ -34,7 +35,7 @@ function DeleteCollaborator({ setDeleteCollabModal, member }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3001/tasks/remove-collabs/${id}`,
+        `${API_URL.institute}/tasks/remove-collabs/${id}`,
         {
           collaborators: [member],
         },

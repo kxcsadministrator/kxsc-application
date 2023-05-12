@@ -9,6 +9,7 @@ import SubCatModal from "../../../components/admin/categories/SubCatModal";
 import { FaRegEdit } from "react-icons/fa";
 import AddSubCat from "../../../components/admin/categories/AddSubCat";
 import EditCatModal from "../../../components/admin/categories/EditCatModal";
+import API_URL from "../../../url";
 function Category() {
   //states
   const catId = sessionStorage.getItem("catId");
@@ -32,7 +33,7 @@ function Category() {
 
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3002/categories/category/${catId}`,
+          `${API_URL.resource}/categories/category/${catId}`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }

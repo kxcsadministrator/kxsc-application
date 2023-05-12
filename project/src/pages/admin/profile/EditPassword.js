@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
+import API_URL from "../../../url";
 
 function EditPassword({ setEditPassModal, editUser }) {
   //   states
@@ -31,7 +32,7 @@ function EditPassword({ setEditPassModal, editUser }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3000/users/change-password`,
+        `${API_URL.user}/users/change-password`,
         {
           old_password: oldPassword,
           new_password: newPassword,

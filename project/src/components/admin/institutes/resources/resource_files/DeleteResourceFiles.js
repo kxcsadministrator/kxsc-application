@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../../context/Context";
+import API_URL from "../../../../../url";
 function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);
@@ -28,7 +29,7 @@ function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3002/resources/${resource.id}/delete-file/${file._id}`,
+        `${API_URL.resource}/resources/${resource.id}/delete-file/${file._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);

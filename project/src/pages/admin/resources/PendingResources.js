@@ -7,6 +7,7 @@ import RequestModalR from "../../../components/admin/institutes/resources/Reques
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../../url";
 
 function PendingResources() {
   const { user } = useContext(Context);
@@ -26,7 +27,7 @@ function PendingResources() {
     const getRequest = async () => {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3000/users/admin-publish-requests`,
+          `${API_URL.user}/users/admin-publish-requests`,
           {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
@@ -87,7 +88,7 @@ function PendingResources() {
     try {
       const res = await axios({
         method: "post",
-        url: `http://15.188.62.53:3000/users/admin-publish/${id}`,
+        url: `${API_URL.user}/users/admin-publish/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
       console.log(res.data);

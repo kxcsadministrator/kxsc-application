@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
+import API_URL from "../../../url";
 function DeleteMsg({ setDeleteMsgModal, message }) {
   //   states
   const { user } = useContext(Context);
@@ -32,7 +33,7 @@ function DeleteMsg({ setDeleteMsgModal, message }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3000/messages/delete/${message._id}`,
+        `${API_URL.user}/messages/delete/${message._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });

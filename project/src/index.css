@@ -128,8 +128,6 @@ table th {
   display: -webkit-box; /* use webkit-box for Safari, Chrome, and Opera */
   -webkit-box-orient: vertical; /* specify vertical orientation */
   -webkit-line-clamp: 3; /* set maximum number of lines to display */
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 @media screen and (max-width: 760px) {

@@ -5,6 +5,7 @@ import { Context } from "../../../../context/Context";
 import "./resources.css";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import API_URL from "../../../../url";
 
 function CreateResource({ setCreateResourceModal, instituteId }) {
   //sates
@@ -30,7 +31,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   useEffect(() => {
     const getCat = async () => {
       try {
-        const res = await axios.get(`http://15.188.62.53:3002/categories/all`, {
+        const res = await axios.get(`${API_URL.resource}/categories/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setAllCat(res.data);
@@ -58,7 +59,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     setCategory(e.target.value);
     try {
       const res = await axios.get(
-        `http://15.188.62.53:3002/categories/subs?name=${e.target.value}`
+        `${API_URL.resource}/categories/subs?name=${e.target.value}`
       );
       setSelectedCat(res.data);
     } catch (err) {}
@@ -70,7 +71,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3002/resources/new`,
+        `${API_URL.resource}/resources/new`,
         {
           topic: topic,
           description: description,

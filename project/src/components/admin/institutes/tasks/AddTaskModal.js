@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
+import API_URL from "../../../../url";
 
 function AddTaskModal({ setTaskModal, instituteId }) {
   //states
@@ -34,7 +35,7 @@ function AddTaskModal({ setTaskModal, instituteId }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3001/tasks/new/${instituteId}`,
+        `${API_URL.institute}/tasks/new/${instituteId}`,
         {
           name: name,
           author: user._id,

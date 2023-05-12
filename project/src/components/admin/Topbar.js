@@ -6,6 +6,7 @@ import { Context } from "../../context/Context";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_URL from "../../url";
 
 function Topbar() {
   const { user, dispatch } = useContext(Context);
@@ -15,7 +16,7 @@ function Topbar() {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `http://15.188.62.53:3000/messages/notifications/${user.id}`,
+      `${process.env.USERS_SERVICE}/messages/notifications/${user.id}`,
       {
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       }
@@ -47,7 +48,7 @@ function Topbar() {
     try {
       const res = await axios({
         method: "delete",
-        url: `http://15.188.62.53:3000/messages/notifications`,
+        url: `${API_URL.user}/messages/notifications`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
     } catch (err) {
@@ -84,7 +85,7 @@ function Topbar() {
           {user.profile_picture ? (
             <div className="md:w-8 w-6 cursor-pointer">
               <img
-                src={`http://15.188.62.53:3000/${user.profile_picture.path}`}
+                src={`${API_URL.user}/${user.profile_picture.path}`}
                 alt="profile_picture"
                 className="w-full  rounded-full"
               />

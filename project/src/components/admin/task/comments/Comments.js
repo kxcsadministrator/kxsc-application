@@ -6,6 +6,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import DeleteComment from "./DeleteComment";
 import EditComment from "./EditComment";
+import API_URL from "../../../../url";
 
 function Comments({ comments }) {
   //states
@@ -29,7 +30,7 @@ function Comments({ comments }) {
     setRequestModal(true);
     try {
       const res = await axios.post(
-        `http://15.188.62.53:3001/tasks/${id}/comments/new`,
+        `${API_URL.institute}/tasks/${id}/comments/new`,
         {
           author: user.id,
           body: text,

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function RemoveSectionModal({ setRemoveSection, editSection }) {
   const { user } = useContext(Context);
@@ -30,7 +31,7 @@ function RemoveSectionModal({ setRemoveSection, editSection }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.delete(
-        `http://15.188.62.53:3000/pages/delete-section/${editSection.name}`,
+        `${API_URL.user}/pages/delete-section/${editSection.name}`,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,

@@ -13,14 +13,13 @@ import "rc-pagination/assets/index.css";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../url";
 
-function LandingSearchCategory() {
+function LandingSearchTypes() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   const [resources, setResources] = useState([]);
-  const [allCat, setAllCat] = useState([]);
-  const [subCat, setSubCat] = useState([]);
+
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -31,15 +30,14 @@ function LandingSearchCategory() {
   const [searchResource, setSearchResource] = useState([]);
   const navigate = useNavigate();
   const [types, setTypes] = useState();
-  const cat = sessionStorage.getItem("cat");
+  const type = sessionStorage.getItem("type");
 
-  //get categories
   useEffect(() => {
     const getResources = async () => {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.get(
-          `${API_URL.resource}/resources/public?category=${cat}`
+          `${API_URL.resource}/resources/public?type=${type}`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -56,48 +54,6 @@ function LandingSearchCategory() {
       }
     };
     getResources();
-
-    const getCategories = async () => {
-      setStates({ loading: true, error: false });
-
-      try {
-        const res = await axios.get(`${API_URL.resource}/categories/all`);
-        setStates({ loading: false, error: false });
-        setAllCat(res.data);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err);
-        setStates({
-          loading: false,
-          error: true,
-          errMsg: err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : err.response.data.message,
-        });
-      }
-    };
-    getCategories();
-
-    const getSubCategories = async () => {
-      setStates({ loading: true, error: false });
-
-      try {
-        const res = await axios.get(
-          `${API_URL.resource}/categories/subs?name=${cat}`
-        );
-        setStates({ loading: false, error: false });
-        setSubCat(res.data);
-      } catch (err) {
-        setStates({
-          loading: false,
-          error: true,
-          errMsg: err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : err.response.data.message,
-        });
-      }
-    };
-    getSubCategories();
 
     const getType = async () => {
       setStates({ loading: true, error: false });
@@ -117,7 +73,7 @@ function LandingSearchCategory() {
       }
     };
     getType();
-  }, [cat]);
+  }, [type]);
 
   //pagination Data
   const countPerPage = 50;
@@ -143,11 +99,6 @@ function LandingSearchCategory() {
   }, [updatePage]);
 
   const newSearch = (name) => {
-    sessionStorage.setItem("cat", name);
-    navigate(`/search_by_category?${name}`);
-  };
-
-  const newType = (name) => {
     sessionStorage.setItem("type", name);
     navigate(`/search_by_type?${name}`);
   };
@@ -179,7 +130,6 @@ function LandingSearchCategory() {
     dispatch({ type: "LOGOUT" });
     navigate("/");
   };
-
   return (
     <div className="PageFive">
       <div
@@ -402,22 +352,6 @@ function LandingSearchCategory() {
             )}
 
             <div className="info--techss">
-              <div className="in4mation">
-                <h5>Explore Sub-Categories</h5>
-              </div>
-              <div className="top-buttons d-flex gap-3">
-                {subCat?.map((cat, index) => (
-                  <div key={index}>
-                    <button
-                      className="tech__btn"
-                      onClick={() => newSearch(cat)}
-                    >
-                      {cat}
-                    </button>
-                  </div>
-                ))}
-              </div>
-              <div className="bl-line"></div>
               <div className="browseby">
                 <h5>Browse by</h5>
               </div>
@@ -426,7 +360,7 @@ function LandingSearchCategory() {
                   {types?.map((type, index) => (
                     <h5
                       key={index}
-                      onClick={() => newType(type.name)}
+                      onClick={() => newSearch(type.name)}
                       className="cursor-pointer"
                     >
                       {type.name}
@@ -480,20 +414,6 @@ function LandingSearchCategory() {
           </div>
 
           <div className="info--tech">
-            <div className="in4mation">
-              <h5>Explore Sub-Categories</h5>
-            </div>
-            <div className="top-buttons d-flex gap-3">
-              {subCat.map((cat, index) => (
-                <div key={index}>
-                  <button className="tech__btn" onClick={() => newSearch(cat)}>
-                    {cat}
-                  </button>
-                </div>
-              ))}
-            </div>
-            <hr />
-
             <div className="browseby">
               <h5>Browse by</h5>
             </div>
@@ -502,7 +422,7 @@ function LandingSearchCategory() {
                 {types?.map((type, index) => (
                   <h5
                     key={index}
-                    onClick={() => newType(type.name)}
+                    onClick={() => newSearch(type.name)}
                     className="cursor-pointer"
                   >
                     {type.name}
@@ -536,4 +456,4 @@ function LandingSearchCategory() {
   );
 }
 
-export default LandingSearchCategory;
+export default LandingSearchTypes;

@@ -4,6 +4,7 @@ import axios from "axios";
 import AddResourceFile from "./AddResourceFile";
 import DeleteResourceFiles from "./DeleteResourceFiles";
 import fileDownload from "js-file-download";
+import API_URL from "../../../../../url";
 
 function ResourceFiles({ resource }) {
   const { user } = useContext(Context);
@@ -20,7 +21,7 @@ function ResourceFiles({ resource }) {
     if (user) {
       try {
         const res = await axios.get(
-          `http://15.188.62.53:3002/resources/download-file/${file._id}`,
+          `${API_URL.resource}/resources/download-file/${file._id}`,
           {
             headers: { Authorization: `Bearer ${user?.jwt_token}` },
             responseType: "blob",

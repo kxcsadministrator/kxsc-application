@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
+import API_URL from "../../../url";
 
 function EditCatModal({ setEditCatModal, category }) {
   //states
@@ -33,7 +34,7 @@ function EditCatModal({ setEditCatModal, category }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `http://15.188.62.53:3002/categories/rename/${category._id}`,
+        `${API_URL.resource}/categories/rename/${category._id}`,
         { name: newCat },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
@@ -56,7 +57,7 @@ function EditCatModal({ setEditCatModal, category }) {
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="modal_heading">Add Sub-categories</h1>
+        <h1 className="modal_heading">Edit Sub-categories</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <form>
             <input

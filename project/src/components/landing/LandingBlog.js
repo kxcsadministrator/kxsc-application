@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
+import API_URL from "../../url";
 
 function LandingBlog() {
   const [show, setShow] = useState(false);
@@ -31,7 +32,7 @@ function LandingBlog() {
       setStates({ loading: true, error: false });
 
       try {
-        const res = await axios.get(`http://15.188.62.53:3000/blog/all`, {});
+        const res = await axios.get(`${API_URL.user}/blog/all`, {});
         setStates({ loading: false, error: false });
         setBlogs(res.data);
         console.log(res.data);

@@ -12,6 +12,7 @@ import DeleteResources from "../../components/admin/institutes/resources/DeleteR
 import { RiDeleteBinLine } from "react-icons/ri";
 import DeleteInstituteModal from "../../components/admin/institutes/DeleteInstituteModal";
 import DeleteModal from "../../components/admin/users/DeleteModal";
+import API_URL from "../../url";
 
 function Search() {
   // search states
@@ -40,7 +41,7 @@ function Search() {
       if (user.superadmin) {
         try {
           const res = await axios.get(
-            `http://15.188.62.53:3000/users/superadmin-search?q=${search}`,
+            `${API_URL.user}/users/superadmin-search?q=${search}`,
             {
               headers: { Authorization: `Bearer ${user.jwt_token}` },
             }
@@ -163,7 +164,7 @@ function Search() {
                         ) : (
                           <div className="h-full w-[28%]">
                             <img
-                              src={`http://15.188.62.53:3002/${resource.avatar}`}
+                              src={`${API_URL.resource}/${resource.avatar}`}
                               alt="default"
                               className="object-cover h-full w-full"
                             />
