@@ -669,8 +669,9 @@ router.get('/group-stats', async (req, res) => {
  *  patch:
  *      summary: updates a given resource
  *      description: |
- *          Multiple fields can be updated in one go. Not recommended for add/remove operations
- *          Only the superadmin or author can update
+ *          Multiple fields can be updated in one go. Not recommended for add/remove operations.
+ *          When updating the categpry, you must update the subcategories to match the new category
+ *          Only the superadmin or author can update. 
  * 
  *          Requires a bearer token for authentication
  *      parameters: 
@@ -728,13 +729,33 @@ router.patch('/update/:id',
 
                 return res.status(409).json({message: `Resource with topic ${req.body.topic} already exists under institute ${resource.institute.toString()}`})
             }
-            const result = await repository.update_resource_fields(id, req.body)
+
+            // validate category and subs if provided as part of update
+            let body_category = req.body.category || resource.category
+            let body_subs = req.body.sub_categories || resource.sub_categories
+            const category = await repository.get_category_by_name(body_category);
+            if (!category) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 404: Category: ${req.body.category} not found`)
+                return res.status(404).json({message: `Category: ${req.body.category} not found`});
+            }
+            let unknown_cats = await helpers.validateArray(category.sub_categories, body_subs);
+
+            if (unknown_cats.length !== 0) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 404: Unkown sub-categories`)
+
+                return res.status(404).json({
+                    message: `sub_categories not part of ${category.name}`,
+                    sub_categories: unknown_cats
+                })
+            }
+            const result = await repository.update_resource_fields(req.params.id, req.body)
 
             helpers.log_request_info(`PATCH /resources/update/${req.params.id} - 200`)
 
             res.status(200).json(result);
 
         } catch (error) {
+            console.error(error)
             helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 400: ${error.message}`)
 
             res.status(400).json({message: error.message});

@@ -162,7 +162,13 @@ router.get('/search', async (req, res) => {
             helpers.log_request_error(`GET resources/search - 400: validation errors`)
             return res.status(400).json({message: "query must be a non-empty string"});
         }
-        const data = await repository.search_resource(req.query.query)
+        let sort_key = req.query.sort || 'rating';
+        let reverse = req.query.reverse || 'false'
+        let sort_order = 1;
+        if (reverse == 'true'){
+            sort_order = -1;
+        }
+        const data = await repository.search_resource(req.query.query, sort_key, sort_order)
 
         helpers.log_request_info(`GET resources/search - 200`)
         res.status(200).json(data)
