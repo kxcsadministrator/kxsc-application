@@ -91,7 +91,7 @@ router.post('/rate/:id',
 
 /** 
  * @swagger
- * /rating/{id}:
+ * resources/rating/{id}:
  *  get:
  *      summary: Gets all the average rating for a resource
  *      description: >
@@ -116,26 +116,6 @@ router.post('/rate/:id',
 */
 router.get('/rating/:id', async (req, res) => {
     try{
-        // if (resource.visibility == "public"){
-        //     return res.status(200).json(data);
-        // }
-
-        // Authorization and validation
-        if (!req.headers.authorization){ 
-            helpers.log_request_error(`GET resources/rating/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-        const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) {
-            helpers.log_request_error(`GET resources/rating/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
-            return res.status(validateUser.status).json({message: validateUser.message});
-        }
-
-        // const user = validateUser.data
-        // if (user._id.toString() == resource.author && user.superadmin == false) {
-        //     helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
-        //     return res.status(404).json({message: "Resource not found"});
-        // }
         const resource = await repository.get_resource_by_id(req.params.id)
         if (!resource){
             helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
