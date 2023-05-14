@@ -117,20 +117,20 @@ const get_resource_by_topic_or_id = async (query)=>{
     return data;
 }
 
-const get_all_resources = async (offset, limit, category="None", sub_cat="None")=>{
+const get_all_resources = async (category="None", sub_cat="None")=>{
     let data = []
     const results = []
     if (category === "None"){
-        data = await Model.resource.find({}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1})
         // return data;
     }
     if (category !== "None" && sub_cat === "None"){
-        data = await Model.resource.find({"category": category}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({"category": category}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1});
         // return data;
     }
 
     else if (category !== "None" && sub_cat !== "None") {
-        data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({"category": category, "sub_categories": sub_cat}, {_id: 1, topic: 1, date: 1, rating: 1, avatar: 1}).sort({"date": -1});
         // return data;
     }
     for (let i = 0; i < data.length; i++) {
@@ -151,17 +151,17 @@ const get_all_resources = async (offset, limit, category="None", sub_cat="None")
     return results
 }   
 
-const get_user_resources = async (offset, limit, author_id, institute_id = "None")=>{
+const get_user_resources = async (author_id, institute_id = "None")=>{
     const projection = {_id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1}
     let data = []
     const results = []
 
     if (institute_id === "None"){
-        data = await Model.resource.find({author: author_id}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({author: author_id}, projection).sort({"date": -1});
         // return data;
     }
     else {
-        data = await Model.resource.find({author: author_id, institute: institute_id}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({author: author_id, institute: institute_id}, projection).sort({"date": -1});
         // return data;
     }
     for (let i = 0; i < data.length; i++) {
@@ -182,33 +182,34 @@ const get_user_resources = async (offset, limit, author_id, institute_id = "None
     return results
 }
 
-const get_public_resources = async (offset, limit, category="None", sub_cat="None", type='', user_id=null)=>{
+const get_public_resources = async (category="None", sub_cat="None", type='', user_id=null, sort_key='topic', sort_value=1)=>{
     const projection = {
         _id: 1, topic: 1, author: 1, rating: 1, institute: 1, date: 1, avatar: 1, citations: 1, resource_type: 1, view_count: 1
     }
     let data = []
     const results = []
+    let sort_object = {};
+    sort_object[sort_key] = sort_value
 
     if (type !== '' ) {
-        data = await Model.resource.find({resource_type: type, visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+        data = await Model.resource.find({resource_type: type, visibility: "public"}, projection).sort(sort_object);
     }
 
     else {
         if (category === "None"){
-            data = await Model.resource.find({visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+            data = await Model.resource.find({visibility: "public"}, projection).sort(sort_object);
             // return data;
         }
         if (category !== "None" && sub_cat === "None"){
-            data = await Model.resource.find({category: category, visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+            data = await Model.resource.find({category: category, visibility: "public"}, projection).sort(sort_object);
             // return data;
         }
     
         else if (category !== "None" && sub_cat !== "None") {
-            data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}, projection).sort({"date": -1}).skip((offset - 1) * limit).limit(limit);
+            data = await Model.resource.find({category: category, "sub_categories": sub_cat, visibility: "public"}, projection).sort(sort_object);
             // return data;
         }
     }
-    
     for (let i = 0; i < data.length; i++) {
         const resource = data[i]
         const resource_data = await get_resource_user_data(resource._id, 'foo')
