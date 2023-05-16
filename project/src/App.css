@@ -338,10 +338,10 @@ nav {
   justify-content: space-between;
 }
 .guides {
-  width: 50%;
+  width: 60%;
 }
 .guides p {
-  font-size: 17px;
+  font-size: 16px;
 }
 .stu-image {
   width: 35%;
@@ -547,7 +547,7 @@ nav {
   font-size: 13px;
 }
 .explore_topics {
-  width: 85%;
+  width: 90%;
   margin: auto;
 }
 .exploretopics {
