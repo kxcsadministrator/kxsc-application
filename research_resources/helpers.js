@@ -25,8 +25,7 @@ const validateArray = async (array1, array2)=>{
 }
 
 const validateUser = async (headers) => {
-    // if (!headers.authorization) return {status: 401, message: "Token not found"};
-
+    if (!headers.authorization) return {status: 401, message: "Token not found"};
     const token = headers.authorization.split(' ')[1];
     // if (!token) return {status: 401, message: "Token not found"};
     

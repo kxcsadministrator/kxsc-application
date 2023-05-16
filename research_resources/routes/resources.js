@@ -263,18 +263,6 @@ router.get('/one/:id', async (req, res) => {
  *           Requires a bearer token for authentication
  *      parameters: 
  *          - in: query
- *            name: page
- *            schema:
- *              type: integer
- *            required: false
- *            description: the page to start from. Defaults to first page if not specified
- *          - in: query
- *            name: limit
- *            schema:
- *              type: integer
- *            required: true
- *            description: the page to start from. Defaults to 20 if not specified.
- *          - in: query
  *            name: institute
  *            schema:
  *              type: UUID/Object ID
@@ -290,8 +278,6 @@ router.get('/one/:id', async (req, res) => {
 */
 router.get('/my-resources', async (req, res) => {
     try{
-        const page = req.query.page || 1
-        const limit = req.query.limit || 20
         // Authorization and validation
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET /resources/my-resources - 401: Token not found`)
@@ -307,10 +293,10 @@ router.get('/my-resources', async (req, res) => {
         let institute_id = req.query.institute;
         let data = []
         if (institute_id){
-            data =  await repository.get_user_resources(page, limit, user._id.toString(), institute_id);
+            data =  await repository.get_user_resources(user._id.toString(), institute_id);
         }
         else {
-            data =  await repository.get_user_resources(page, limit, user._id.toString());
+            data =  await repository.get_user_resources(user._id.toString());
         }
 
         helpers.log_request_info(`GET /resources/my-resources - 200`)
@@ -338,18 +324,6 @@ router.get('/my-resources', async (req, res) => {
  *           Requires a bearer token for authentication
  *      parameters: 
  *          - in: query
- *            name: page
- *            schema:
- *              type: integer
- *            required: false
- *            description: the page to start from. Defaults to first page if not specified
- *          - in: query
- *            name: limit
- *            schema:
- *              type: integer
- *            required: true
- *            description: the page to start from. Defaults to 20 if not specified.
- *          - in: query
  *            name: category
  *            schema:
  *              type: string
@@ -371,8 +345,6 @@ router.get('/my-resources', async (req, res) => {
 */
 router.get('/all', async (req, res) => {
     try{
-        const page = req.query.page || 1
-        const limit = req.query.limit || 20
         // Authorization and validation
         if (!req.headers.authorization) {
             helpers.log_request_error(`GET /resources/all- 401: Token not found`)
@@ -398,11 +370,11 @@ router.get('/all', async (req, res) => {
         let data = null;
         if (category){
             if (sub){
-                data = await repository.get_all_resources(page, limit, category=category, sub_cat=sub)
+                data = await repository.get_all_resources(category=category, sub_cat=sub)
             }
-            else data = await repository.get_all_resources(page, limit, category=category)
+            else data = await repository.get_all_resources(category=category)
         }
-        else data = await repository.get_all_resources(page, limit)
+        else data = await repository.get_all_resources()
 
         helpers.log_request_info(`GET /resources/all - 200`)
 
@@ -421,23 +393,11 @@ router.get('/all', async (req, res) => {
  *  get:
  *      summary: Gets all public resources
  *      description: >
- *           Returns the results from newest to oldest by default
+ *           Returns the results by rating. Can be sorted by topic (alphabetically), date or view count
  *           Offers options for filtering by categories and sub-categories
  *           If no category is provided, then you can't filter by sub-category
  * 
  *      parameters: 
- *          - in: query
- *            name: page
- *            schema:
- *              type: integer
- *            required: false
- *            description: the page to start from. Defaults to first page if not specified
- *          - in: query
- *            name: limit
- *            schema:
- *              type: integer
- *            required: true
- *            description: the page to start from. Defaults to 20 if not specified.
  *          - in: query
  *            name: category
  *            schema:
@@ -456,6 +416,19 @@ router.get('/all', async (req, res) => {
  *              type: string
  *            required: false
  *            description: filter results by result type
+ *          - in: query  
+ *            name: sort
+ *            schema:
+ *              type: string
+ *            required: false
+ *            description: >
+ *               sort the results with one of the following keys: topic, rating, date, view_count
+ *          - in: query  
+ *            name: reverse
+ *            schema:
+ *              type: boolean
+ *            required: false
+ *            description: true or false. Reverses the order of the sort operation e.g. reverse alphabetical, latest first etc.
  * responses:
  *    '200':
  *      description: Ok
@@ -472,26 +445,29 @@ router.get('/public', async (req, res) => {
             const user = validateUser.data;
             user_id = user._id
         }
-        const page = req.query.page || 1
-        const limit = req.query.limit || 20
 
         let sub = req.query.sub;
         let category = req.query.category;
         let type = req.query.type
+        let sort_key = req.query.sort || 'rating';
+        let reverse = req.query.reverse || 'false'
+        let sort_order = 1;
+        if (reverse == 'true'){
+            sort_order = -1;
+        }
         let data = null;
-        
         if (type) {
-            data = await repository.get_public_resources(page, limit, category='None', sub_cat='None', type=type, user=user_id)
+            data = await repository.get_public_resources(category='None', sub_cat='None', type=type, user=user_id, sort_key=sort_key, sort_value=sort_order)
             return res.status(200).json(data);
         }
 
         if (category){
             if (sub){
-                data = await repository.get_public_resources(page, limit, category=category, sub_cat=sub, type='', user=user_id)
+                data = await repository.get_public_resources(category=category, sub_cat=sub, type='', user=user_id, sort_key=sort_key, sort_value=sort_order)
             }
-            else data = await repository.get_public_resources(page, limit, category=category, sub_cat='None', type='', user=user_id)
+            else data = await repository.get_public_resources(category=category, sub_cat='None', type='', user=user_id, sort_key=sort_key, sort_value=sort_order)
         }
-        else data = await repository.get_public_resources(page, limit, "None", "None", '', user_id)
+        else data = await repository.get_public_resources("None", "None", '', user_id, sort_key=sort_key, sort_value=sort_order)
 
         helpers.log_request_info(`GET /resources/public - 200`)
 
@@ -693,8 +669,9 @@ router.get('/group-stats', async (req, res) => {
  *  patch:
  *      summary: updates a given resource
  *      description: |
- *          Multiple fields can be updated in one go. Not recommended for add/remove operations
- *          Only the superadmin or author can update
+ *          Multiple fields can be updated in one go. Not recommended for add/remove operations.
+ *          When updating the categpry, you must update the subcategories to match the new category
+ *          Only the superadmin or author can update. 
  * 
  *          Requires a bearer token for authentication
  *      parameters: 
@@ -752,13 +729,33 @@ router.patch('/update/:id',
 
                 return res.status(409).json({message: `Resource with topic ${req.body.topic} already exists under institute ${resource.institute.toString()}`})
             }
-            const result = await repository.update_resource_fields(id, req.body)
+
+            // validate category and subs if provided as part of update
+            let body_category = req.body.category || resource.category
+            let body_subs = req.body.sub_categories || resource.sub_categories
+            const category = await repository.get_category_by_name(body_category);
+            if (!category) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 404: Category: ${req.body.category} not found`)
+                return res.status(404).json({message: `Category: ${req.body.category} not found`});
+            }
+            let unknown_cats = await helpers.validateArray(category.sub_categories, body_subs);
+
+            if (unknown_cats.length !== 0) {
+                helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 404: Unkown sub-categories`)
+
+                return res.status(404).json({
+                    message: `sub_categories not part of ${category.name}`,
+                    sub_categories: unknown_cats
+                })
+            }
+            const result = await repository.update_resource_fields(req.params.id, req.body)
 
             helpers.log_request_info(`PATCH /resources/update/${req.params.id} - 200`)
 
             res.status(200).json(result);
 
         } catch (error) {
+            console.error(error)
             helpers.log_request_error(`PATCH /resources/update/${req.params.id} - 400: ${error.message}`)
 
             res.status(400).json({message: error.message});

@@ -91,7 +91,7 @@ router.post('/rate/:id',
 
 /** 
  * @swagger
- * /rating/{id}:
+ * resources/rating/{id}:
  *  get:
  *      summary: Gets all the average rating for a resource
  *      description: >
@@ -116,26 +116,6 @@ router.post('/rate/:id',
 */
 router.get('/rating/:id', async (req, res) => {
     try{
-        // if (resource.visibility == "public"){
-        //     return res.status(200).json(data);
-        // }
-
-        // Authorization and validation
-        if (!req.headers.authorization){ 
-            helpers.log_request_error(`GET resources/rating/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-        const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) {
-            helpers.log_request_error(`GET resources/rating/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
-            return res.status(validateUser.status).json({message: validateUser.message});
-        }
-
-        // const user = validateUser.data
-        // if (user._id.toString() == resource.author && user.superadmin == false) {
-        //     helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
-        //     return res.status(404).json({message: "Resource not found"});
-        // }
         const resource = await repository.get_resource_by_id(req.params.id)
         if (!resource){
             helpers.log_request_error(`GET resources/rating/${req.params.id} - 404: Resource not found`)
@@ -182,7 +162,13 @@ router.get('/search', async (req, res) => {
             helpers.log_request_error(`GET resources/search - 400: validation errors`)
             return res.status(400).json({message: "query must be a non-empty string"});
         }
-        const data = await repository.search_resource(req.query.query)
+        let sort_key = req.query.sort || 'rating';
+        let reverse = req.query.reverse || 'false'
+        let sort_order = 1;
+        if (reverse == 'true'){
+            sort_order = -1;
+        }
+        const data = await repository.search_resource(req.query.query, sort_key, sort_order)
 
         helpers.log_request_info(`GET resources/search - 200`)
         res.status(200).json(data)
