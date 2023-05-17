@@ -37,8 +37,6 @@ function ResourceFiles({ resource }) {
     }
   };
 
-  console.log(file);
-
   return (
     <div>
       {(user?.superadmin || user?.id === resource.author._id) && (
@@ -60,8 +58,8 @@ function ResourceFiles({ resource }) {
           <tbody>
             {resource.files.map((file, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
-                <td>{file.original_name}</td>
+                <td data-label="s/n">{index + 1}</td>
+                <td data-label="files">{file.original_name}</td>
                 <td>
                   <div className="flex gap-3 items-center">
                     <button

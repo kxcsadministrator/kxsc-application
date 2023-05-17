@@ -130,6 +130,16 @@ table th {
   -webkit-line-clamp: 3; /* set maximum number of lines to display */
 }
 
+.show_details {
+  display: -webkit-box; /* use webkit-box for Safari, Chrome, and Opera */
+  -webkit-box-orient: vertical; /* specify vertical orientation */
+  -webkit-line-clamp: 5;
+}
+
+.show_details.actine {
+  -webkit-line-clamp: none;
+}
+
 @media screen and (max-width: 760px) {
   table {
     border: 0;
@@ -179,6 +189,39 @@ table th {
 
 .all_heading h1 {
   font-size: clamp(0.889rem, 1vw + 0.8rem, 1.333rem);
+}
+
+.show_reviews {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.show_reviews button:nth-child(2) {
+  display: none;
+}
+.show_reviews button:nth-child(1) {
+  display: block;
+}
+
+.show_reviews.active button:nth-child(1) {
+  display: none;
+}
+
+.show_reviews.active button:nth-child(2) {
+  display: block;
+}
+
+.show_reviews .reviews {
+  display: none;
+}
+
+.show_reviews.active .reviews {
+  display: grid;
+}
+
+.detail_modal {
+  width: 90%;
 }
 
 @layer components {
