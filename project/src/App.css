@@ -1294,3 +1294,8 @@ nav {
     height: 500px;
   }
 }
+
+.related {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

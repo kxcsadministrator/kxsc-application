@@ -18,7 +18,8 @@ function EditResource({ setEditResourceModal, resource }) {
   const [citation, setCitation] = useState("");
   const [type, setType] = useState("");
   const [description, setDescription] = useState("");
-  const [avatar, setAvatar] = useState();
+
+  const [types, setTypes] = useState();
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -30,7 +31,7 @@ function EditResource({ setEditResourceModal, resource }) {
   //call categories
   useEffect(() => {
     setTopic(resource.topic);
-    setAvatar(resource.avatar);
+
     setCitation(resource.citations[0]);
     const getCat = async () => {
       try {
@@ -49,6 +50,28 @@ function EditResource({ setEditResourceModal, resource }) {
       }
     };
     getCat();
+
+    const getType = async () => {
+      setStates({ loading: true, error: false });
+      try {
+        const res = await axios.get(
+          `${API_URL.resource}/resources/resource-types`,
+          {
+            headers: { Authorization: `Bearer ${user.jwt_token}` },
+          }
+        );
+        setStates({ loading: false, error: false });
+        setTypes(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
+      }
+    };
+    getType();
 
     //set modal to false when clicked
     function handler(e) {
@@ -79,21 +102,27 @@ function EditResource({ setEditResourceModal, resource }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStates({ loading: true, error: false });
+    const formData = new FormData();
+    formData.append("topic", topic);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("resource_type", type);
+    formData.append("institute", resource.institute._id);
+    for (var i = 0; i < subCat.length; i++) {
+      formData.append("sub_categories[]", subCat[i]);
+    }
+    formData.append("citations[]", citation);
+
     try {
-      const res = await axios.patch(
-        `${API_URL.resource}/resources/update/${resource.id}`,
+      const res = await axios.post(
+        `${API_URL.resource}/resources/new`,
+        formData,
         {
-          topic: topic,
-          description: description,
-          author: user._id,
-          category: category,
-          sub_categories: subCat,
-          citations: [citation],
-          resource_type: type,
-          institute: resource.institute._id,
-          avatar: avatar,
-        },
-        { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${user.jwt_token}`,
+          },
+        }
       );
       setStates({ loading: false, error: false });
       navigate("/admin/resources");
@@ -184,23 +213,12 @@ function EditResource({ setEditResourceModal, resource }) {
           <div className="input_content">
             <label>Resource Type:</label>
             <select onChange={(e) => setType(e.target.value)} value={type}>
-              <option value="government">government</option>
-              <option value="private">private</option>
-              <option value="education">education</option>
+              {types?.map((type, index) => (
+                <option key={index}>{type.name}</option>
+              ))}
             </select>
           </div>
-          <div className="input_content_files">
-            <label for="img">Select Avatar:</label>
-            <input
-              className="custom-file-input"
-              placeholder="Upload Avatar"
-              type="file"
-              id="img"
-              name="img"
-              accept="image/*"
-              onChange={(e) => setAvatar(e.target.files)}
-            />
-          </div>
+
           <div className="w-[90%] pl-3 relative">
             <label className="">Description:</label>
             <CKEditor

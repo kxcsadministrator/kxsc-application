@@ -224,6 +224,11 @@ table th {
   width: 90%;
 }
 
+.related {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 @layer components {
   body {
     @apply m-0 bg-gray_bg;
