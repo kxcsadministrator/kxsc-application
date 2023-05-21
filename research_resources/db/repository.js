@@ -47,7 +47,8 @@ const clean_resource = async (resource, id, headers) => {
         "number_of_ratings": num_ratings.length,
         "files": files,
         "date_created": date,
-        "has_rated": await validateRate()
+        "has_rated": await validateRate(),
+        "view_count": resource.view_count
     }
     return result
 }
