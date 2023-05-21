@@ -592,7 +592,7 @@ const similarity = async (query, id) => {
  
     // 3rd step: search. In other words, multiply the document-term matrix and the indicator vector representing the query.
     let data = rt.search(query, 10)
-    let results = await Model.resource.find({topic: data}, {_id: 1, topic: 1, avatar: 1})
+    let results = await Model.resource.find({topic: data}, {_id: 1, topic: 1, avatar: 1}) // return rating....
     return results;
 }
 
