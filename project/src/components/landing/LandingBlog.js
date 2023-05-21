@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function LandingBlog() {
   const [show, setShow] = useState(false);

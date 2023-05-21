@@ -9,7 +9,7 @@ import { Link } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaEye } from "react-icons/fa";
 import DeleteMsg from "../../../components/admin/users/DeleteMsg";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function Messages() {
   //states

@@ -8,7 +8,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditSectionModal from "../../../components/admin/public-portal/EditSectionModal";
 import RemoveSectionModal from "../../../components/admin/public-portal/RemoveSectionModal";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function FooterSection() {
   //states

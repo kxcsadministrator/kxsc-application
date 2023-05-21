@@ -7,7 +7,7 @@ import Topbar from "../../components/admin/Topbar";
 import Collaborators from "../../components/admin/task/collaborators/Collaborators";
 import Files from "../../components/admin/task/task_files/Files";
 import Comments from "../../components/admin/task/comments/Comments";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Task() {
   //states

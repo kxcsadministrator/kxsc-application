@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditBlogModal from "../../../components/admin/blog/EditBlogModal";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function SingleBlog() {
   const { user } = useContext(Context);

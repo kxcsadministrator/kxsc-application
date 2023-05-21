@@ -2,7 +2,7 @@ import axios from "axios";
 import { useRef, useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./sign_up.css";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function SignUp() {
   const [username, setUsername] = useState("");

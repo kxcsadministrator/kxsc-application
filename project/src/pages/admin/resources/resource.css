@@ -6,6 +6,6 @@
 
 @layer components {
   .resource_row {
-    @apply flex items-center gap-4 text-gray-500;
+    @apply flex items-center gap-4 text-gray-500 text-xs md:text-sm;
   }
 }

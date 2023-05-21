@@ -3,22 +3,12 @@ import image from "../images/coatOfArm.png";
 import { IoIosSearch } from "react-icons/io";
 import { Link } from "react-router-dom";
 import image2 from "../images/worldmap.png";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faLayerGroup,
-  faBook,
-  faFileWord,
-  faNewspaper,
-  faQuoteLeft,
-  faPlaneArrival,
-  faNoteSticky,
-  faMobile,
-} from "@fortawesome/free-solid-svg-icons";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../url";
+import API_URL from "../../Url";
+import { SiBookstack } from "react-icons/si";
 
 function Landmobile() {
   const [allCat, setAllCat] = useState([]);
@@ -29,6 +19,7 @@ function Landmobile() {
   });
   const [searchResource, setSearchResource] = useState("");
   const [errText, setErrText] = useState("");
+  const [types, setTypes] = useState();
   const navigate = useNavigate();
 
   //get categories
@@ -53,6 +44,24 @@ function Landmobile() {
       }
     };
     getCategories();
+    const getType = async () => {
+      setStates({ loading: true, error: false });
+      try {
+        const res = await axios.get(
+          `${API_URL.resource}/resources/resource-types`
+        );
+        setStates({ loading: false, error: false });
+        setTypes(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
+      }
+    };
+    getType();
   }, []);
 
   const handleSubmit = async (e) => {
@@ -63,6 +72,11 @@ function Landmobile() {
     } else {
       setErrText("Input field is empty");
     }
+  };
+
+  const getType = (name) => {
+    sessionStorage.setItem("type", name);
+    navigate(`/search_by_type?${name}`);
   };
   return (
     <div>
@@ -98,117 +112,25 @@ function Landmobile() {
         </div>
         <br />
         <hr />
-        {/* <div className="yelp">
+        <div className="yelp">
           <div className="yepp mb-5">
             <img src={image2} alt="" />
           </div>
-          <div className="lo-rem">
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Ex ipsam,
-              sapiente, neque nihil tempore a fuga adipisci quae, placeat
-              eveniet nulla libero quasi? Ullam, hic mollitia! Explicabo cum
-              esse culpa.
-            </p>
-          </div>
-        </div> */}
-        <br />
-        <div>
-          <div className="containerx text-center">
-            <div className="row">
-              {/* <div className="col">
-                <Link to={"/categorysinglepage"}>
-                  <FontAwesomeIcon
-                    icon={faLayerGroup}
-                    className="fnt"
-                    style={{ color: "red", fontSize: "25px" }}
-                  ></FontAwesomeIcon>
-                  Commons
-                </Link>
-              </div>
-              <div className="col">
-                <FontAwesomeIcon
-                  icon={faPlaneArrival}
-                  className="fnt"
-                  style={{ color: "", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Wikivoyage
-              </div>
-            </div>
-          </div>
-          <br />
-          <br />
-          <div className="containerx text-center">
-            <div className="row">
-              <div className="col">
-                <FontAwesomeIcon
-                  icon={faBook}
-                  className="fnt"
-                  style={{ color: "blue", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Wikitionary
-              </div>
-              <div className="col">
-                <div className="col">
-                  <FontAwesomeIcon
-                    icon={faQuoteLeft}
-                    className="fnt"
-                    style={{ color: "black", fontSize: "25px" }}
-                  ></FontAwesomeIcon>
-                  Wikiquote
-                </div>
-              </div>
-            </div>
-          </div>
-          <br />
-          <br />
-          <div className="containerx text-center">
-            <div className="row">
-              <div className="col">
-                <FontAwesomeIcon
-                  icon={faNewspaper}
-                  className="fnt"
-                  style={{ color: "grey", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Wikinews
-              </div>
-              <div class="col">
-                <FontAwesomeIcon
-                  icon={faMobile}
-                  className="fnt"
-                  style={{ color: "purple", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Wikidata
-              </div>
-            </div>
-          </div>
-          <br />
-          <br />
-          <div className="containerx text-center">
-            <div class="row">
-              <div class="col">
-                <FontAwesomeIcon
-                  icon={faFileWord}
-                  className="fnt"
-                  style={{ color: "green", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Wikibook
-              </div>
-              <div class="col">
-                <FontAwesomeIcon
-                  icon={faNoteSticky}
-                  className="fnt"
-                  style={{ color: "blue", fontSize: "25px" }}
-                ></FontAwesomeIcon>
-                Mediawiki
-              </div> */}
-            </div>
-          </div>
         </div>
-
-        <i
-          className="fab fa-adn"
-          style={{ fontSize: "48px", color: "red" }}
-        ></i>
+        <br />
+        {/* {types?.map((type, index) => (
+          <div className="d-flex" key={index}>
+            <div
+              className="link text-gray-800 hover:text-gray-300 flex items-center gap-1 text-sm cursor-pointer w-full"
+              onClick={() => getType(type.name.toLowerCase())}
+            >
+              <p>
+                <SiBookstack />
+              </p>
+              <p>{type.name}</p>
+            </div>
+          </div>
+        ))} */}
       </div>
     </div>
   );

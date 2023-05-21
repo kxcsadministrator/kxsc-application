@@ -6,7 +6,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import AddFiles from "./AddFiles";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function Files({ files, admin }) {
   //states

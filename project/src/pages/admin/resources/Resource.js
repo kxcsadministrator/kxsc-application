@@ -6,7 +6,9 @@ import Topbar from "../../../components/admin/Topbar";
 import "./resource.css";
 import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
 import ResourceFiles from "../../../components/admin/institutes/resources/resource_files/ResourceFiles";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
+import Rating from "../../../components/Rating";
+import EditResource from "../../../components/admin/institutes/resources/EditResource";
 
 function Resource() {
   //states
@@ -20,6 +22,7 @@ function Resource() {
     errMsg: "",
     success: false,
   });
+  const [editResourceModal, setEditResourceModal] = useState(false);
 
   //requestModal states
 
@@ -74,15 +77,28 @@ function Resource() {
         </div>
         {resource.id ? (
           <div className="py-4 px-6 grid gap-8">
-            <div className="flex flex-col">
-              <h2 className="my-2 text-lg md:text-2xl lg:text-3xl">
-                {resource.topic}
-              </h2>
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between wrap ">
+                <h2 className="my-2 text-lg md:text-2xl lg:text-3xl">
+                  {resource.topic}
+                </h2>
+                <button
+                  className="btn_green"
+                  onClick={() => setEditResourceModal(true)}
+                >
+                  Edit
+                </button>
+              </div>
+
               <div>
                 <div className="resource_row">
                   <p>By: {resource.author.username}</p>
                   <p>Institute: {resource.institute.name}</p>
-                  {resource.rating > 0 && <p>Rating: {resource.rating}/5</p>}
+                  {resource.rating > 0 && (
+                    <div className="-mt-4">
+                      <Rating rating={resource.rating} />
+                    </div>
+                  )}
                 </div>
                 <div className="resource_row -mt-2">
                   <p>Category: {resource.category}</p>
@@ -92,15 +108,25 @@ function Resource() {
                       <span key={index}>{sub}</span>
                     ))}
                   </p>
+                  <p>Resource type: {resource.resource_type}</p>
                 </div>
-                <p className="-mt-2 text-gray-500">
-                  Resource type: {resource.resource_type}
-                </p>
+                <div className="resource_row -mt-2">
+                  <div className="flex gap-2">
+                    <p>Citations: </p>
+                    {resource.citations && (
+                      <div className="flex gap-2 items-center">
+                        {resource.citations.map((cite, index) => (
+                          <p key={index}>{cite}</p>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div>
                 {(user.id === resource.author._id || user.superadmin) && (
                   <button
-                    className="p-2 bg-[#52cb83] rounded-md w-44 text-white"
+                    className="btn_green"
                     onClick={() => publishRequest()}
                   >
                     Publish
@@ -130,6 +156,15 @@ function Resource() {
         {requestModal && (
           <RequestModalR states={states} setRequestModal={setRequestModal} />
         )}
+        <div className="relative w-full h-full">
+          {editResourceModal && (
+            <EditResource
+              setEditResourceModal={setEditResourceModal}
+              // instituteId={instituteId}
+              resource={resource}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

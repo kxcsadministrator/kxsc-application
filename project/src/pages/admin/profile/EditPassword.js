@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function EditPassword({ setEditPassModal, editUser }) {
   //   states

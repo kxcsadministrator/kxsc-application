@@ -13,7 +13,7 @@ function Rating({ rating }) {
       {[...Array(emptyStars)].map((_, index) => (
         <FaRegStar key={index} />
       ))}
-      <span className="ml-2 text-black md:text-sm text-xs">{rating}</span>
+      <p className="md:text-sm text-xs mt-[13px] text-gray-500">({rating}/5)</p>
     </div>
   );
 }

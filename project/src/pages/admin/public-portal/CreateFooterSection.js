@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function CreateFooterSection() {
   const { user } = useContext(Context);

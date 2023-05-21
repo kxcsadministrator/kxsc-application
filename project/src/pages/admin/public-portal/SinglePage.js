@@ -8,7 +8,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditPage from "../../../components/admin/public-portal/EditPage";
 import RemovePage from "../../../components/admin/public-portal/RemovePage";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function SinglePage() {
   const { user } = useContext(Context);

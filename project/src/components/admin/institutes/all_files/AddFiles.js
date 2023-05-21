@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useForm } from "react-hook-form";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function AddFiles({ setAddFileModal, instituteId }) {
   const { user } = useContext(Context);

@@ -12,7 +12,7 @@ import DeleteResources from "../../components/admin/institutes/resources/DeleteR
 import { RiDeleteBinLine } from "react-icons/ri";
 import DeleteInstituteModal from "../../components/admin/institutes/DeleteInstituteModal";
 import DeleteModal from "../../components/admin/users/DeleteModal";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Search() {
   // search states

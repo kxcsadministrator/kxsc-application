@@ -10,7 +10,7 @@ import RequestModalR from "../admin/institutes/resources/RequestModalR";
 import "../../pages/admin/resources/resource.css";
 import { useNavigate } from "react-router-dom";
 import { Button, Modal } from "react-bootstrap";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 import Rating from "../Rating";
 import RatingInput from "../RatingInput";
 import fileDownload from "js-file-download";
@@ -48,7 +48,9 @@ function LandingsearchIndividualpage() {
   useEffect(() => {
     const getResources = async () => {
       try {
-        const res = await axios.get(`${API_URL.resource}/resources/one/${id}`);
+        const res = await axios.get(
+          `${API_URL.resource}/resources/one/${id}?public=true`
+        );
         console.log(res.data);
         setResource(res.data);
       } catch (err) {
@@ -168,6 +170,13 @@ function LandingsearchIndividualpage() {
       setSubmitMsg(true);
     } catch (err) {
       console.log(err);
+      console.log(err.response);
+      if (err.response.status === 409) {
+        setMsg("You already rated this resource");
+        setSubmitMsg(true);
+      }
+
+      return;
     }
   };
 
@@ -513,7 +522,7 @@ function LandingsearchIndividualpage() {
               style={{ width: "100%" }}
             >
               <Modal.Header closeButton>
-                <Modal.Title>About</Modal.Title>
+                <Modal.Title>Warning</Modal.Title>
               </Modal.Header>
               <Modal.Body>
                 <p>{msg}</p>
@@ -596,7 +605,7 @@ function LandingsearchIndividualpage() {
             <div className="flex flex-col gap-3 w-[87%] mx-auto">
               <h5>Review for {resource.topic}</h5>
               {resource.rating > 0 && (
-                <div className="flex gap-2  items-center ">
+                <div className="flex gap-2 items-center ">
                   <Rating rating={resource.rating} />
                   <span className=" text-xs md:text-sm">(ratings)</span>
                 </div>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function AddMemberModal({ setMemberModal, instituteId }) {
   //states

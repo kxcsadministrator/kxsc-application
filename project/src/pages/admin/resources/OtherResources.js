@@ -8,7 +8,8 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
+import Rating from "../../../components/Rating";
 
 function OtherResources() {
   const { user } = useContext(Context);
@@ -163,11 +164,11 @@ function OtherResources() {
                                   By: {resource.author.username}
                                 </p>
                                 <p className="flex items-center gap-3 text-sm  -mt-2 ">
-                                  <span>
-                                    {resource.rating === 0
-                                      ? "No rating"
-                                      : resource.rating + "/5"}
-                                  </span>
+                                  {resource.rating > 0 && (
+                                    <div className="-mt-4">
+                                      <Rating rating={resource.rating} />
+                                    </div>
+                                  )}
                                   <span>Released: {resource.date}</span>
                                 </p>
                                 <p className="flex gap-1 items-center -mt-1">

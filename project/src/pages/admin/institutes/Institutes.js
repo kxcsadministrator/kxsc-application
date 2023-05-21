@@ -10,7 +10,7 @@ import { FaEye } from "react-icons/fa";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function Institutes() {
   const { user } = useContext(Context);

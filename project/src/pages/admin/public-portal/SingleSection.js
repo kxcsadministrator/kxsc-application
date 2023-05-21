@@ -5,7 +5,7 @@ import { Context } from "../../../context/Context";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AddPageModal from "../../../components/admin/public-portal/AddPageModal";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function SingleSection() {
   const { user } = useContext(Context);

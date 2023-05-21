@@ -3,7 +3,7 @@ import image6 from "../images/kxcc.png";
 import image9 from "../images/google-removebg.png";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Ham() {
   const [burger_class, setBurgerClass] = useState("burger-bar unclicked");

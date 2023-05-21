@@ -6,7 +6,7 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import DeleteComment from "./DeleteComment";
 import EditComment from "./EditComment";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function Comments({ comments }) {
   //states

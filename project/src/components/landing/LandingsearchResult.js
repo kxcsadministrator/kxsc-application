@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 import Rating from "../Rating";
 
 import { MdFormatQuote } from "react-icons/md";
@@ -23,9 +23,12 @@ function LandingsearchResult() {
   const [copied, setCopied] = useState(false);
   const handleClose = () => setShows(false);
   const handleShow = () => setShow(true);
+  const [showCitation, setShowCitation] = useState(false);
   const [searchResource, setSearchResource] = useState("");
   const [allCat, setAllCat] = useState([]);
   const { user, dispatch } = useContext(Context);
+  const [types, setTypes] = useState();
+  const [citationValues, setCitationValues] = useState([]);
 
   const [resources, setResources] = useState([]);
   const [states, setStates] = useState({
@@ -44,7 +47,7 @@ function LandingsearchResult() {
 
       try {
         const res = await axios.get(
-          `${API_URL.resource}/resources/search?query=${search}`
+          `${API_URL.resource}/resources/search?query=${search}&sort=rating&reverse=true`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -82,6 +85,24 @@ function LandingsearchResult() {
       }
     };
     getCategories();
+    const getType = async () => {
+      setStates({ loading: true, error: false });
+      try {
+        const res = await axios.get(
+          `${API_URL.resource}/resources/resource-types`
+        );
+        setStates({ loading: false, error: false });
+        setTypes(res.data);
+        console.log(res.data);
+      } catch (err) {
+        setStates({
+          loading: false,
+          err: true,
+          errMsg: err.response.data.message,
+        });
+      }
+    };
+    getType();
   }, [search]);
   //pagination Data
   const countPerPage = 50;
@@ -140,10 +161,27 @@ function LandingsearchResult() {
   };
 
   //drop down
-  const [selectedValue, setSelectedValue] = useState("");
+  const [selectedValue, setSelectedValue] = useState("match");
 
-  const handleSelect = (value) => {
+  const handleSelect = async (value, name) => {
     setSelectedValue(value);
+    try {
+      const res = await axios.get(
+        `${API_URL.resource}/resources/search?query=${search}&sort=${name}&reverse=true`
+      );
+      setStates({ loading: false, error: false });
+      setResources(res.data);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
+      });
+    }
   };
 
   //share function
@@ -151,6 +189,22 @@ function LandingsearchResult() {
   const handleCopy = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
+  };
+
+  const newType = (name) => {
+    sessionStorage.setItem("type", name);
+    navigate(`/search_by_type?${name}`);
+  };
+
+  const setCite = (citation) => {
+    setShowCitation(true);
+    if (citation[0].length > 0) {
+      setCitationValues(citation);
+    } else {
+      setCitationValues([]);
+    }
+
+    console.log(citationValues);
   };
 
   return (
@@ -247,7 +301,11 @@ function LandingsearchResult() {
         </div>
         <div className="main-dropdown my-4">
           <Dropdown as={ButtonGroup}>
-            <Button variant="success">Best Match</Button>
+            <Button variant="success">
+              {selectedValue === "match" ? "Best Match" : ""}
+              {selectedValue === "count" ? "View Count" : ""}
+              {selectedValue === "new" ? "Newest" : ""}
+            </Button>
 
             <Dropdown.Toggle
               split
@@ -256,28 +314,33 @@ function LandingsearchResult() {
             />
 
             <Dropdown.Menu>
-              <Dropdown.Item onSelect={() => handleSelect("match")}>
+              <Dropdown.Item onClick={() => handleSelect("match", "rating")}>
                 <Form.Check
                   type="radio"
                   name="option"
                   label="Best Match"
                   value="match"
+                  checked={selectedValue === "match"}
                 />
               </Dropdown.Item>
-              <Dropdown.Item onSelect={() => handleSelect("count")}>
+              <Dropdown.Item
+                onClick={() => handleSelect("count", "view_count")}
+              >
                 <Form.Check
                   type="radio"
                   name="option"
                   label="View Count"
                   value="count"
+                  checked={selectedValue === "count"}
                 />
               </Dropdown.Item>
-              <Dropdown.Item onSelect={() => handleSelect("new")}>
+              <Dropdown.Item onClick={() => handleSelect("new", "date")}>
                 <Form.Check
                   type="radio"
                   name="option"
                   label="Newest"
                   value="new"
+                  checked={selectedValue === "new"}
                 />
               </Dropdown.Item>
             </Dropdown.Menu>
@@ -294,10 +357,7 @@ function LandingsearchResult() {
                   <div>
                     {collection.map((resource, index) => (
                       <div>
-                        <div
-                          className="five-vid d-flex cursor-pointer"
-                          key={index}
-                        >
+                        <div className="five-vid d-flex" key={index}>
                           {resource.avatar ? (
                             <div>
                               <img
@@ -318,23 +378,27 @@ function LandingsearchResult() {
 
                           <div className="fv-vid p-3">
                             <span>{resource.institute.name}</span>
-                            <h5>{resource.topic}</h5>
-                            <div className="flex items-center gap-2 text-xs md:text-sm">
+                            <h5 className="my-1">{resource.topic}</h5>
+                            <div className="flex items-center gap-2 mt-2 text-xs md:text-sm">
                               <p>By: {resource.author.username}</p>
-                              <h3 className="dates">{resource.date}</h3>
+                              <p>{resource.date}</p>
                             </div>
-                            <div className="saves d-flex gap-3">
+                            <div className="saves flex gap-3 items-center -mt-1">
                               {resource.rating <= 0 ? (
                                 <p></p>
                               ) : (
-                                <div className="sa_ve-btn">
+                                <div className="-mt-[12px]">
                                   <Rating rating={resource.rating} />
                                 </div>
                               )}
-                              {/* <div className="flex  gap-2 text-xs md:text-sm text-green-600 cursor-pointer">
-                                <p>View by : { }</p>
-                              </div> */}
                               <div className="flex  gap-2 text-xs md:text-sm text-green-600 cursor-pointer">
+                                <p>Viewed by</p>
+                                <p>{resource.view_count}</p>
+                              </div>
+                              <div
+                                className="flex  gap-2 text-xs md:text-sm text-green-600 cursor-pointer"
+                                onClick={() => setCite(resource.citations)}
+                              >
                                 <p className="mt-1">
                                   <MdFormatQuote />
                                 </p>
@@ -351,7 +415,7 @@ function LandingsearchResult() {
                               </div>
                             </div>
                             <p
-                              className="text-xs md:text-sm text-green-600 cursor-pointer hover:text-gray-400"
+                              className="text-xs md:text-sm hover:text-green-600 cursor-pointer text-gray-400"
                               onClick={() => getDetails(resource._id)}
                             >
                               View
@@ -377,6 +441,27 @@ function LandingsearchResult() {
                                 </Button>
                               </Modal.Body>
                             </Modal>
+                            <Modal
+                              show={showCitation}
+                              onHide={() => setShowCitation(false)}
+                              size="lg"
+                              style={{ width: "100%" }}
+                            >
+                              <Modal.Header closeButton>
+                                <Modal.Title>Citations</Modal.Title>
+                              </Modal.Header>
+                              <Modal.Body>
+                                {citationValues.length > 0 ? (
+                                  <div className="flex gap-2 items-center">
+                                    {citationValues.map((cite, index) => (
+                                      <p key={index}>{cite}</p>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p>No citations for this resource</p>
+                                )}
+                              </Modal.Body>
+                            </Modal>
                           </div>
                         </div>
 
@@ -387,58 +472,40 @@ function LandingsearchResult() {
                     ))}
                   </div>
                 ) : (
-                  <div>
+                  <div className="mb-8">
                     <p>No Resources with the name {resources}</p>
                   </div>
                 )}
               </div>
-              <br />
-              <div className="info--techss">
-                {/*
+              <div className="info--techss -mt-10">
                 <div className="in4mation">
-                    <h5>Explore Topics</h5>
+                  <h5>Explore Categories</h5>
                 </div>
                 <div className="top-buttons d-flex gap-3">
-                  <div>
-                    <button className="tech__btn">Security</button>
-                  </div>
-                  <div>
-                    <button className="tech__btn">Business</button>
-                  </div>
+                  {allCat?.map((cat, index) => (
+                    <div key={index}>
+                      <button
+                        className="tech__btn"
+                        onClick={() => newSearch(cat.name.toLowerCase())}
+                      >
+                        {cat.name}
+                      </button>
+                    </div>
+                  ))}
                 </div>
-                <div className="top-buttons d-flex gap-3">
-                  <div>
-                    <button className="tech__btn">Technology</button>
-                  </div>
-                  <div>
-                    <button className="tech__btn">Production</button>
-                  </div>
-                </div>
-                <div className="top-buttons d-flex gap-3">
-                  <div>
-                    <button className="tech__btn">Science</button>
-                  </div>
-                  <div>
-                    <button className="tech__btn">Business</button>
-                  </div>
-                </div>
-                <div className="top-buttons d-flex gap-3">
-                  <div>
-                    <button className="tech__btn">Manufacturing</button>
-                  </div>
-                  <div>
-                    <button className="tech__btn">Creative</button>
-                  </div>
-                </div> */}
                 <div className="bl-line"></div>
                 <div className="browseby">
                   <h5>Browse by</h5>
                 </div>
                 <div className="brow">
                   <div>
-                    {allCat.map((cat, index) => (
-                      <h5 key={index} onClick={() => newSearch(cat.name)}>
-                        {cat.name}
+                    {types?.map((type, index) => (
+                      <h5
+                        key={index}
+                        onClick={() => newType(type.name.toLowerCase())}
+                        className="cursor-pointer"
+                      >
+                        {type.name}
                       </h5>
                     ))}
                   </div>
@@ -460,14 +527,35 @@ function LandingsearchResult() {
             </div>
 
             <div className="info--tech">
+              <div className="in4mation">
+                <h5>Categories</h5>
+              </div>
+              <div className="top-buttons d-flex gap-3">
+                {allCat.map((cat, index) => (
+                  <div key={index}>
+                    <button
+                      className="tech__btn"
+                      onClick={() => newSearch(cat.name.toLowerCase())}
+                    >
+                      {cat.name}
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <hr />
+
               <div className="browseby">
                 <h5>Browse by</h5>
               </div>
               <div className="brow">
                 <div>
-                  {allCat.map((cat, index) => (
-                    <h5 key={index} onClick={() => newSearch(cat.name)}>
-                      {cat.name}
+                  {types?.map((type, index) => (
+                    <h5
+                      key={index}
+                      onClick={() => newType(type.name.toLowerCase())}
+                      className="cursor-pointer"
+                    >
+                      {type.name}
                     </h5>
                   ))}
                 </div>

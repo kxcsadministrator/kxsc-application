@@ -8,7 +8,7 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import RequestModalR from "../../../components/admin/institutes/resources/RequestModalR";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function UserRequests() {
   const { user } = useContext(Context);

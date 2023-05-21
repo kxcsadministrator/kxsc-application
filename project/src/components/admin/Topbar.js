@@ -6,7 +6,7 @@ import { Context } from "../../context/Context";
 import { AiOutlineLogout } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Topbar() {
   const { user, dispatch } = useContext(Context);
@@ -16,7 +16,7 @@ function Topbar() {
 
   useEffect(() => {
     const eventSource = new EventSource(
-      `${process.env.USERS_SERVICE}/messages/notifications/${user.id}`,
+      `${API_URL.user}/messages/notifications/${user.id}`,
       {
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       }

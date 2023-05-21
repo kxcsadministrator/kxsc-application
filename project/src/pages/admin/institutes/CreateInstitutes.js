@@ -4,7 +4,7 @@ import { Context } from "../../../context/Context";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function CreateInstitues() {
   const { user } = useContext(Context);

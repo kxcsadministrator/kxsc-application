@@ -8,7 +8,7 @@ import EditPic from "./EditPic";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import RemovePic from "./RemovePic";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function Profile() {
   const { user } = useContext(Context);

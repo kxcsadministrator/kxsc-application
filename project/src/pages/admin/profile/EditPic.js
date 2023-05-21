@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function EditPic({ setEditPicModal, editUser }) {
   //   states

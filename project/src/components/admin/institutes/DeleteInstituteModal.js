@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../../context/Context";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 function DeleteInstituteModal({ setDeleteInstituteModal, modalInstitute }) {
   const { user } = useContext(Context);
   const [loading, setLoading] = useState(false);

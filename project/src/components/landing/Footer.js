@@ -6,7 +6,7 @@ import { BsFacebook } from "react-icons/bs";
 import { AiOutlineTwitter } from "react-icons/ai";
 import { IoLogoInstagram } from "react-icons/io";
 import { ImPinterest } from "react-icons/im";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Footer() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Context } from "../../../../context/Context";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function DeleteTaskModal({ task, setDeleteTaskModal, instituteId }) {
   const { user } = useContext(Context);

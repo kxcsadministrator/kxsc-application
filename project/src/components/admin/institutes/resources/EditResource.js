@@ -7,13 +7,13 @@ import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import API_URL from "../../../../Url";
 
-function CreateResource({ setCreateResourceModal, instituteId }) {
+function EditResource({ setEditResourceModal, resource }) {
   //sates
   const { user } = useContext(Context);
   const [allCat, setAllCat] = useState([]);
-  const [topic, setTopic] = useState("");
-  const [category, setCategory] = useState("");
-  const [subCat, setSubCat] = useState([]);
+  const [topic, setTopic] = useState(resource.topic);
+  const [category, setCategory] = useState();
+  const [subCat, setSubCat] = useState(resource.sub_categories);
   const [selectedCat, setSelectedCat] = useState([]);
   const [citation, setCitation] = useState("");
   const [type, setType] = useState("");
@@ -29,12 +29,21 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
 
   //call categories
   useEffect(() => {
+    setTopic(resource.topic);
+    setAvatar(resource.avatar);
+    setCitation(resource.citations[0]);
     const getCat = async () => {
       try {
         const res = await axios.get(`${API_URL.resource}/categories/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setAllCat(res.data);
+        setCategory(resource.category);
+        setSelectedCat(
+          res.data.find((cat) => cat.name === resource.category)
+            ?.sub_categories || []
+        );
+        setType(resource.resource_type);
       } catch (err) {
         console.log(err);
       }
@@ -44,7 +53,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     //set modal to false when clicked
     function handler(e) {
       if (!menuRef.current.contains(e.target)) {
-        setCreateResourceModal(false);
+        setEditResourceModal(false);
       }
     }
     document.addEventListener("mousedown", handler);
@@ -52,7 +61,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [user.jwt_token, setCreateResourceModal]);
+  }, [user.jwt_token, setEditResourceModal]);
 
   //get sub categories
   const getSub = async (e) => {
@@ -63,9 +72,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
         `${API_URL.resource}/categories/subs?name=${e.target.value}`
       );
       setSelectedCat(res.data);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   //handle submit
@@ -73,8 +80,8 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     e.preventDefault();
     setStates({ loading: true, error: false });
     try {
-      const res = await axios.post(
-        `${API_URL.resource}/resources/new`,
+      const res = await axios.patch(
+        `${API_URL.resource}/resources/update/${resource.id}`,
         {
           topic: topic,
           description: description,
@@ -83,7 +90,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
           sub_categories: subCat,
           citations: [citation],
           resource_type: type,
-          institute: instituteId,
+          institute: resource.institute._id,
           avatar: avatar,
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
@@ -91,7 +98,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
       setStates({ loading: false, error: false });
       navigate("/admin/resources");
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -116,7 +122,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   return (
     <div className="modal_container">
       <div
-        className="relative md:w-[60%] w-[90%] rounded-md mx-auto bg-white overflow-y-auto"
+        className="relative md:w-[60%] w-[90%] rounded-md mx-auto bg-white"
         ref={menuRef}
       >
         <div className="resource_heading">
@@ -138,13 +144,13 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
               onChange={(e) => {
                 getSub(e);
               }}
+              value={category}
               className="select"
             >
-              <option>-select category</option>
               {allCat.map((cat, index) => {
                 return (
                   <option key={index} value={cat.name}>
-                    {cat.name}
+                    {cat.name || resource.category}
                   </option>
                 );
               })}
@@ -161,9 +167,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
                     onChange={handleCheckboxChange}
                     checked={subCat.includes(sub)}
                   />
-                  <p key={index} className="text-sm mt-[10px]">
-                    {sub}
-                  </p>
+                  <p className="text-sm mt-[10px]">{sub}</p>
                 </div>
               ))}
             </div>
@@ -179,8 +183,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
           </div>
           <div className="input_content">
             <label>Resource Type:</label>
-            <select onChange={(e) => setType(e.target.value)}>
-              <option>-select resource type</option>
+            <select onChange={(e) => setType(e.target.value)} value={type}>
               <option value="government">government</option>
               <option value="private">private</option>
               <option value="education">education</option>
@@ -202,7 +205,9 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
             <label className="">Description:</label>
             <CKEditor
               editor={ClassicEditor}
-              onReady={(editor) => {}}
+              onReady={(editor) => {
+                editor.setData(resource.description);
+              }}
               onChange={(event, editor) => {
                 const data = editor.getData();
                 setDescription(data);
@@ -238,4 +243,4 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
   );
 }
 
-export default CreateResource;
+export default EditResource;

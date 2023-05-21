@@ -4,7 +4,7 @@ import { Chart, registerables } from "chart.js";
 import { Context } from "../../../context/Context";
 import axios from "axios";
 import "../../../pages/admin/panel/panel.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function BarChart() {
   Chart.register(...registerables);

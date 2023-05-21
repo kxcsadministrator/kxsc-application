@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 import EditTypeModal from "../../../components/admin/resource-type/EditTypeModal";
 import DeleteType from "../../../components/admin/resource-type/DeleteType";
 

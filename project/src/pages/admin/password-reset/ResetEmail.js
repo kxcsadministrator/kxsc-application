@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./reset.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function ResetEmail() {
   const [username, setUsername] = useState("");

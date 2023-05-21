@@ -1,7 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function AddSubCat({ setAddSubCatModal, category }) {
   //states

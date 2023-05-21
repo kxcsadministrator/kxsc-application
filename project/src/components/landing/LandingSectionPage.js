@@ -9,7 +9,7 @@ import Footer from "./Footer";
 import Ham from "./Ham";
 import { Context } from "../../context/Context";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function LandingSectionPage() {
   const [show, setShow] = useState(false);

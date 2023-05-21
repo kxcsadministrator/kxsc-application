@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import "./reset.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function Reset() {
   const [password, setPassword] = useState("");

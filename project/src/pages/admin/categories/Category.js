@@ -9,7 +9,7 @@ import SubCatModal from "../../../components/admin/categories/SubCatModal";
 import { FaRegEdit } from "react-icons/fa";
 import AddSubCat from "../../../components/admin/categories/AddSubCat";
 import EditCatModal from "../../../components/admin/categories/EditCatModal";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 function Category() {
   //states
   const catId = sessionStorage.getItem("catId");

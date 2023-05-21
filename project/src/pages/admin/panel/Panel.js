@@ -12,7 +12,7 @@ import { HiUser } from "react-icons/hi";
 import { FaSchool } from "react-icons/fa";
 import { GiBookCover } from "react-icons/gi";
 import { FaEye } from "react-icons/fa";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 // import image from './image/user2.jpg';
 

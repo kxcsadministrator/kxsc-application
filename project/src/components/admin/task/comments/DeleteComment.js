@@ -1,7 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import { Context } from "../../../../context/Context";
 import axios from "axios";
-import API_URL from "../../../../url";
+import API_URL from "../../../../Url";
 
 function DeleteComment({ setDeleteComModal, comment }) {
   //   states

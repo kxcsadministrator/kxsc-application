@@ -3,7 +3,7 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function AddPageModal({ setAddPageModal, section }) {
   const [title, setTitle] = useState("");

@@ -11,12 +11,21 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import { useNavigate } from "react-router-dom";
-import API_URL from "../../url";
+import API_URL from "../../Url";
+import { ButtonGroup, Dropdown, Form, Button, Modal } from "react-bootstrap";
+import Rating from "../Rating";
+import { MdFormatQuote } from "react-icons/md";
+import { BsShareFill } from "react-icons/bs";
 
 function LandingSearchTypes() {
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [shows, setShows] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [showCitation, setShowCitation] = useState(false);
+  const [allCat, setAllCat] = useState([]);
+  const [citationValues, setCitationValues] = useState([]);
 
   const [resources, setResources] = useState([]);
 
@@ -31,13 +40,14 @@ function LandingSearchTypes() {
   const navigate = useNavigate();
   const [types, setTypes] = useState();
   const type = sessionStorage.getItem("type");
+  const search = sessionStorage.getItem("search");
 
   useEffect(() => {
     const getResources = async () => {
       setStates({ loading: true, error: false });
       try {
         const res = await axios.get(
-          `${API_URL.resource}/resources/public?type=${type}`
+          `${API_URL.resource}/resources/public?type=${type}&sort=rating&reverse=true`
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
@@ -54,6 +64,27 @@ function LandingSearchTypes() {
       }
     };
     getResources();
+
+    const getCategories = async () => {
+      setStates({ loading: true, error: false });
+
+      try {
+        const res = await axios.get(`${API_URL.resource}/categories/all`);
+        setStates({ loading: false, error: false });
+        setAllCat(res.data);
+        console.log(res.data);
+      } catch (err) {
+        console.log(err);
+        setStates({
+          loading: false,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
+        });
+      }
+    };
+    getCategories();
 
     const getType = async () => {
       setStates({ loading: true, error: false });
@@ -100,7 +131,7 @@ function LandingSearchTypes() {
 
   const newSearch = (name) => {
     sessionStorage.setItem("type", name);
-    navigate(`/search_by_type?${name}`);
+    navigate(`/search_by_category?${name}`);
   };
 
   const handleSubmit = (e) => {
@@ -130,26 +161,76 @@ function LandingSearchTypes() {
     dispatch({ type: "LOGOUT" });
     navigate("/");
   };
+
+  //drop down
+  const [selectedValue, setSelectedValue] = useState("match");
+
+  const handleSelect = async (value, name) => {
+    setSelectedValue(value);
+    try {
+      const res = await axios.get(
+        `${API_URL.resource}/resources/public?type=${type}&sort=${name}&reverse=true`
+      );
+      setStates({ loading: false, error: false });
+      setResources(res.data);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response.data.errors
+          ? err.response.data.errors[0].msg
+          : err.response.data.message,
+      });
+    }
+  };
+
+  //share function
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+  };
+
+  const newType = (name) => {
+    sessionStorage.setItem("type", name);
+    navigate(`/search_by_type?${name}`);
+  };
+  const setCite = (citation) => {
+    setShowCitation(true);
+    if (citation[0].length > 0) {
+      setCitationValues(citation);
+    } else {
+      setCitationValues([]);
+    }
+
+    console.log(citationValues);
+  };
+
   return (
-    <div className="PageFive">
-      <div
-        className="landing-nav bg-light"
-        style={{ position: "sticky", top: "0" }}
-      >
-        <div className="navv-vv d-flex">
-          <div className="hamburger--menu">
-            <Ham />
-          </div>
-          <Link to="/" className="nav-bar d-flex mt-2 no-underline text-black">
-            <div className="link-image">
-              <img src={image6} alt="" />
+    <div>
+      <div className="PageFive">
+        <div
+          className="landing-nav bg-light"
+          style={{ position: "sticky", top: "0" }}
+        >
+          <div className="navv-vv d-flex">
+            <div className="hamburger--menu">
+              <Ham />
             </div>
-            <div className="nav-txt ">
-              <h5>Knowledge Exchange</h5>
-            </div>
-          </Link>
-          <div className="inputt p-2">
-            <div className="input-group">
+            <Link
+              to="/"
+              className="nav-bar d-flex mt-2 no-underline text-black"
+            >
+              <div className="link-image">
+                <img src={image6} alt="" />
+              </div>
+              <div className="nav-txt ">
+                <h5>Knowledge Exchange</h5>
+              </div>
+            </Link>
+            <div className="inputt p-2">
               <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
                 <span className="in-search bg-light input-group-text">
                   Learning
@@ -171,187 +252,299 @@ function LandingSearchTypes() {
                 </button>
               </form>
             </div>
-          </div>
 
-          <div className="sg d-flex  p-2">
-            {/* <div className="profile p-1" onClick={() => getProfile()}>
-              <CgProfile />
-            </div> */}
-            {user ? (
-              <div
-                onClick={() => {
-                  logout();
-                }}
-                className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
-              >
-                Sign Out
-              </div>
-            ) : (
-              <Link
-                to="/login?from=landing"
-                className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
-              >
-                Sign In
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="inputtt p-2">
-        <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
-          <span className="in-search bg-light input-group-text">Learning</span>
-
-          <input
-            type="text"
-            className="form-control"
-            aria-label="Dollar amount (with dot and two decimal places)"
-            placeholder="Search skills, subjects or software"
-            value={searchResource}
-            onChange={(e) => setSearchResource(e.target.value)}
-          />
-          <button className="in-search bg-light input-group-text" type="submit">
-            <IoIosSearch />
-          </button>
-        </form>
-      </div>
-      {/* <div className="main-dropdown">
-        <div className="drop d-flex gap-2">
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              Best match
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              Types
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-
-          <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              Category
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-              <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-              <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-      </div> */}
-      {/* 
-      <div className="four-color bg-light">
-        <div className="dd-d d-flex gap-3 pt-3">
-          <div>
-            <h5>Research for:</h5>
-          </div>
-          <div>
-            <h5>Business</h5>
-          </div>
-          <div>
-            <h5>Higher Education</h5>
-          </div>
-          <div>
-            <h5>Government</h5>
-          </div>
-        </div>
-      </div> */}
-      <br />
-      <div className="explore_topics">
-        <div className="exploretopics d-flex">
-          <div className="infotech">
-            <div className="in4mation">
-              {/* <h5>Information Technology</h5> */}
+            <div className="sg d-flex  p-2">
+              {/* <div className="profile p-1" onClick={() => getProfile()}>
+                <CgProfile />
+              </div> */}
+              {user ? (
+                <div
+                  onClick={() => {
+                    logout();
+                  }}
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign Out
+                </div>
+              ) : (
+                <Link
+                  to="/login?from=landing"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
-            {resources?.length > 0 ? (
-              <div>
-                {collection.map((resource, index) => (
-                  <div>
-                    <div
-                      className="five-vid d-flex cursor-pointer"
-                      key={index}
-                      onClick={() => getDetails(resource._id)}
-                    >
-                      {resource.avatar ? (
-                        <div>
-                          <img
-                            src={`${API_URL.resource}/${resource.avatar}`}
-                            alt="avatar resource"
-                            className="object-cover h-full w-full"
-                          />
-                        </div>
-                      ) : (
-                        <div className="fvv-image w-[28%]">
-                          <img
-                            src="/default.png"
-                            alt="default"
-                            className="object-cover h-full w-full"
-                          />
-                        </div>
-                      )}
+          </div>
+        </div>
 
-                      <div className="fv-vid p-3">
-                        <span>{resource.institute.name}</span>
-                        <h5>{resource.topic}</h5>
-                        <p>By: {resource.author.username}</p>
-                        <h3 className="dates">{resource.date}</h3>
-                        <div className="saves d-flex gap-3">
-                          {resource.rating <= 0 ? (
-                            <p></p>
+        <div className="inputtt p-2">
+          <form className="input-group" onSubmit={(e) => handleSubmit(e)}>
+            <span className="in-search bg-light input-group-text">
+              Learning
+            </span>
+
+            <input
+              type="text"
+              className="form-control"
+              aria-label="Dollar amount (with dot and two decimal places)"
+              placeholder="Search skills, subjects or software"
+              value={searchResource}
+              onChange={(e) => setSearchResource(e.target.value)}
+            />
+            <button
+              className="in-search bg-light input-group-text"
+              type="submit"
+            >
+              <IoIosSearch />
+            </button>
+          </form>
+        </div>
+        <div className="main-dropdown my-4">
+          <Dropdown as={ButtonGroup}>
+            <Button variant="success">
+              {selectedValue === "match" ? "Best Match" : ""}
+              {selectedValue === "count" ? "View Count" : ""}
+              {selectedValue === "new" ? "Newest" : ""}
+            </Button>
+
+            <Dropdown.Toggle
+              split
+              variant="success"
+              id="dropdown-split-basic"
+            />
+
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => handleSelect("match", "rating")}>
+                <Form.Check
+                  type="radio"
+                  name="option"
+                  label="Best Match"
+                  value="match"
+                  checked={selectedValue === "match"}
+                />
+              </Dropdown.Item>
+              <Dropdown.Item
+                onClick={() => handleSelect("count", "view_count")}
+              >
+                <Form.Check
+                  type="radio"
+                  name="option"
+                  label="View Count"
+                  value="count"
+                  checked={selectedValue === "count"}
+                />
+              </Dropdown.Item>
+              <Dropdown.Item onClick={() => handleSelect("new", "date")}>
+                <Form.Check
+                  type="radio"
+                  name="option"
+                  label="Newest"
+                  value="new"
+                  checked={selectedValue === "new"}
+                />
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+        <div className="explore_topics">
+          <div className="exploretopics d-flex">
+            <div className="infotech">
+              <div className="in4mation">
+                {/* <h5>Information Technology</h5> */}
+              </div>
+              <div className="five-vid d-flex">
+                {resources?.length > 0 ? (
+                  <div>
+                    {collection.map((resource, index) => (
+                      <div>
+                        <div className="five-vid d-flex " key={index}>
+                          {resource.avatar ? (
+                            <div>
+                              <img
+                                src={`${API_URL.resource}/${resource.avatar}`}
+                                alt="avatar resource"
+                                className="object-cover h-full w-full"
+                              />
+                            </div>
                           ) : (
-                            <div className="sa_ve-btn">
-                              <span>Rating: {resource.rating}</span>
+                            <div className="fvv-image w-[28%]">
+                              <img
+                                src="/default.png"
+                                alt="default"
+                                className="object-cover h-full w-full"
+                              />
                             </div>
                           )}
 
-                          {/* <button className="sa_ve-btn">
-                            <AiOutlineShareAlt />
-                            Share Time
-                          </button> */}
+                          <div className="fv-vid p-3">
+                            <span>{resource.institute.name}</span>
+                            <h5 className="my-1">{resource.topic}</h5>
+                            <div className="flex items-center gap-2 mt-2 text-xs md:text-sm">
+                              <p>By: {resource.author.username}</p>
+                              <p>{resource.date}</p>
+                            </div>
+                            <div className="saves flex gap-3 items-center -mt-1">
+                              {resource.rating <= 0 ? (
+                                <p></p>
+                              ) : (
+                                <div className="-mt-[12px]">
+                                  <Rating rating={resource.rating} />
+                                </div>
+                              )}
+                              <div className="flex  gap-2 text-xs md:text-sm text-green-600 cursor-pointer">
+                                <p>Viewed by</p>
+                                <p>{resource.view_count}</p>
+                              </div>
+                              <div
+                                className="flex  gap-2 text-xs md:text-sm text-green-600 cursor-pointer"
+                                onClick={() => setCite(resource.citations)}
+                              >
+                                <p className="mt-1">
+                                  <MdFormatQuote />
+                                </p>
+                                <p>Cite</p>
+                              </div>
+                              <div
+                                className="flex gap-2 text-xs md:text-sm text-green-600 cursor-pointer"
+                                onClick={() => setShows(true)}
+                              >
+                                <p className="mt-1">
+                                  <BsShareFill />
+                                </p>
+                                <p>Share</p>
+                              </div>
+                            </div>
+                            <p
+                              className="text-xs md:text-sm hover:text-green-600 cursor-pointer text-gray-400"
+                              onClick={() => getDetails(resource._id)}
+                            >
+                              View
+                            </p>
+                            <Modal
+                              show={shows}
+                              onHide={() => setShows(false)}
+                              size="lg"
+                            >
+                              <Modal.Header closeButton>
+                                <Modal.Title>Share this Resource</Modal.Title>
+                              </Modal.Header>
+                              <Modal.Body>
+                                <p>Copy this URL to share:</p>
+                                <input
+                                  type="text"
+                                  className="form-control mb-2"
+                                  value={`${window.location.href}/resource_details?${resource._id}`}
+                                  readOnly
+                                />
+                                <Button variant="primary" onClick={handleCopy}>
+                                  {copied ? "Copied!" : "Copy"}
+                                </Button>
+                              </Modal.Body>
+                            </Modal>
+                            <Modal
+                              show={showCitation}
+                              onHide={() => setShowCitation(false)}
+                              size="lg"
+                              style={{ width: "100%" }}
+                            >
+                              <Modal.Header closeButton>
+                                <Modal.Title>Citations</Modal.Title>
+                              </Modal.Header>
+                              <Modal.Body>
+                                {citationValues.length > 0 ? (
+                                  <div className="flex gap-2 items-center">
+                                    {citationValues.map((cite, index) => (
+                                      <p key={index}>{cite}</p>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p>No citations for this resource</p>
+                                )}
+                              </Modal.Body>
+                            </Modal>
+                          </div>
                         </div>
+
+                        <br />
+                        <div className="bl-line"></div>
+                        <br />
                       </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="mb-8">
+                    <p>No Resources with the name {resources}</p>
+                  </div>
+                )}
+              </div>
+              <div className="info--techss -mt-10">
+                <div className="in4mation">
+                  <h5>Explore Categories</h5>
+                </div>
+                <div className="top-buttons d-flex gap-3">
+                  {allCat?.map((cat, index) => (
+                    <div key={index}>
+                      <button
+                        className="tech__btn"
+                        onClick={() => newSearch(cat.name.toLowerCase())}
+                      >
+                        {cat.name}
+                      </button>
                     </div>
-                    {/* <div className="mobile___dropdown">
-                      <div className="mobile--buttons d-flex gap-2">
-                        <button type="button" class="btn btn-secondary">
-                          Save
-                        </button>
-                        <button type="button" class="btn btn-secondary">
-                          Viewed by
-                        </button>
-                        <button type="button" class="btn btn-secondary">
-                          Share time
-                        </button>
-                      </div>
-                    </div> */}
-                    <br />
-                    <div className="bl-line"></div>
-                    <br />
+                  ))}
+                </div>
+                <div className="bl-line"></div>
+                <div className="browseby">
+                  <h5>Browse by</h5>
+                </div>
+                <div className="brow">
+                  <div>
+                    {types?.map((type, index) => (
+                      <h5
+                        key={index}
+                        onClick={() => newType(type.name.toLowerCase())}
+                        className="cursor-pointer"
+                      >
+                        {type.name}
+                      </h5>
+                    ))}
+                  </div>
+                </div>
+                <br />
+              </div>
+              <div className="in4mation">
+                <div className="paginate my-4">
+                  {resources > countPerPage && (
+                    <Pagination
+                      pageSize={countPerPage}
+                      onChange={updatePage}
+                      current={currentPage}
+                      total={resources.length}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="info--tech">
+              <div className="in4mation">
+                <h5>Categories</h5>
+              </div>
+              <div className="top-buttons d-flex gap-3">
+                {allCat.map((cat, index) => (
+                  <div key={index}>
+                    <button
+                      className="tech__btn"
+                      onClick={() => newSearch(cat.name.toLowerCase())}
+                    >
+                      {cat.name}
+                    </button>
                   </div>
                 ))}
               </div>
-            ) : (
-              <div>
-                <p>No Resources Found</p>
-              </div>
-            )}
+              <hr />
 
-            <div className="info--techss">
               <div className="browseby">
                 <h5>Browse by</h5>
               </div>
@@ -360,7 +553,7 @@ function LandingSearchTypes() {
                   {types?.map((type, index) => (
                     <h5
                       key={index}
-                      onClick={() => newSearch(type.name)}
+                      onClick={() => newType(type.name.toLowerCase())}
                       className="cursor-pointer"
                     >
                       {type.name}
@@ -368,90 +561,12 @@ function LandingSearchTypes() {
                   ))}
                 </div>
               </div>
-              {/* <br />
-              <div className="browseby">
-                <h5>Interest</h5>
-              </div>
-              <div className="brow">
-                <div>
-                  <h5>Career & growth</h5>
-                  <h5>Business</h5>
-                  <h5>Finance & Money Management</h5>
-                  <h5>Politics</h5>
-                  <h5>Sports & Recreation</h5>
-                  <h5>Games & Activities</h5>
-                  <h5>Comics & Graphics Novels</h5>
-                  <h5>Social Science</h5>
-                  <h5>True Crime</h5>
-                  <h5>Travel</h5>
-                </div>
-              </div> */}
+              <br />
             </div>
-            <div className="in4mation">
-              {/* <div className="sgg p-2">
-                <Modal show={show} onHide={handleClose}>
-                  <Modal.Header closeButton></Modal.Header>
-                  <Modal.Body>
-                    <ModalTwo />
-                  </Modal.Body>
-                </Modal>
-
-                <Button variant="primary" onClick={handleShow}>
-                  Sign up
-                </Button>
-              </div> */}
-              <div className="paginate my-4">
-                {resources > countPerPage && (
-                  <Pagination
-                    pageSize={countPerPage}
-                    onChange={updatePage}
-                    current={currentPage}
-                    total={resources.length}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="info--tech">
-            <div className="browseby">
-              <h5>Browse by</h5>
-            </div>
-            <div className="brow">
-              <div>
-                {types?.map((type, index) => (
-                  <h5
-                    key={index}
-                    onClick={() => newSearch(type.name)}
-                    className="cursor-pointer"
-                  >
-                    {type.name}
-                  </h5>
-                ))}
-              </div>
-            </div>
-            <br />
-            {/* <div className="browseby">
-              <h5>Interest</h5>
-            </div>
-            <div className="brow">
-              <div>
-                <h5>Career & growth</h5>
-                <h5>Business</h5>
-                <h5>Finance & Money Management</h5>
-                <h5>Politics</h5>
-                <h5>Sports & Recreation</h5>
-                <h5>Games & Activities</h5>
-                <h5>Comics & Graphics Novels</h5>
-                <h5>Social Science</h5>
-                <h5>True Crime</h5>
-                <h5>Travel</h5>
-              </div>
-            </div> */}
           </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
     </div>
   );
 }

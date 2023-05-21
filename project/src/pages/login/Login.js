@@ -3,7 +3,7 @@ import { useRef, useContext, React, useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Context } from "../../context/Context";
 import "./login.css";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function Login() {
   const userRef = useRef();

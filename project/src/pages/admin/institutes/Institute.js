@@ -10,7 +10,7 @@ import Topbar from "../../../components/admin/Topbar";
 import Request from "../../../components/admin/institutes/requests.js/Request";
 import axios from "axios";
 import "./institutes.css";
-import API_URL from "../../../url";
+import API_URL from "../../../Url";
 
 function Institute() {
   const { user } = useContext(Context);

@@ -10,7 +10,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { GoPrimitiveDot } from "react-icons/go";
 import { SiBookstack } from "react-icons/si";
-import API_URL from "../../url";
+import API_URL from "../../Url";
 
 function LandingPage() {
   const [allCat, setAllCat] = useState([]);
@@ -103,7 +103,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[0]?.name)}
+              onClick={() => getCat(allCat?.[0]?.name.toLowerCase())}
             >
               <h5>{allCat?.[0]?.name}</h5>
             </div>
@@ -112,7 +112,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[1]?.name)}
+              onClick={() => getCat(allCat?.[1]?.name.toLowerCase())}
             >
               <h5>{allCat?.[1]?.name}</h5>
             </div>
@@ -128,7 +128,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[2]?.name)}
+              onClick={() => getCat(allCat?.[2]?.name.toLowerCase())}
             >
               <h5>{allCat?.[2]?.name}</h5>
             </div>
@@ -138,7 +138,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[3]?.name)}
+              onClick={() => getCat(allCat?.[3]?.name.toLowerCase())}
             >
               <h5>{allCat?.[3]?.name}</h5>
             </div>
@@ -149,7 +149,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[4]?.name)}
+              onClick={() => getCat(allCat?.[4]?.name.toLowerCase())}
             >
               <h5>{allCat?.[4]?.name}</h5>
             </div>
@@ -159,7 +159,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[5]?.name)}
+              onClick={() => getCat(allCat?.[5]?.name.toLowerCase())}
             >
               <h5>{allCat?.[5]?.name}</h5>
             </div>
@@ -170,7 +170,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[6]?.name)}
+              onClick={() => getCat(allCat?.[6]?.name.toLowerCase())}
             >
               <h5>{allCat?.[6]?.name}</h5>
             </div>
@@ -180,7 +180,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[7]?.name)}
+              onClick={() => getCat(allCat?.[7]?.name.toLowerCase())}
             >
               <h5>{allCat?.[7]?.name}</h5>
             </div>
@@ -191,7 +191,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[8]?.name)}
+              onClick={() => getCat(allCat?.[8]?.name.toLowerCase())}
             >
               <h5>{allCat?.[8]?.name}</h5>
             </div>
@@ -200,7 +200,7 @@ function LandingPage() {
           <div className="ict">
             <div
               className="line cursor-pointer"
-              onClick={() => getCat(allCat?.[9]?.name)}
+              onClick={() => getCat(allCat?.[9]?.name.toLowerCase())}
             >
               <h5>{allCat?.[9]?.name}</h5>
             </div>
@@ -208,7 +208,7 @@ function LandingPage() {
           </div>
         </div>
         <br />
-        <form className="input mt-20" onSubmit={(e) => handleSubmit(e)}>
+        <form className="input" onSubmit={(e) => handleSubmit(e)}>
           <div className="input-group">
             <input
               type="text"
@@ -235,95 +235,22 @@ function LandingPage() {
         <h5>Browse by:</h5>
       </div>
       <br />
-      <br />
       <div>
-        <div className="container text-center">
-          <div className="row">
-            {/* <div className="col">
-              <FontAwesomeIcon
-                icon={faLayerGroup}
-                className="fnt"
-                style={{ color: "red", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Commons
+        <div className="flex justify-center gap-20 flex-wrap px-10">
+          {types?.map((type, index) => (
+            <div
+              className="link text-[#198754] hover:text-gray-600 flex items-center gap-2 md:text-xl text-base cursor-pointer"
+              key={index}
+              onClick={() => getType(type.name.toLowerCase())}
+            >
+              <p>
+                <SiBookstack />
+              </p>
+              <p>{type.name}</p>
             </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faPlaneArrival}
-                className="fnt"
-                style={{ color: "", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikivoyage
-            </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faBook}
-                className="fnt"
-                style={{ color: "blue", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikitionary
-            </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faQuoteLeft}
-                className="fnt"
-                style={{ color: "black", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikiquote
-            </div>
-          </div>
+          ))}
         </div>
-        <br />
-        <br />
-        <div className="container text-center">
-          <div className="row">
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faNewspaper}
-                className="fnt"
-                style={{ color: "grey", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikinews
-            </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faMobile}
-                className="fnt"
-                style={{ color: "purple", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikidata
-            </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faFileWord}
-                className="fnt"
-                style={{ color: "green", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Wikibook
-            </div>
-            <div className="col">
-              <FontAwesomeIcon
-                icon={faNoteSticky}
-                className="fnt"
-                style={{ color: "blue", fontSize: "35px" }}
-              ></FontAwesomeIcon>
-              Mediawiki
-            </div> */}
-            {types?.map((type, index) => (
-              <div className="col" key={index}>
-                <div
-                  className="link text-gray-800 hover:text-gray-300 flex items-center gap-2 md:text-xl text-base cursor-pointer"
-                  onClick={() => getType(type.name)}
-                >
-                  <p>
-                    <SiBookstack />
-                  </p>
-                  <p>{type.name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+
         <div className="land---mobile">
           <Landmobile />
         </div>

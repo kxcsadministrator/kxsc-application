@@ -4,7 +4,7 @@ import axios from "axios";
 import AddResourceFile from "./AddResourceFile";
 import DeleteResourceFiles from "./DeleteResourceFiles";
 import fileDownload from "js-file-download";
-import API_URL from "../../../../../url";
+import API_URL from "../../../../../Url";
 
 function ResourceFiles({ resource }) {
   const { user } = useContext(Context);
