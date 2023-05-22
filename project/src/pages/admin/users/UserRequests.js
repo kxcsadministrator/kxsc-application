@@ -93,14 +93,12 @@ function UserRequests() {
         url: `${API_URL.user}/users/approve-user-request/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-      console.log(res.data);
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,

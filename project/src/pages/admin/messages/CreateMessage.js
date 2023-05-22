@@ -39,9 +39,7 @@ function CreateMessage() {
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       } else {
         try {
           const res = await axios.get(
@@ -49,9 +47,7 @@ function CreateMessage() {
             { headers: { Authorization: `Bearer ${user.jwt_token}` } }
           );
           setMembers(res.data);
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
       }
     };
 
@@ -72,7 +68,6 @@ function CreateMessage() {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setStates({ loading: false, error: false });
-        console.log(res.data);
         navigate("/admin/messages");
       } catch (err) {
         setStates({
@@ -95,7 +90,6 @@ function CreateMessage() {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setStates({ loading: false, error: false });
-        console.log(res.data);
         navigate("/admin/messages");
       } catch (err) {
         setStates({
@@ -105,7 +99,6 @@ function CreateMessage() {
             ? err.response.data.errors[0].msg
             : err.response.data.message,
         });
-        console.log(err);
       }
     }
   };

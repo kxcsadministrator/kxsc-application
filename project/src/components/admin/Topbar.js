@@ -31,8 +31,6 @@ function Topbar() {
     };
   }, [user.id, user.jwt_token]);
 
-  console.log(not[0]?.new_user_requests);
-
   const logout = () => {
     dispatch({ type: "LOGOUT" });
     navigate("/");
@@ -51,9 +49,7 @@ function Topbar() {
         url: `${API_URL.user}/messages/notifications`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   const topbarContainer = user.superadmin

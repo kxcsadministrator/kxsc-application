@@ -45,9 +45,7 @@ function EditResource({ setEditResourceModal, resource }) {
             ?.sub_categories || []
         );
         setType(resource.resource_type);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getCat();
 
@@ -62,7 +60,6 @@ function EditResource({ setEditResourceModal, resource }) {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

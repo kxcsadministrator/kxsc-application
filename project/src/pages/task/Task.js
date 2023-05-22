@@ -28,14 +28,11 @@ function Task() {
           url: `${API_URL.institute}/tasks/one/${id}`,
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
-        console.log(res.data);
         setTask(res.data);
         if (user.id === res.data.id) {
           setAdmin(true);
         }
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getTask();
   }, [id, user.jwt_token, admin, user.id]);

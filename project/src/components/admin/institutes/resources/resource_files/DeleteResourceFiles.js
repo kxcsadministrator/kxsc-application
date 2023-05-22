@@ -42,8 +42,6 @@ function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
       setSuccess(false);
       setLoading(false);
       setErr(true);
-
-      console.log(err);
     }
   };
 

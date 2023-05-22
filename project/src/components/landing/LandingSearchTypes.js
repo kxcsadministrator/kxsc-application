@@ -51,9 +51,7 @@ function LandingSearchTypes() {
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -72,9 +70,7 @@ function LandingSearchTypes() {
         const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -94,7 +90,6 @@ function LandingSearchTypes() {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,
@@ -173,9 +168,7 @@ function LandingSearchTypes() {
       );
       setStates({ loading: false, error: false });
       setResources(res.data);
-      console.log(res.data);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -474,7 +467,7 @@ function LandingSearchTypes() {
                   </div>
                 ) : (
                   <div className="mb-8">
-                    <p>No Resources with the name {resources}</p>
+                    <p>No Resources Yet</p>
                   </div>
                 )}
               </div>
@@ -527,11 +520,11 @@ function LandingSearchTypes() {
               </div>
             </div>
 
-            <div className="info--tech">
+            <div className="info--tech  md:max-w-[400px] max-w-[99vw] ">
               <div className="in4mation">
                 <h5>Categories</h5>
               </div>
-              <div className="top-buttons d-flex gap-3">
+              <div className="top-buttons d-flex gap-3 flex-wrap">
                 {allCat.map((cat, index) => (
                   <div key={index}>
                     <button

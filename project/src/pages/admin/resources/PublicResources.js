@@ -31,7 +31,6 @@ function PublicResources() {
           });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,
@@ -48,7 +47,6 @@ function PublicResources() {
           });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,

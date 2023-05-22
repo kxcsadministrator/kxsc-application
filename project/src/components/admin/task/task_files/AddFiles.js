@@ -50,7 +50,6 @@ function AddFiles({ setAddFileModal }) {
       );
 
       setStates({ loading: false, error: false, success: true });
-      console.log(res.data);
       setTimeout(() => {
         setAddFileModal(false);
         window.location.reload(false);
@@ -62,7 +61,6 @@ function AddFiles({ setAddFileModal }) {
         errMsg: err.response.data.message,
         success: false,
       });
-      console.log(err);
     }
   };
 

@@ -46,7 +46,6 @@ function DeleteInstituteModal({ setDeleteInstituteModal, modalInstitute }) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
 

@@ -51,9 +51,7 @@ function Search() {
           setResources(res.data.resources?.slice(0, countPerPage));
           setInstitutes(res.data.institutes?.slice(0, countPerPage));
           setStates({ loading: false, error: false });
-          console.log(res.data);
         } catch (err) {
-          console.log(err);
           setStates({
             loading: false,
             error: false,

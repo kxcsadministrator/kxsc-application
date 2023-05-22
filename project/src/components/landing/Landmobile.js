@@ -31,9 +31,7 @@ function Landmobile() {
         const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -52,7 +50,6 @@ function Landmobile() {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

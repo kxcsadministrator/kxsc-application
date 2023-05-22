@@ -52,9 +52,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getMembers();
   }, [instituteId, user.jwt_token, username]);
@@ -85,7 +83,6 @@ function AddMemberModal({ setMemberModal, instituteId }) {
           errMsg: err.response.data.message,
           success: false,
         });
-        console.log(err);
       }
     } else {
       try {
@@ -108,7 +105,6 @@ function AddMemberModal({ setMemberModal, instituteId }) {
           errMsg: err.response.data.message,
           success: false,
         });
-        console.log(err);
       }
     }
   };

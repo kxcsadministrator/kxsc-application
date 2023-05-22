@@ -50,7 +50,6 @@ function DeleteResources({
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
 

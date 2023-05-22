@@ -28,10 +28,7 @@ function ResourceFiles({ resource }) {
           }
         );
         fileDownload(res.data, `${file.original_name}`);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     } else {
       alert("Sign Up or Login to download files");
     }

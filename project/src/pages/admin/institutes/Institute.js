@@ -34,9 +34,7 @@ function Institute() {
         if (res.data.admins[0]._id === user.id) {
           setAdmin(true);
         }
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getInstitute();
   }, [id, user.jwt_token, admin, user.id]);

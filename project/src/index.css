@@ -133,11 +133,12 @@ table th {
 .show_details {
   display: -webkit-box; /* use webkit-box for Safari, Chrome, and Opera */
   -webkit-box-orient: vertical; /* specify vertical orientation */
-  -webkit-line-clamp: 5;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
 }
-
-.show_details.actine {
+.show_details.active {
   -webkit-line-clamp: none;
+  -webkit-line-clamp: unset;
 }
 
 @media screen and (max-width: 760px) {

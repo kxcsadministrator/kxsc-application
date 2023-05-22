@@ -35,7 +35,6 @@ function Institutes() {
           });
           setAllInstitutes(res.data);
           setStates({ loading: false, error: false });
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,
@@ -53,15 +52,12 @@ function Institutes() {
           );
           setStates({ loading: false, error: false });
           setAllInstitutes(res.data);
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,
             error: false,
             errMsg: err.response.data.message,
           });
-
-          console.log(err);
         }
       }
     };

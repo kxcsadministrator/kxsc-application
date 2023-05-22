@@ -49,7 +49,6 @@ function DeleteModal({ setDeleteModal, deleteUser, setDeleteUser }) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
   return (

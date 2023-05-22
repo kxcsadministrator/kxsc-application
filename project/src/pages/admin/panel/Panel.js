@@ -52,9 +52,7 @@ function Panel() {
             }
           );
           setRecentUsers(res.data);
-        } catch (err) {
-          console.log(err);
-        }
+        } catch (err) {}
 
         try {
           const res = await axios.get(`${API_URL.institute}/institutes/all`, {

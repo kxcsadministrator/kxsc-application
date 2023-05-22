@@ -38,7 +38,6 @@ function Ham() {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

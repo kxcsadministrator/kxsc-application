@@ -41,9 +41,7 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getMembers();
   }, [instituteId, user.jwt_token, username]);
@@ -72,7 +70,6 @@ function AddCollaborators({ setAddCollaboratorsModal }) {
         errMsg: err.response.data.message,
         success: false,
       });
-      console.log(err);
     }
   };
 

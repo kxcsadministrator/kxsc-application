@@ -33,7 +33,6 @@ function OtherResources() {
         );
         setStates({ loading: false, error: false });
         setAllResources(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

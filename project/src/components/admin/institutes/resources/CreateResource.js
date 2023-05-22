@@ -37,9 +37,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setAllCat(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getCat();
 
@@ -54,7 +52,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,
@@ -87,9 +84,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
         `${API_URL.resource}/categories/subs?name=${e.target.value}`
       );
       setSelectedCat(res.data);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   //handle submit
@@ -122,7 +117,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
       setStates({ loading: false, error: false });
       navigate("/admin/resources");
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,

@@ -71,10 +71,7 @@ function Files({ files, admin }) {
         }
       );
       fileDownload(res.data, `${file.original_name}`);
-      console.log(res.data);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (err) {}
   };
 
   console.log(files);

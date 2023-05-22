@@ -34,7 +34,6 @@ function SingleSection() {
         );
         setStates({ loading: false, error: false });
         setPages(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

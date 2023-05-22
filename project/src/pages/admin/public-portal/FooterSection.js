@@ -35,7 +35,6 @@ function FooterSection() {
         });
         setStates({ loading: false, error: false });
         setSections(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

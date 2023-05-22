@@ -33,7 +33,6 @@ function LandingBlogDetails() {
         const res = await axios.get(`${API_URL.user}/blog/one/${id}`);
         setStates({ loading: false, error: false });
         setBlog(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

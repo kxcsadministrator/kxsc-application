@@ -49,7 +49,6 @@ function DeleteAdminModal({ admin, setDeleteAdminModal, instituteId }) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
   return (

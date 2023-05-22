@@ -35,7 +35,6 @@ function Login() {
         navigate("/admin");
       }
     } catch (err) {
-      console.log(err);
       dispatch({
         type: "LOGIN_FAILURE",
         payload: err.response.data.errors

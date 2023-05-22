@@ -161,7 +161,6 @@ function LandingsearchIndividualpage() {
       setMsg("success");
       setSubmitMsg(true);
     } catch (err) {
-      console.log(err);
       console.log(err.response);
       if (err.response.status === 409) {
         setMsg("You already rated this resource");
@@ -191,10 +190,7 @@ function LandingsearchIndividualpage() {
           }
         );
         fileDownload(res.data, `${file.original_name}`);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     } else {
       alert("Sign Up or Login to download files");
     }
@@ -326,7 +322,7 @@ function LandingsearchIndividualpage() {
                         ></p>
                         <p
                           className="text-[15px] text-green-600 cursor-pointer underline"
-                          onClick={() => setShowDetails(!showDetails)}
+                          onClick={() => handlePreviewClick()}
                         >
                           Read More
                         </p>

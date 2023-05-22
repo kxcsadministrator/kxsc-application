@@ -50,7 +50,6 @@ function ChangeAvatarModal({ setChangeAvatarModal, resource }) {
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,

@@ -45,8 +45,6 @@ function DeleteFileModal({ setDeleteFileModal, file, instituteId }) {
       setSuccess(false);
       setLoading(false);
       setErr(true);
-
-      console.log(err);
     }
   };
   return (

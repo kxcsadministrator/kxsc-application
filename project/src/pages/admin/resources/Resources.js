@@ -37,14 +37,12 @@ function Resources() {
           });
           setStates({ loading: false, error: false });
           setAllResources(res.data);
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,
             error: true,
             errMsg: err.response.data.message,
           });
-          console.log(err);
         }
       } else {
         try {
@@ -56,14 +54,12 @@ function Resources() {
           );
           setStates({ loading: false, error: false });
           setAllResources(res.data);
-          console.log(res.data);
         } catch (err) {
           setStates({
             loading: false,
             err: true,
             errMsg: err.response.data.message,
           });
-          console.log(err);
         }
       }
     };

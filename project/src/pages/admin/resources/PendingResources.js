@@ -32,11 +32,8 @@ function PendingResources() {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
         );
-        console.log(res.data);
         setPendingResources(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getRequest();
   }, [user.jwt_token]);
@@ -91,7 +88,6 @@ function PendingResources() {
         url: `${API_URL.user}/users/admin-publish/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-      console.log(res.data);
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);

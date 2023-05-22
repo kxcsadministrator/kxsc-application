@@ -48,7 +48,6 @@ function EditSectionModal({ setEditSectionModal, editSection }) {
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,

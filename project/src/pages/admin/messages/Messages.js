@@ -35,7 +35,6 @@ function Messages() {
         });
         setStates({ loading: false, error: false });
         setAllMsg(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,
@@ -54,7 +53,6 @@ function Messages() {
         });
         setStates({ loading: false, error: false });
         setSentMsg(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

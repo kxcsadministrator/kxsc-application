@@ -33,7 +33,6 @@ function Resources({ resources, instituteId, admin }) {
         url: `${API_URL.institute}/institutes/request-to-publish/${instituteId}/${id}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-      console.log(res.data);
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);

@@ -31,11 +31,8 @@ function Request({ instituteId, admin }) {
             headers: { Authorization: `Bearer ${user.jwt_token}` },
           }
         );
-        console.log(res.data);
         setRequest(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getRequest();
   }, [user.jwt_token, id]);
@@ -95,7 +92,6 @@ function Request({ instituteId, admin }) {
         url: `${API_URL.institute}/institutes/publish-to-institute/${instituteId}/${resourceId}`,
         headers: { Authorization: `Bearer ${user.jwt_token}` },
       });
-      console.log(res.data);
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);

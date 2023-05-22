@@ -59,8 +59,6 @@ function AddSubCat({ setAddSubCatModal, category }) {
             : err.response.data.message,
           success: false,
         });
-
-        console.log(err);
       }
     }
   };

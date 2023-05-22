@@ -43,9 +43,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getMembers();
   }, [instituteId, user.jwt_token, username]);

@@ -43,7 +43,6 @@ function EditUser({ setEditUserModal, editUser }) {
         window.location.reload(false);
       }, 3000);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,

@@ -30,13 +30,11 @@ function CreateCategory() {
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
-      console.log(res.data);
       navigate("/admin/categories");
     } catch (err) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.errors);
-      console.log(err);
     }
   };
   return (

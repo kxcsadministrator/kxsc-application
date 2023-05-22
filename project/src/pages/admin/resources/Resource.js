@@ -34,11 +34,8 @@ function Resource() {
         const res = await axios.get(`${API_URL.resource}/resources/one/${id}`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
-        console.log(res.data);
         setResource(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getResources();
   }, [id, user.jwt_token]);

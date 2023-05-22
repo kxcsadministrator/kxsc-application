@@ -48,7 +48,6 @@ function AddResourceFile({ setAddFileModal, resourceId }) {
 
       setLoading(false);
       setSuccess(true);
-      console.log(res.data);
       setTimeout(() => {
         setAddFileModal(false);
         window.location.reload(false);
@@ -58,7 +57,6 @@ function AddResourceFile({ setAddFileModal, resourceId }) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
 

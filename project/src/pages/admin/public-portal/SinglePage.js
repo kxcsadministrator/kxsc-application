@@ -39,7 +39,6 @@ function SinglePage() {
         );
         setStates({ loading: false, error: false });
         setPage(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

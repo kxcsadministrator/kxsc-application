@@ -33,9 +33,7 @@ function LandingPage() {
         const res = await axios.get(`${API_URL.resource}/categories/globe`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -54,7 +52,6 @@ function LandingPage() {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,
@@ -99,7 +96,7 @@ function LandingPage() {
           </div>
           <br />
         </div>
-        <div className="landing--cont d-flex">
+        <div className="landing--cont d-flex mb-5 lg:mb-0">
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -107,7 +104,7 @@ function LandingPage() {
             >
               <h5>{allCat?.[0]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
           <div className="ict">
             <div
@@ -116,10 +113,10 @@ function LandingPage() {
             >
               <h5>{allCat?.[1]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
         </div>
-        <div className="landing--conttt">
+        <div className="landing--conttt xl:-mt-16 lg:-mt-2 ">
           <div className="map">
             <img src={image2} alt="" />
           </div>
@@ -132,9 +129,8 @@ function LandingPage() {
             >
               <h5>{allCat?.[2]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
           </div>
-          <div></div>
+
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -142,10 +138,10 @@ function LandingPage() {
             >
               <h5>{allCat?.[3]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
         </div>
-        <div className="landing---contt d-flex">
+        <div className="landing---contt d-flex xl:mb-10 xl:mt-10 lg:mb-4 lg:mt-4">
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -153,9 +149,9 @@ function LandingPage() {
             >
               <h5>{allCat?.[4]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
-          <div></div>
+
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -163,10 +159,10 @@ function LandingPage() {
             >
               <h5>{allCat?.[5]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
         </div>
-        <div className="landing---contt d-flex">
+        <div className="landing---contt d-flex xl:mb-10 lg:mb-4 ">
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -174,9 +170,8 @@ function LandingPage() {
             >
               <h5>{allCat?.[6]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
+            <p></p>
           </div>
-          <div></div>
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -184,10 +179,9 @@ function LandingPage() {
             >
               <h5>{allCat?.[7]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
-        <div className="landing---conttt d-flex">
+        <div className="landing---conttt d-flex xl:mt-16  ">
           <div className="ict">
             <div
               className="line cursor-pointer"
@@ -195,7 +189,6 @@ function LandingPage() {
             >
               <h5>{allCat?.[8]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
           </div>
           <div className="ict">
             <div
@@ -204,9 +197,10 @@ function LandingPage() {
             >
               <h5>{allCat?.[9]?.name}</h5>
             </div>
-            {/* <p>200/478+ articles</p> */}
           </div>
         </div>
+        <br />
+        <br />
         <br />
         <form className="input" onSubmit={(e) => handleSubmit(e)}>
           <div className="input-group">

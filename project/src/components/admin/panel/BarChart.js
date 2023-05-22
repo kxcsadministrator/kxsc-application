@@ -34,14 +34,12 @@ function BarChart() {
           }
         );
         setResource(res.data);
-        console.log(res.data);
       } catch (err) {}
       try {
         const res = await axios.get(`${API_URL.resource}/resources/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
         setResources(res.data);
-        console.log(res.data);
       } catch (err) {}
     };
     getAll();

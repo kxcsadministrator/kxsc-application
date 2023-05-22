@@ -37,7 +37,6 @@ function Categories() {
         });
         setStates({ loading: false, error: false });
         setAllCat(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

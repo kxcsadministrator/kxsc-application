@@ -51,9 +51,7 @@ function LandingsearchResult() {
         );
         setStates({ loading: false, error: false });
         setResources(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -72,9 +70,7 @@ function LandingsearchResult() {
         const res = await axios.get(`${API_URL.resource}/categories/all`);
         setStates({ loading: false, error: false });
         setAllCat(res.data);
-        console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -93,7 +89,6 @@ function LandingsearchResult() {
         );
         setStates({ loading: false, error: false });
         setTypes(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,
@@ -171,9 +166,7 @@ function LandingsearchResult() {
       );
       setStates({ loading: false, error: false });
       setResources(res.data);
-      console.log(res.data);
     } catch (err) {
-      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -473,15 +466,15 @@ function LandingsearchResult() {
                   </div>
                 ) : (
                   <div className="mb-8">
-                    <p>No Resources with the name {resources}</p>
+                    <p>No Resources Yet</p>
                   </div>
                 )}
               </div>
-              <div className="info--techss -mt-10">
+              <div className="info--techss -mt-10  md:max-w-[400px] max-w-[99vw] ">
                 <div className="in4mation">
                   <h5>Explore Categories</h5>
                 </div>
-                <div className="top-buttons d-flex gap-3">
+                <div className="top-buttons d-flex gap-3 flex-wrap">
                   {allCat?.map((cat, index) => (
                     <div key={index}>
                       <button

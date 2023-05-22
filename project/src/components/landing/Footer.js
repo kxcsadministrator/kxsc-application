@@ -24,7 +24,6 @@ function Footer() {
         const res = await axios.get(`${API_URL.user}/pages/all-sections`);
         setStates({ loading: false, error: false });
         setSections(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

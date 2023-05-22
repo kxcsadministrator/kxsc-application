@@ -48,7 +48,6 @@ function DeleteTaskModal({ task, setDeleteTaskModal, instituteId }) {
       setLoading(false);
       setErr(true);
       setErrMsg(err.response.data.message);
-      console.log(err);
     }
   };
 

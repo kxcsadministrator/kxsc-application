@@ -32,7 +32,6 @@ function SingleBlog() {
         });
         setStates({ loading: false, error: false });
         setBlog(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

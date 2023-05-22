@@ -32,7 +32,6 @@ function PieChart() {
           }
         );
         setResource(res.data);
-        console.log(res.data);
       } catch (err) {}
     };
     getAll();

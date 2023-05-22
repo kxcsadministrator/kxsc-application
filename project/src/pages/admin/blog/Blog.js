@@ -31,7 +31,6 @@ function Blog() {
         });
         setStates({ loading: false, error: false });
         setBlogs(res.data);
-        console.log(res.data);
       } catch (err) {
         setStates({
           loading: false,

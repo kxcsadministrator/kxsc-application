@@ -51,8 +51,6 @@ function SubCatModal({ deleteSubCat, setSubCatModal, category }) {
           : err.response.data.message,
         success: false,
       });
-
-      console.log(err);
     }
   };
   return (
