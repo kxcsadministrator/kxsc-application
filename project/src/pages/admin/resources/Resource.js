@@ -9,6 +9,7 @@ import ResourceFiles from "../../../components/admin/institutes/resources/resour
 import API_URL from "../../../Url";
 import Rating from "../../../components/Rating";
 import EditResource from "../../../components/admin/institutes/resources/EditResource";
+import ChangeAvatarModal from "../../../components/admin/institutes/resources/ChangeAvatarModal";
 
 function Resource() {
   //states
@@ -23,6 +24,7 @@ function Resource() {
     success: false,
   });
   const [editResourceModal, setEditResourceModal] = useState(false);
+  const [changeAvatarModal, setChangeAvatarModal] = useState(false);
 
   //requestModal states
 
@@ -66,6 +68,8 @@ function Resource() {
     }
   };
 
+  const changeAvatar = () => {};
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -89,49 +93,75 @@ function Resource() {
                   Edit
                 </button>
               </div>
-
-              <div>
-                <div className="resource_row">
-                  <p>By: {resource.author.username}</p>
-                  <p>Institute: {resource.institute.name}</p>
-                  {resource.rating > 0 && (
-                    <div className="-mt-4">
-                      <Rating rating={resource.rating} />
-                    </div>
-                  )}
-                </div>
-                <div className="resource_row -mt-2">
-                  <p>Category: {resource.category}</p>
-                  <p>
-                    Sub-categories:{" "}
-                    {resource.sub_categories.map((sub, index) => (
-                      <span key={index}>{sub}</span>
-                    ))}
-                  </p>
-                  <p>Resource type: {resource.resource_type}</p>
-                </div>
-                <div className="resource_row -mt-2">
-                  <div className="flex gap-2">
-                    <p>Citations: </p>
-                    {resource.citations && (
-                      <div className="flex gap-2 items-center">
-                        {resource.citations.map((cite, index) => (
-                          <p key={index}>{cite}</p>
-                        ))}
+              <div className="flex justify-between gap-2 md:flex-row flex-col mt-3 items-center">
+                <div>
+                  <div className="resource_row">
+                    <p>By: {resource.author.username}</p>
+                    <p>Institute: {resource.institute.name}</p>
+                    {resource.rating > 0 && (
+                      <div className="-mt-4">
+                        <Rating rating={resource.rating} />
                       </div>
                     )}
                   </div>
+                  <div className="resource_row -mt-2">
+                    <p>Category: {resource.category}</p>
+                    <p>
+                      Sub-categories:{" "}
+                      {resource.sub_categories.map((sub, index) => (
+                        <span key={index}>{sub}</span>
+                      ))}
+                    </p>
+                    <p>Resource type: {resource.resource_type}</p>
+                  </div>
+                  <div className="resource_row -mt-2">
+                    <div className="flex gap-2">
+                      <p>Citations: </p>
+                      {resource.citations && (
+                        <div className="flex gap-2 items-center">
+                          {resource.citations.map((cite, index) => (
+                            <p key={index}>{cite}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    {(user.id === resource.author._id || user.superadmin) && (
+                      <button
+                        className="btn_green"
+                        onClick={() => publishRequest()}
+                      >
+                        Publish
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <div>
-                {(user.id === resource.author._id || user.superadmin) && (
+                <div className="w-[250px] h-[250px] contain flex flex-col gap-2">
+                  {resource.avatar ? (
+                    <div>
+                      <img
+                        src={`${API_URL.resource}/${resource.avatar}`}
+                        alt="avatar resource"
+                        className="object-cover h-full w-full rounded-md"
+                      />
+                    </div>
+                  ) : (
+                    <div className="fvv-image">
+                      <img
+                        src="/default.png"
+                        alt="default"
+                        className="object-cover h-full w-full rounded-md"
+                      />
+                    </div>
+                  )}
                   <button
-                    className="btn_green"
-                    onClick={() => publishRequest()}
+                    className="btn_green w-fit"
+                    onClick={() => setChangeAvatarModal(true)}
                   >
-                    Publish
+                    Change Avatar
                   </button>
-                )}
+                </div>
               </div>
             </div>
             {resource.description && (
@@ -161,6 +191,12 @@ function Resource() {
             <EditResource
               setEditResourceModal={setEditResourceModal}
               // instituteId={instituteId}
+              resource={resource}
+            />
+          )}
+          {changeAvatarModal && (
+            <ChangeAvatarModal
+              setChangeAvatarModal={setChangeAvatarModal}
               resource={resource}
             />
           )}

@@ -354,14 +354,14 @@ function LandingSearchCategory() {
               <div className="in4mation">
                 {/* <h5>Information Technology</h5> */}
               </div>
-              <div className="five-vid d-flex">
+              <div className="">
                 {resources?.length > 0 ? (
                   <div>
                     {collection.map((resource, index) => (
                       <div>
-                        <div className="five-vid d-flex" key={index}>
+                        <div className="flex md:flex-row flex-col" key={index}>
                           {resource.avatar ? (
-                            <div>
+                            <div className="md:w-[28%]">
                               <img
                                 src={`${API_URL.resource}/${resource.avatar}`}
                                 alt="avatar resource"
@@ -369,7 +369,7 @@ function LandingSearchCategory() {
                               />
                             </div>
                           ) : (
-                            <div className="fvv-image w-[28%]">
+                            <div className=" md:w-[28%]">
                               <img
                                 src="/default.png"
                                 alt="default"
@@ -378,14 +378,14 @@ function LandingSearchCategory() {
                             </div>
                           )}
 
-                          <div className="fv-vid p-3">
+                          <div className="p-3">
                             <span>{resource.institute.name}</span>
                             <h5 className="my-1">{resource.topic}</h5>
                             <div className="flex items-center gap-2 mt-2 text-xs md:text-sm">
                               <p>By: {resource.author.username}</p>
                               <p>{resource.date}</p>
                             </div>
-                            <div className="saves flex gap-3 items-center -mt-1">
+                            <div className="saves flex  items-center -mt-1 flex-wrap gap-x-2  md:gap-x-3">
                               {resource.rating <= 0 ? (
                                 <p></p>
                               ) : (

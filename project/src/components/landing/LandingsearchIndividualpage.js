@@ -51,11 +51,9 @@ function LandingsearchIndividualpage() {
         const res = await axios.get(
           `${API_URL.resource}/resources/one/${id}?public=true`
         );
-        console.log(res.data);
+
         setResource(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getResources();
     const getRelated = async () => {
@@ -64,10 +62,7 @@ function LandingsearchIndividualpage() {
           `${API_URL.resource}/resources/similar/${id}`
         );
         setRelated(res.data);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getRelated();
     const getReviews = async () => {
@@ -76,10 +71,7 @@ function LandingsearchIndividualpage() {
           `${API_URL.resource}/resources/rating/${id}`
         );
         setReviews(res.data);
-        console.log(res.data);
-      } catch (err) {
-        console.log(err);
-      }
+      } catch (err) {}
     };
     getReviews();
   }, [id]);
@@ -558,18 +550,18 @@ function LandingsearchIndividualpage() {
 
             <div>
               {related?.length ? (
-                <div className="container">
+                <div className="container  related">
                   <h5>Related to {resource.topic}</h5>
-                  <div className="row flex-wrap overflow-x-auto">
+                  <div className="flex items-center gap-5 overflow-x-auto w-full">
                     {related?.map((resource, index) => (
                       <div key={index}>
-                        <div className="slider w-[25%]">
+                        <div>
                           {resource.avatar ? (
                             <div>
                               <img
                                 src={`${API_URL.resource}/${resource.avatar}`}
                                 alt="avatar resource"
-                                className="object-cover h-full w-full"
+                                className="object-contain h-[200px] w-[200px]"
                               />
                             </div>
                           ) : (
@@ -577,7 +569,7 @@ function LandingsearchIndividualpage() {
                               <img
                                 src="/default.png"
                                 alt="default"
-                                className="object-cover h-full w-full"
+                                className="object-cover h-[200px] min-w-[250px]"
                               />
                             </div>
                           )}
