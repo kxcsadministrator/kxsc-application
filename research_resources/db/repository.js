@@ -607,6 +607,7 @@ const similarity = async (query, id) => {
             }
         },
         { $limit: 10},
+        {$match: {'_id': {'$ne': id}}},
         {
             "$project": {
                 "_id": 1,
@@ -622,7 +623,7 @@ const similarity = async (query, id) => {
             }
           }
         ])
-    return result;
+    return result.filter(r => r._id.toString() != id);
 }
 
 /* ----------------------------------------------- Resource type ------------------------------------------ */
