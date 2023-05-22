@@ -20,12 +20,8 @@ const newResourceSchema = {
         errorMessage: "institute must be at an ID",
     },
     resource_type: {
-        custom: {
-            options: (value) => {
-                return (value === "government" || value === "private" || value === "education")
-            }
-        },
-        errorMessage: "resource_type must be either government, private or education",
+        notEmpty: true,
+        errorMessage: "resource_type must be valid",
     },
 
 }
