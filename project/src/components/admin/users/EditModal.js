@@ -55,11 +55,8 @@ function EditModal({ setEditModal, editUser, setEditUser }) {
             />
           </div>
           <div className="flex gap-3 mt-4">
-            <button
-              className="py-1 px-3 bg-green-600 rounded-sm"
-              onClick={() => handleBackBtn()}
-            >
-              <p>Back</p>
+            <button className="btn_green w-fit" onClick={() => handleBackBtn()}>
+              Back
             </button>
             <button
               className="py-1 px-3 bg-red-600 rounded-sm"

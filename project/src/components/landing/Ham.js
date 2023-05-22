@@ -9,7 +9,7 @@ function Ham() {
   const [burger_class, setBurgerClass] = useState("burger-bar unclicked");
   const [menu_class, setMenuClass] = useState("menu hidden");
   const [isMenuClicked, setIsMenuClicked] = useState(false);
-  const [allCat, setAllCat] = useState([]);
+  const [types, setTypes] = useState();
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -30,31 +30,29 @@ function Ham() {
 
   //get categories
   useEffect(() => {
-    const getCategories = async () => {
+    const getType = async () => {
       setStates({ loading: true, error: false });
-
       try {
-        const res = await axios.get(`${API_URL.resource}/categories/all`);
+        const res = await axios.get(
+          `${API_URL.resource}/resources/resource-types`
+        );
         setStates({ loading: false, error: false });
-        setAllCat(res.data);
+        setTypes(res.data);
         console.log(res.data);
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
-          error: true,
-          errMsg: err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : err.response.data.message,
+          err: true,
+          errMsg: err.response.data.message,
         });
       }
     };
-    getCategories();
+    getType();
   }, []);
 
-  const getCat = (name) => {
-    sessionStorage.setItem("cat", name);
-    navigate(`/search_by_category?${name}`);
+  const newType = (name) => {
+    sessionStorage.setItem("type", name);
+    navigate(`/search_by_type?${name}`);
   };
 
   return (
@@ -84,13 +82,13 @@ function Ham() {
                 <h5>Browse by</h5>
                 <div className="brwse d-flex">
                   <div>
-                    {allCat.map((cat, index) => (
+                    {types?.map((type, index) => (
                       <h5
                         key={index}
-                        onClick={() => getCat(cat.name)}
+                        onClick={() => newType(type.name.toLowerCase())}
                         className="cursor-pointer"
                       >
-                        {cat.name}
+                        {type.name}
                       </h5>
                     ))}
                   </div>

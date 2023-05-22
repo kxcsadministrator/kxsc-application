@@ -236,10 +236,10 @@ function LandingPage() {
       </div>
       <br />
       <div>
-        <div className="flex justify-center gap-20 flex-wrap px-10">
+        <div className="md:flex hidden justify-center gap-20 flex-wrap px-10 relative">
           {types?.map((type, index) => (
             <div
-              className="link text-[#198754] hover:text-gray-600 flex items-center gap-2 md:text-xl text-base cursor-pointer"
+              className="link text-[#198754] hover:text-gray-600 flex items-center gap-2 md:text-xl text-sm cursor-pointer"
               key={index}
               onClick={() => getType(type.name.toLowerCase())}
             >

@@ -91,10 +91,10 @@ function AddTaskModal({ setTaskModal, instituteId }) {
             <div>
               <button
                 onClick={(e) => submitTask(e)}
-                className="bg-green-600 h-[35px] w-full py-1 px-2"
+                className="btn_green w-fit"
                 disabled={states.loading}
               >
-                <p className="text-white">Submit</p>
+                Submit
               </button>
             </div>
           </div>
