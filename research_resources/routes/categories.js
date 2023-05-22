@@ -46,7 +46,7 @@ router.post('/new',
         const unique_subs = new Set(req.body.sub_categories)
         
         const data = new Model.category({
-            name: req.body.name,
+            name: req.body.name.toLowerCase(),
             sub_categories: Array.from(unique_subs)
         });
 
