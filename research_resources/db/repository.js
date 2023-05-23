@@ -484,6 +484,7 @@ const search_resource = async (keyword, sort_key='rating', sort_value=-1) => {
                 "date": 1,
                 "view_count": 1,
                 "citations": 1,
+                "avatar": 1,
                 "score": { "$meta": "searchScore"},
             }
           }
@@ -603,6 +604,7 @@ const similarity = async (query, id) => {
                 "date": 1,
                 "view_count": 1,
                 "citations": 1,
+                "avatar": 1,
                 "score": { "$meta": "searchScore"},
             }
           }
@@ -620,7 +622,8 @@ const similarity = async (query, id) => {
             rating: resource.rating,
             view_count: resource.view_count,
             number_of_ratings: num_ratings.length,
-            date: new Date(resource.date).toDateString()
+            date: new Date(resource.date).toDateString(),
+            avatar: resource.avatar
         }
         data.push(r)
     }
