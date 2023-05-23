@@ -196,8 +196,6 @@ function LandingsearchResult() {
     } else {
       setCitationValues([]);
     }
-
-    console.log(citationValues);
   };
 
   return (
@@ -342,17 +340,14 @@ function LandingsearchResult() {
         <div className="explore_topics">
           <div className="exploretopics d-flex">
             <div className="infotech">
-              <div className="in4mation">
-                {/* <h5>Information Technology</h5> */}
-              </div>
               <div>
                 {resources?.length > 0 ? (
                   <div>
                     {collection.map((resource, index) => (
-                      <div className="md:w-[28%]">
+                      <div>
                         <div className="flex md:flex-row flex-col" key={index}>
                           {resource.avatar ? (
-                            <div>
+                            <div className="md:w-[28%]">
                               <img
                                 src={`${API_URL.resource}/${resource.avatar}`}
                                 alt="avatar resource"
@@ -470,11 +465,11 @@ function LandingsearchResult() {
                   </div>
                 )}
               </div>
-              <div className="info--techss -mt-10  md:max-w-[400px] max-w-[99vw] ">
+              <div className="info--techss -mt-10  md:max-w-[400px] max-w-[99vw]  ">
                 <div className="in4mation">
                   <h5>Explore Categories</h5>
                 </div>
-                <div className="top-buttons d-flex gap-3 flex-wrap">
+                <div className="top-buttons d-flex gap-3 flex-wrap ">
                   {allCat?.map((cat, index) => (
                     <div key={index}>
                       <button
@@ -519,11 +514,11 @@ function LandingsearchResult() {
               </div>
             </div>
 
-            <div className="info--tech">
+            <div className="info--tech -mt-10  md:max-w-[400px] max-w-[99vw]">
               <div className="in4mation">
                 <h5>Categories</h5>
               </div>
-              <div className="top-buttons d-flex gap-3">
+              <div className="top-buttons d-flex gap-3 flex-wrap  max-h-[300px] overflow-y-auto">
                 {allCat.map((cat, index) => (
                   <div key={index}>
                     <button

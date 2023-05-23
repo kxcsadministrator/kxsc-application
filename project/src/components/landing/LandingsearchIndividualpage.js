@@ -195,6 +195,7 @@ function LandingsearchIndividualpage() {
       alert("Sign Up or Login to download files");
     }
   };
+
   return (
     <div>
       <div className="LandingPgTwo overflow-hidden">
@@ -298,7 +299,9 @@ function LandingsearchIndividualpage() {
                   {resource.rating > 0 ? (
                     <div className="flex gap-2 items-center">
                       <Rating rating={resource.rating} />
-                      <span className=" text-xs md:text-sm">(ratings)</span>
+                      <span className=" text-xs md:text-sm">
+                        ({resource.number_of_ratings} ratings)
+                      </span>
                     </div>
                   ) : (
                     <p className="-mt-2 mb-2">
@@ -548,7 +551,7 @@ function LandingsearchIndividualpage() {
               {related?.length ? (
                 <div className="container  related">
                   <h5>Related to {resource.topic}</h5>
-                  <div className="flex items-center gap-5 overflow-x-auto w-full">
+                  <div className="flex  gap-5 overflow-x-auto w-full">
                     {related?.map((resource, index) => (
                       <div key={index}>
                         <div>
@@ -576,7 +579,7 @@ function LandingsearchIndividualpage() {
                             <div className="flex gap-2  items-center ">
                               <Rating rating={resource.rating} />
                               <span className=" text-xs md:text-sm">
-                                (ratings)
+                                ( {resource.number_of_ratings} ratings)
                               </span>
                             </div>
                           )}
@@ -595,7 +598,9 @@ function LandingsearchIndividualpage() {
               {resource.rating > 0 && (
                 <div className="flex gap-2 items-center ">
                   <Rating rating={resource.rating} />
-                  <span className=" text-xs md:text-sm">(ratings)</span>
+                  <span className=" text-xs md:text-sm">
+                    ( {resource.number_of_ratings} ratings)
+                  </span>
                 </div>
               )}
               <div className="flex gap-2 items-center text-sm">

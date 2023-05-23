@@ -344,9 +344,6 @@ function LandingSearchCategory() {
         <div className="explore_topics">
           <div className="exploretopics d-flex">
             <div className="infotech">
-              <div className="in4mation">
-                {/* <h5>Information Technology</h5> */}
-              </div>
               <div className="">
                 {resources?.length > 0 ? (
                   <div>
@@ -525,7 +522,7 @@ function LandingSearchCategory() {
               <div className="in4mation">
                 <h5>Categories</h5>
               </div>
-              <div className="top-buttons d-flex gap-3 flex-wrap">
+              <div className="top-buttons d-flex gap-3 flex-wrap max-h-[300px] overflow-y-auto">
                 {allCat.map((cat, index) => (
                   <div key={index}>
                     <button
