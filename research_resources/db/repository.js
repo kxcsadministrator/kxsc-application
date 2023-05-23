@@ -58,7 +58,7 @@ const log_request_error = async (message) => {
       const res = await axios.post(`${LOG_BASE_URL}/error`, {"message": message});
       return res
     } catch (error) {
-      console.log(error)
+    //   console.log(error)
     }
   }
 
@@ -484,6 +484,7 @@ const search_resource = async (keyword, sort_key='rating', sort_value=-1) => {
                 "date": 1,
                 "view_count": 1,
                 "citations": 1,
+                "avatar": 1,
                 "score": { "$meta": "searchScore"},
             }
           }
@@ -561,10 +562,11 @@ const remove_sub_categories = async (id, subs) => {
 }
 
 const update_category_by_id = async (id, new_name) => {
-    let updateObj = {name: new_name};
-    
-    await Model.category.findByIdAndUpdate(id, updateObj);
+    let updateObj = {name: new_name.toLowerCase()};
+    const cat = await Model.category.findByIdAndUpdate(id, updateObj);
     const result = await Model.category.findById(id);
+    
+    const resource_update = await Model.resource.updateMany({category: cat.name}, {category: new_name})
     return result;
 
 }
@@ -578,22 +580,54 @@ const delete_category_by_id = async (req) => {
 
 /*----------------------------------- BM25 Similarity Search -------------------------------*/
 const similarity = async (query, id) => {
-    let resources = await Model.resource.find({_id: {$ne: id}, visibility: "public"})
-    let docs = [];
-    
-    resources.forEach(element => {
-        let data = element.topic
-        docs.push(data);
-    });
-    
-    let rt = new Retrieval(K=1.6, B=0.75);
-
-    rt.index(docs);
- 
-    // 3rd step: search. In other words, multiply the document-term matrix and the indicator vector representing the query.
-    let data = rt.search(query, 10)
-    let results = await Model.resource.find({topic: data}, {_id: 1, topic: 1, avatar: 1}) // return rating....
-    return results;
+    let result = await Model.resource.aggregate([
+        {
+            $search: {
+                index: 'default',
+                moreLikeThis: {
+                    like: {
+                        "topic": query
+                    }
+                }
+            }
+        },
+        { $limit: 10},
+        { $match: { "visibility": "public" } },
+        {
+            "$project": {
+                "_id": 1,
+                "topic": 1,
+                "author": 1,
+                "institute": 1,
+                "visibility": 1,
+                "rating": 1,
+                "date": 1,
+                "view_count": 1,
+                "citations": 1,
+                "avatar": 1,
+                "score": { "$meta": "searchScore"},
+            }
+          }
+        ])
+    result = result.filter(r => r._id.toString() != id);
+    const data = []
+    for (let i = 0; i < result.length; i++) {
+        const resource = result[i];
+        const num_ratings = await Model.rating.find({resource: resource._id})
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource.author,
+            institute: resource.institute,
+            rating: resource.rating,
+            view_count: resource.view_count,
+            number_of_ratings: num_ratings.length,
+            date: new Date(resource.date).toDateString(),
+            avatar: resource.avatar
+        }
+        data.push(r)
+    }
+    return data
 }
 
 /* ----------------------------------------------- Resource type ------------------------------------------ */

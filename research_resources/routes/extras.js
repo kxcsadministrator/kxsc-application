@@ -210,7 +210,7 @@ router.get('/similar/:id', async (req, res) => {
         }
 
         let query = resource.topic
-        if (resource.description) query = resource.description
+        // if (resource.description) query = resource.description
 
         const result = await repository.similarity(query, id);
 
