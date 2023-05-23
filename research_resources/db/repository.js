@@ -607,7 +607,24 @@ const similarity = async (query, id) => {
             }
           }
         ])
-    return result.filter(r => r._id.toString() != id);
+    result = result.filter(r => r._id.toString() != id);
+    const data = []
+    for (let i = 0; i < result.length; i++) {
+        const resource = result[i];
+        const num_ratings = await Model.rating.find({resource: resource._id})
+        let r = {
+            _id: resource._id,
+            topic: resource.topic,
+            author: resource.author,
+            institute: resource.institute,
+            rating: resource.rating,
+            view_count: resource.view_count,
+            number_of_ratings: num_ratings.length,
+            date: new Date(resource.date).toDateString()
+        }
+        data.push(r)
+    }
+    return data
 }
 
 /* ----------------------------------------------- Resource type ------------------------------------------ */
