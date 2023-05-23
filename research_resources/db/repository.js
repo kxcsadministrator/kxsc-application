@@ -579,22 +579,6 @@ const delete_category_by_id = async (req) => {
 
 /*----------------------------------- BM25 Similarity Search -------------------------------*/
 const similarity = async (query, id) => {
-    // let resources = await Model.resource.find({_id: {$ne: id}, visibility: "public"})
-    // let docs = [];
-    
-    // resources.forEach(element => {
-    //     let data = element.topic
-    //     docs.push(data);
-    // });
-    
-    // let rt = new Retrieval(K=1.6, B=0.75);
-
-    // rt.index(docs);
- 
-    // // 3rd step: search. In other words, multiply the document-term matrix and the indicator vector representing the query.
-    // let data = rt.search(query, 10)
-    // let results = await Model.resource.find({topic: data}, {_id: 1, topic: 1, avatar: 1}) // return rating....
-    // return results;
     let result = await Model.resource.aggregate([
         {
             $search: {
@@ -607,7 +591,7 @@ const similarity = async (query, id) => {
             }
         },
         { $limit: 10},
-        {$match: {'_id': {'$ne': id}}},
+        { $match: { "visibility": "public" } },
         {
             "$project": {
                 "_id": 1,
