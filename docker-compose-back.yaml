@@ -26,9 +26,9 @@ services:
     environment:
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
-      - USERS_SERVICE=http://users:3000/users
-      - LOG_URL=http://users:3000/logs
-      - MESSAGE_URL=http://users:3000/messages
+      - USERS_SERVICE=https://sedaltd.com:3000/users
+      - LOG_URL=https://sedaltd.com:3000/logs
+      - MESSAGE_URL=https://sedaltd.com:3000/messages
     ports:
       - "3001:3000"
   resources:
@@ -39,9 +39,9 @@ services:
       - /node/node_modules
     environment:
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
-      - USERS_SERVICE=http://users:3000/users
-      - INSTITUTE_SERVICE=http://institutes:3000/institutes
-      - LOG_URL=http://users:3000/logs
+      - USERS_SERVICE=https://sedaltd.com:3000/users
+      - INSTITUTE_SERVICE=https://sedaltd.com:3001/institutes
+      - LOG_URL=https://sedaltd.com:3000/logs
     ports:
       - "3002:3000"
 volumes:
