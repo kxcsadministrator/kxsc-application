@@ -1,7 +1,38 @@
 const newUserSchema = {
     username: {
+        custom: {
+            options: (value) => {
+                if (value == undefined) return false
+                return (value.length > 2) 
+            }
+        },
+        errorMessage: "username must be at least two characters"
+    },
+    first_name: {
+        custom: {
+            options: (value) => {
+                if (value == undefined) return false
+                return (value.length > 2) 
+            }
+        },
+        errorMessage: "first name must be at least two characters"
+    },
+    last_name: {
+        custom: {
+            options: (value) => {
+                if (value == undefined) return false
+                return (value.length > 2) 
+            }
+        },
+        errorMessage: "last name must be at least two characters"
+    },
+    phone: {
         notEmpty: true,
-        errorMessage: "username field cannot be empty"
+        errorMessage: "please enter your phone number"
+    },
+    country: {
+        notEmpty: true,
+        errorMessage: "please enter your country of residence"
     },
     email: {
         notEmpty: true,

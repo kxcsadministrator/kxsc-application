@@ -20,6 +20,57 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
     },
+    first_name: {
+        type: String,
+        required: true,
+    },
+    last_name: {
+        type: String,
+        required: true,
+    },
+    phone : {
+        type: String,
+        required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
+    email : {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    date_created: {type: Date, default: Date.now} 
+})
+userSchema.plugin(mongoosePaginate)
+
+const publicUserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    first_name: {
+        type: String,
+        required: true,
+    },
+    last_name: {
+        type: String,
+        required: true,
+    },
+    phone : {
+        type: String,
+        required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
     email : {
         type: String,
         required: true,
@@ -52,7 +103,6 @@ const userSchema = new mongoose.Schema({
     }],
     date_created: {type: Date, default: Date.now} 
 })
-userSchema.plugin(mongoosePaginate)
 
 /*------------------------------------- publication request schema ----------------------------*/
 const publicationRequestSchema = new mongoose.Schema({
@@ -343,6 +393,7 @@ const blogSchema = new mongoose.Schema({
 
 const profilePic = mongoose.model("profilePicture", picSchema);
 const user = mongoose.model("user", userSchema);
+const publicUser = mongoose.model("publicUser", userSchema);
 const token = mongoose.model("token", tokenSchema);
 const pubRequest = mongoose.model("AdminPublishRequest", publicationRequestSchema)
 const resource = mongoose.model('Resource', resourceSchema);
@@ -355,5 +406,6 @@ const footerSection = mongoose.model('FooterSection', footerSectionSchema)
 const blog = mongoose.model('blog', blogSchema)
 
 module.exports = { 
-    profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest, footerSection, blog
+    profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest, footerSection, blog,
+    publicUser
 };
