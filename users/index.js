@@ -17,20 +17,20 @@ database.once('connected', () => {
     console.log('Database Connected');
 })
 
-https.createServer(
-		// Provide the private and public key to the server by reading each
-		// file's content with the readFileSync() method.
-    {
-      key: fs.readFileSync("privkey.pem"),
-      cert: fs.readFileSync("fullchain.pem"),
-    },
-    app
-  )
-  .listen(port, () => {
-    console.log(`Server Started..., listening on port: ${port}`);
-});
-// app.listen(port, () => {
+// https.createServer(
+// 		// Provide the private and public key to the server by reading each
+// 		// file's content with the readFileSync() method.
+//     {
+//       key: fs.readFileSync("privkey.pem"),
+//       cert: fs.readFileSync("fullchain.pem"),
+//     },
+//     app
+//   )
+//   .listen(port, () => {
 //     console.log(`Server Started..., listening on port: ${port}`);
-// })
+// });
+app.listen(port, () => {
+    console.log(`Server Started..., listening on port: ${port}`);
+})
 
 // module.exports = app;

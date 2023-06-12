@@ -14,7 +14,7 @@ const picSchema = new mongoose.Schema({
 
 
 /* --------------------------------------- User Schema ------------------------------------- */
-const userSchema = new mongoose.Schema({
+const publicUserSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -47,9 +47,8 @@ const userSchema = new mongoose.Schema({
     },
     date_created: {type: Date, default: Date.now} 
 })
-userSchema.plugin(mongoosePaginate)
 
-const publicUserSchema = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
     username: {
         type: String,
         required: true,
@@ -103,6 +102,7 @@ const publicUserSchema = new mongoose.Schema({
     }],
     date_created: {type: Date, default: Date.now} 
 })
+userSchema.plugin(mongoosePaginate)
 
 /*------------------------------------- publication request schema ----------------------------*/
 const publicationRequestSchema = new mongoose.Schema({
@@ -393,7 +393,7 @@ const blogSchema = new mongoose.Schema({
 
 const profilePic = mongoose.model("profilePicture", picSchema);
 const user = mongoose.model("user", userSchema);
-const publicUser = mongoose.model("publicUser", userSchema);
+const publicUser = mongoose.model("publicUser", publicUserSchema);
 const token = mongoose.model("token", tokenSchema);
 const pubRequest = mongoose.model("AdminPublishRequest", publicationRequestSchema)
 const resource = mongoose.model('Resource', resourceSchema);

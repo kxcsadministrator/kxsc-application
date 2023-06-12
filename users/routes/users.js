@@ -711,7 +711,6 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
         const main_institute = await repository.get_main_institute(user._id)
 
         helpers.log_request_info(`POST users/login - 200`)
-
         res.status(200).json({ // consider using a fieldMask for this endpoint
             username: user.username,
             id: user._id,
