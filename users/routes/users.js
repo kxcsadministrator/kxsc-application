@@ -626,7 +626,6 @@ router.patch('/password-reset/:id',
 router.patch('/update/:id', async (req, res) => {
     try {
         const id = req.params.id;
-
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
@@ -636,16 +635,17 @@ router.patch('/update/:id', async (req, res) => {
         const decodedToken = jwt.verify(token, SECRET_KEY);
         
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        if (auth_user._id != id && !auth_user.superadmin) {
-            helpers.log_request_error(`PATCH users/update/${req.params.id} - 401: Unauthorized access`)
-            return res.status(401).json({message: 'Unauthorized access'});
-        }
+        // if (auth_user._id != id && !auth_user.superadmin) {
+        //     helpers.log_request_error(`PATCH users/update/${req.params.id} - 401: Unauthorized access`)
+        //     return res.status(401).json({message: 'Unauthorized access'});
+        // }
 
-        const user = await repository.get_user_by_id(id);
-        if (!user){
+        // const user = await repository.get_user_by_id(id);
+        if (!auth_user){
             helpers.log_request_error(`PATCH users/update/${req.params.id} - 404: user not fouund`)
             res.status(404).json({message: `user not fouund`});
         }
+        
         const updated_user = await repository.update_user(id, req.body)
         helpers.log_request_info(`PATCH users/update/${id} - 200`)
         res.status(200).json(updated_user);
