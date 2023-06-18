@@ -646,7 +646,7 @@ router.patch('/update/:id', async (req, res) => {
             res.status(404).json({message: `user not fouund`});
         }
         
-        const updated_user = await repository.update_user(id, req.body)
+        const updated_user = await repository.update_user(auth_user._id, req.body)
         helpers.log_request_info(`PATCH users/update/${id} - 200`)
         res.status(200).json(updated_user);
     } catch (error) {
