@@ -144,10 +144,10 @@ router.get('/one/:id', async (req, res) => {
             return res.status(404).json({message: `user with id ${id} not found`});
         }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
-            helpers.log_request_error(`GET users/one/${id} - 401: Unauthorized access to get`)
-            return res.status(401).json({message: 'Unauthorized access to get'});
-        }
+        // if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+        //     helpers.log_request_error(`GET users/one/${id} - 401: Unauthorized access to get`)
+        //     return res.status(401).json({message: 'Unauthorized access to get'});
+        // }
         
         helpers.log_request_info(`GET users/one/${id} - 200`)
         res.status(200).json(user);

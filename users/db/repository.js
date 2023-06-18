@@ -91,7 +91,7 @@ const get_user_dashboard = async(id) => {
 }
 
 const clean_user_by_id =  async (id) => {
-    const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
+    const result = await Model.user.findById(id);
     let image = null;
     if (result.profile_picture){
         image = await get_profile_photo(result.profile_picture)
