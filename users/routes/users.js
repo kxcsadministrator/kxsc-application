@@ -1475,14 +1475,14 @@ router.patch('/public/update/:id', async (req, res) => {
         }
         const decodedToken = jwt.verify(token, SECRET_KEY);
         
-        // const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
 
-        const user = await repository.get_public_user_by_id(id);
-        if (!user){
+        // const user = await repository.get_public_user_by_id(id);
+        if (!auth_user){
             helpers.log_request_error(`PATCH users//public/update/${req.params.id} - 404: user not fouund`)
             res.status(404).json({message: `user not fouund`});
         }
-        const updated_user = await repository.update_public_user(id, req.body)
+        const updated_user = await repository.update_public_user(auth_user._id, req.body)
         helpers.log_request_info(`PATCH users//public/update/${id} - 200`)
         res.status(200).json(updated_user);
     } catch (error) {
