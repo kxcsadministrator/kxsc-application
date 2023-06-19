@@ -214,7 +214,7 @@ router.get('/all', async (req, res) => {
         const decodedToken = jwt.verify(token, SECRET_KEY);
 
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        if (!auth_user.superadmin) {
+        if (!auth_user || !auth_user.superadmin) {
             helpers.log_request_error(`GET users/all - 401: Unauthorized access. Only a superadmin can view all users`)
             return res.status(401).json({message: 'Unauthorized access. Only a superadmin can view all users'});
         }

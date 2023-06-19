@@ -44,7 +44,11 @@ const upload = multer({
  *          ## Schema
  *          ### username: {required: true, type: String}
  *          ### email: {required: false, type: String}
- *          ### password: {required: true, type: String} 
+ *          ### password: {required: true, type: String}
+ *          ### first_name: {required: true, type: String}
+ *          ### last_name: {required: true, type: String}
+ *          ### phone: {required: true, type: String}
+ *          ### country: {required: true, type: String}
  * responses:
  *    '201':
  *      description: Created
@@ -79,7 +83,11 @@ router.post("/new",
         const data = new Model.user({
             username: req.body.username,
             email: req.body.email,
-            password: await bcrypt.hash(req.body.password, SALT_ROUNDS)
+            password: await bcrypt.hash(req.body.password, SALT_ROUNDS),
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            phone: req.body.phone,
+            country: req.body.country
         })
 
         const result = await repository.create_new_user(data);
@@ -90,6 +98,7 @@ router.post("/new",
         res.status(400).json({message: error.message});
     }
 })
+
 
 /** 
  * @swagger
@@ -135,10 +144,10 @@ router.get('/one/:id', async (req, res) => {
             return res.status(404).json({message: `user with id ${id} not found`});
         }
 
-        if (auth_user._id.toString() != id && auth_user.superadmin == false) {
-            helpers.log_request_error(`GET users/one/${id} - 401: Unauthorized access to get`)
-            return res.status(401).json({message: 'Unauthorized access to get'});
-        }
+        // if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+        //     helpers.log_request_error(`GET users/one/${id} - 401: Unauthorized access to get`)
+        //     return res.status(401).json({message: 'Unauthorized access to get'});
+        // }
         
         helpers.log_request_info(`GET users/one/${id} - 200`)
         res.status(200).json(user);
@@ -513,6 +522,8 @@ router.post('/reset-password-request',
  *      description: |
  *         A token needs to be sent for validation. Upon validation, the password will be reset to that
  *         provided in the request.
+ *          
+ *         Use public=true to reset the password for a public account
  * 
  *          ## Schema
  *          ### new_password: {required: true, type: String}
@@ -546,8 +557,14 @@ router.patch('/password-reset/:id',
 
         const user_id = req.params.id;
         const token_str = req.body.token;
-
-        const user = await repository.get_user_by_id(user_id);
+        const public = req.query.public;
+        
+        let user = null;
+        if (public) {
+            user = await repository.get_public_user_by_id(user_id);
+        }
+        else user = await repository.get_user_by_id(user_id);
+        
         if (!user) {
             helpers.log_request_error(`PATCH users/password-reset - 404: user with id ${user_id} not found`)
             return res.status(404).json({message: `user with id ${user_id} not found`});
@@ -566,7 +583,13 @@ router.patch('/password-reset/:id',
         }
 
         const password_hash = await bcrypt.hash(req.body.new_password, SALT_ROUNDS);
-        const result = await repository.update_password(user_id, password_hash);
+        let result = null
+        if (public){
+            result = await repository.update_public_password(user_id, password_hash)
+        }
+        else {
+            result = await repository.update_password(user_id, password_hash);
+        }
         await repository.delete_token(token);
 
         helpers.log_request_info(`PATCH users/password-reset - 200`)
@@ -574,6 +597,60 @@ router.patch('/password-reset/:id',
 
     } catch (error) {
         helpers.log_request_error(`PATCH users/password-reset - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/update/{id}:
+ *  patch:
+ *      summary: Updates a public user account
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.patch('/update/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`PATCH users/update/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+        
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        // if (auth_user._id != id && !auth_user.superadmin) {
+        //     helpers.log_request_error(`PATCH users/update/${req.params.id} - 401: Unauthorized access`)
+        //     return res.status(401).json({message: 'Unauthorized access'});
+        // }
+
+        // const user = await repository.get_user_by_id(id);
+        if (!auth_user){
+            helpers.log_request_error(`PATCH users/update/${req.params.id} - 404: user not fouund`)
+            res.status(404).json({message: `user not fouund`});
+        }
+        
+        const updated_user = await repository.update_user(auth_user._id, req.body)
+        helpers.log_request_info(`PATCH users/update/${id} - 200`)
+        res.status(200).json(updated_user);
+    } catch (error) {
+        helpers.log_request_error(`PATCH users/update/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 })
@@ -634,7 +711,6 @@ router.post('/login', validator.checkSchema(schemas.loginSchema), async (req, re
         const main_institute = await repository.get_main_institute(user._id)
 
         helpers.log_request_info(`POST users/login - 200`)
-
         res.status(200).json({ // consider using a fieldMask for this endpoint
             username: user.username,
             id: user._id,
@@ -1208,6 +1284,472 @@ router.get('/:id/resource-search', async (req, res) => {
         res.status(400).json({message: error.message});
     }
     
+})
+
+/*--------------------------------------- Public User Routes --------------------------------------*/
+/** 
+ * @swagger
+ * /users/new-public-user:
+ *  post:
+ *      summary: Creates a new public user
+ *      description: |
+ *          A username, email and password must be provided
+ * 
+ *          ## Schema
+ *          ### username: {required: true, type: String}
+ *          ### email: {required: false, type: String}
+ *          ### password: {required: true, type: String} 
+ *          ### first_name: {required: true, type: String}
+ *          ### last_name: {required: true, type: String}
+ *          ### phone: {required: true, type: String}
+ *          ### country: {required: true, type: String}
+ * responses:
+ *    '201':
+ *      description: Created
+ *    '409':
+ *      description: User already exists
+ *    '400':
+ *      description: Bad request
+*/
+router.post("/new-public-user", 
+    validator.checkSchema(schemas.newUserSchema), 
+    validator.check("password").isLength({min: 5}).withMessage("passwords must be at least 5 characters long"), 
+    async (req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST /users/new-public-user - 400: validation error(s)`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const dup_name = await repository.get_public_user_by_username(req.body.username);
+        if (dup_name) {
+            helpers.log_request_error(`POST /users/new-public-user - 409: user with username ${req.body.username} already exists`)
+            return res.status(409).json({message: `user with username ${req.body.username} already exists`});
+        }
+
+        const dup_mail = await repository.get_public_user_by_email(req.body.email);
+        if (dup_mail) {
+            helpers.log_request_error(`POST /users/new-public-user - 409: user with email ${req.body.email} already exists`)
+            return res.status(409).json({message: `user with email ${req.body.email} already exists`});
+        }
+
+        const data = new Model.publicUser({
+            username: req.body.username,
+            email: req.body.email,
+            password: await bcrypt.hash(req.body.password, SALT_ROUNDS),
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            phone: req.body.phone,
+            country: req.body.country
+        })
+
+        const result = await repository.create_new_user(data);
+        helpers.log_request_info("POST /users/new-public-user - 200")
+        res.status(201).json(result);
+    } catch (error) {
+        helpers.log_request_error(`POST /users/new-public-user - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/all:
+ *  get:
+ *      summary: Gets all public user accounts
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/public/all', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/one/public/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+        
+        // const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const users = await repository.get_all_public_users();
+        
+        helpers.log_request_info(`GET users/one/public/${id} - 200`)
+        res.status(200).json(users);
+    } catch (error) {
+        helpers.log_request_error(`GET users/one/public/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/one/{id}:
+ *  get:
+ *      summary: Gets a public user by id
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get('/public/one/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/one/public/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+        const user = await repository.get_public_user_by_id(id);
+        
+        helpers.log_request_info(`GET users/one/public/${id} - 200`)
+        res.status(200).json(user);
+    } catch (error) {
+        helpers.log_request_error(`GET users/one/public/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/update/{id}:
+ *  patch:
+ *      summary: Updates a public user account
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.patch('/public/update/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/one/public/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+        
+        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+
+        // const user = await repository.get_public_user_by_id(id);
+        if (!auth_user){
+            helpers.log_request_error(`PATCH users//public/update/${req.params.id} - 404: user not fouund`)
+            res.status(404).json({message: `user not fouund`});
+        }
+        const updated_user = await repository.update_public_user(auth_user._id, req.body)
+        helpers.log_request_info(`PATCH users//public/update/${id} - 200`)
+        res.status(200).json(updated_user);
+    } catch (error) {
+        helpers.log_request_error(`PATCH users//public/update/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/delete/{id}:
+ *  delete:
+ *      summary: Deletes a public user account
+ *      description: |
+ *          Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the user to get
+ *  responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: not found
+ *    '400':
+ *      description: Bad request
+*/
+router.delete('/public/delete/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`GET users/one/public/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+        
+        // const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const user = await repository.get_public_user_by_id(id);
+        if (!user){
+            helpers.log_request_error(`DELETE users//public/delete/${req.params.id} - 404: user not fouund`)
+            res.status(404).json({message: `user not fouund`});
+        }
+        await repository.delete_public_user(id)
+        helpers.log_request_info(`DELETE users//public/delete/${id} - 200`)
+        res.status(200).json({message: "successful"});
+    } catch (error) {
+        helpers.log_request_error(`DELETE users/public/delete/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/login:
+ *  post:
+ *      summary: Validates a username/email and password combination and returns a token upon successful validation.
+ *      description: |
+ *          Takes an email/password or username/password combination
+ * 
+ *          Validates the inputs and upon correctness, sends a jwt token that can be stored as a cookie response.
+ * 
+ *          ## Schema
+ *          ### username: {required: true, type: String}
+ *          ### password: {required: true, type: String} 
+ * responses:
+ *    '200':
+ *      description: Ok
+ *    '404':
+ *      description: User not found
+ *    '401':
+ *      description: Incorrect username/password combination
+ *    '400':
+ *      description: Bad request
+*/
+router.post('/public/login', validator.checkSchema(schemas.loginSchema), async (req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/public/login - 401: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+        const username = req.body.username;
+        const password = req.body.password;
+
+        const user = await repository.get_public_user_by_username_or_email(username);
+        if (!user) {
+            helpers.log_request_error(`POST users/public/login - 404: user with username/email: ${username} not found`)
+            return res.status(404).json({message: `user with username/email: ${username} not found`});
+        }
+
+        const verify = await bcrypt.compare(password, user.password);
+        if (!verify) {
+            helpers.log_request_error(`POST users/public/login - 401: Incorrect password`)
+            return res.status(401).json({message: `Incorrect password`});
+        }
+
+        const token = jwt.sign(
+            { user_id: user._id, email: user.email },
+            SECRET_KEY,
+            { expiresIn: "7 days" }
+        )
+        helpers.log_request_info(`POST users/public/login - 200`)
+
+        res.status(200).json({ // consider using a fieldMask for this endpoint
+            username: user.username,
+            id: user._id,
+            email: user.email,
+            jwt_token: token,
+        })
+    } catch (error) {
+        helpers.log_request_error(`POST users/public/login - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/change-password:
+ *  patch:
+ *      summary: Changes a user's password. Different from requesting a password reset.
+ *      description: |
+ *         The current password and desired password both needs to be provided.
+ * 
+ *         The user to change the password for is obtained from the request header (Bearer token)
+ * 
+ *         Requires a bearer token for authentication
+ * 
+ *         ## Schema:
+ *         ### old_password: {required: true, type: String}
+ *         ### new_password: {required: true, type: String}
+ * responses:
+ *    '201':
+ *      description: Updated
+ *    '404':
+ *      description: Not found
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.patch('/public/change-password', 
+    validator.checkSchema(schemas.updatePasswordSchema), 
+    validator.check("old_password").isLength({min: 5}).withMessage("passwords must be at least 5 characters long"),
+    validator.check("new_password").isLength({min: 5}).withMessage("passwords must be at least 5 characters long"),  
+    async (req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`PATCH users/public/change-password - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`PATCH users/public/change-password - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const token = req.headers.authorization.split(' ')[1];
+        if (!token) {
+            helpers.log_request_error(`PATCH users/public/change-password - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const decodedToken = jwt.verify(token, SECRET_KEY);
+
+        const auth_user = await repository.get_public_user_by_id(decodedToken.user_id);
+        if(!auth_user) {
+            helpers.log_request_error(`PATCH users/public/change-password - 404: user with id ${decodedToken.user_id} not found`)
+            return res.status(404).json({message: `user with id ${id} not found`});
+        }
+
+        const verify = await bcrypt.compare(req.body.old_password, auth_user.password);
+        if (!verify) {
+            helpers.log_request_error(`PATCH users/public/change-password - 401: Incorrect password`)
+            return res.status(401).json({message: `Incorrect password`});
+        }
+
+        const new_hash = await bcrypt.hash(req.body.new_password, SALT_ROUNDS)
+        const result = await repository.update_public_password(auth_user._id, new_hash);
+
+        helpers.log_request_info(`PATCH users/public/change-password - 200`)
+        res.status(201).json({message: 'Update successful'});
+    } catch (error) {
+        console.error(error)
+        helpers.log_request_error(`PATCH users/public/change-password - 400: ${error.message}`)
+        res.status(400).json({message: error.message});   
+    }
+})
+
+/** 
+ * @swagger
+ * /users/public/reset-password-request:
+ *  post:
+ *      summary: Requests a password reset
+ *      description: |
+ *          A password request is validated by a token sent out via an email.
+ * 
+ *          The link sent to the email should be for the frontend where the user can input a new password
+ *          before submitting the details to /password-reset.
+ * 
+ *          Such password reset validation should typically be done on the frontend.
+ *          
+ *          ## Schema
+ *          ### username: {type: String, required: true}
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: User not found
+ *    '400':
+ *      description: Bad request
+ *    '500':
+ *      description: Internal Server Error
+*/
+router.post('/public/reset-password-request', 
+    validator.check("username").notEmpty().withMessage("Username or email must be provided"),
+    async (req, res) => {
+    try {
+        const errors = validator.validationResult(req);
+        if (!errors.isEmpty()) {
+            helpers.log_request_error(`POST users/public/reset-password-request - 400: validation errors`)
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const username = req.body.username
+        
+        const user = await repository.get_public_user_by_username_or_email(username);
+        if(!user) {
+            helpers.log_request_error(`POST users/public/reset-password-request - 404: user with name/email ${username} not found`)
+            return res.status(404).json({message: `user with name/email ${username} not found`})
+        };
+
+        const id = user._id.toString();
+
+        const token = await repository.find_existing_token(id);
+        if (token) await repository.delete_token(token);
+
+        const reset_token = crypto.randomBytes(32).toString("hex");
+        const hash = await bcrypt.hash(reset_token, SALT_ROUNDS);
+        const new_token = new Model.token({
+            userId: id,
+            token: hash
+        })
+        await repository.create_new_token(new_token);
+
+        // should be handled in the frontend
+        const link = `${BASE_URL}/password-reset?token=${reset_token}&id=${user._id}&public=true`;
+        const email_result = await helpers.sendEmail(user.email,"Password Reset Request",{name: user.username,link: link,}, TEMPLATE_PATH);
+        if (!email_result){
+            helpers.log_request_info(`POST users/public/reset-password-request - 200`)
+            return res.status(200).json({
+                message: "reset link sent",
+                link: link
+            });
+        }
+        helpers.log_request_error(`POST users/public/reset-password-request - 500: email not sent, something went wrong`)
+        res.status(500).json({message: `email not sent, something went wrong`});
+
+    } catch (error) {
+        helpers.log_request_error(`POST users/public/reset-password-request - 400: ${error.message}`)
+        res.status(400).json({message: error.message})
+    }
 })
 
 module.exports = router;

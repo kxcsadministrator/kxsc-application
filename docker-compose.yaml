@@ -9,7 +9,7 @@ services:
       - BASE_URL=http://13.39.47.227:3003
       - LOGIN_URL=http://13.39.47.227:3003
       - SERVER_PORT=3000
-      - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
+      - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
       - SECRET_KEY=9mODTPQzQz-zlXxU9RPwfg
       - EMAIL_PASSWORD=rchmlzwnhrgpmnpb
       - EMAIL_USERNAME=timsnoreplyautomatedbot@gmail.com

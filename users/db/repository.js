@@ -91,7 +91,7 @@ const get_user_dashboard = async(id) => {
 }
 
 const clean_user_by_id =  async (id) => {
-    const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
+    const result = await Model.user.findById(id);
     let image = null;
     if (result.profile_picture){
         image = await get_profile_photo(result.profile_picture)
@@ -103,6 +103,30 @@ const clean_user_by_id =  async (id) => {
 const get_user_by_id =  async (id) => {
     const result = await Model.user.findById(id, {_id: 1, username: 1, superadmin: 1, profile_picture: 1, date_created: 1});
     return result
+}
+
+const get_public_user_by_id =  async (id) => {
+    const result = await Model.publicUser.findById(id);
+    return result
+}
+
+const get_all_public_users = async() => {
+    const result = await Model.publicUser.find();
+    return result;
+}
+
+const update_user = async(id, update_obj) => {
+    const user = await Model.user.findOneAndUpdate(id, update_obj, {new: true});
+    return user;
+}
+
+const update_public_user = async(id, update_obj) => {
+    const user = await Model.publicUser.findOneAndUpdate(id, update_obj, {new: true});
+    return user;
+}
+
+const delete_public_user = async(id) => {
+    await Model.publicUser.findByIdAndDelete(id)
 }
 
 const get_user_password = async(id) => {
@@ -124,6 +148,16 @@ const get_user_by_username = async (_username_) => {
     return result;
 }
 
+const get_public_user_by_email = async (user_email) => {
+    const result = await Model.publicUser.findOne({email: user_email});
+    return result;
+}
+
+const get_public_user_by_username = async (_username_) => {
+    const result = await Model.publicUser.findOne({username: _username_});
+    return result;
+}
+
 const get_super_admins = async () => {
     const result = await Model.user.find({superadmin: true})
     return result
@@ -132,6 +166,12 @@ const get_super_admins = async () => {
 const get_user_by_username_or_email = async (name) => {
     let user = await get_user_by_email(name);
     if (!user) user = await get_user_by_username(name);
+    return user;
+}
+
+const get_public_user_by_username_or_email = async (name) => {
+    let user = await get_public_user_by_email(name);
+    if (!user) user = await get_public_user_by_username(name);
     return user;
 }
 
@@ -196,6 +236,11 @@ const edit_username = async(id, new_username) => {
 const update_password = async(id, new_password) => {
     await Model.user.findByIdAndUpdate(id, {password: new_password});
     const result = await clean_user_by_id(id);
+    return result;
+}
+
+const update_public_password = async(id, new_password) => {
+    const result = await Model.publicUser.findByIdAndUpdate(id, {password: new_password});
     return result;
 }
 
@@ -784,7 +829,9 @@ module.exports = {
     // Users
     create_new_user, get_user_by_id, get_user_by_email, get_user_by_username, get_all_users, edit_username, update_password, 
     find_existing_token, delete_token, create_new_token, get_user_by_username_or_email, make_super_admin, delete_user,
-    add_profile_photo, remove_profile_photo, 
+    add_profile_photo, remove_profile_photo, get_public_user_by_email, get_public_user_by_username, get_public_user_by_id,
+    get_all_public_users, update_public_user, delete_public_user, get_public_user_by_username_or_email, update_public_password,
+    update_user,
     // Resources and publishing
     request_to_publish, find_request_by_resource, get_public_resources, get_all_requests,
     get_institute_by_id, get_resource_by_id, publish , 
