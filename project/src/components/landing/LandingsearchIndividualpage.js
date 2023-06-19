@@ -14,6 +14,7 @@ import API_URL from "../../Url";
 import Rating from "../Rating";
 import RatingInput from "../RatingInput";
 import fileDownload from "js-file-download";
+import { CgProfile } from "react-icons/cg";
 
 function LandingsearchIndividualpage() {
   const [show, setShow] = useState(false);
@@ -111,13 +112,13 @@ function LandingsearchIndividualpage() {
     window.location.reload(false);
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (user) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -206,7 +207,7 @@ function LandingsearchIndividualpage() {
             </div>
             <Link
               to="/"
-              className="nav-bar d-flex mt-2 no-underline text-black"
+              className="nav-bar d-flex mt-2 no-underline text-black hidden"
             >
               <div className="link-image">
                 <img src={image6} alt="" />
@@ -238,9 +239,11 @@ function LandingsearchIndividualpage() {
               </form>
             </div>
             <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
+              {user && (
+                <div className="profile p-1" onClick={() => getProfile()}>
+                  <CgProfile />
+                </div>
+              )}
               {user ? (
                 <div
                   onClick={() => {

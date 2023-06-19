@@ -104,6 +104,10 @@ function Categories() {
     navigate(`/admin/category/${cat.name}`);
   };
 
+  const navigateCreateCat = () => {
+    navigate("/admin/create-category");
+  };
+
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="sidebar_content">
@@ -124,12 +128,20 @@ function Categories() {
             <div className="flex flex-col gap-8">
               <div className="all_heading">
                 <h1>All Category</h1>
-                <div>
-                  <input
-                    placeholder="Search Categories"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                  />
+                <div className="flex gap-3 ">
+                  <button
+                    className="btn_green"
+                    onClick={() => navigateCreateCat()}
+                  >
+                    Create Category
+                  </button>
+                  <div>
+                    <input
+                      placeholder="Search Categories"
+                      value={value}
+                      onChange={(e) => setValue(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
               {collection.length > 0 ? (

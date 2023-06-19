@@ -5,7 +5,7 @@ import { Context } from "../../context/Context";
 import "./login.css";
 import API_URL from "../../Url";
 
-function Login() {
+function LoginPublic() {
   const userRef = useRef();
   const passwordRef = useRef();
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ function Login() {
     e.preventDefault();
     dispatch({ type: "LOGIN_START" });
     try {
-      const res = await axios.post(`${API_URL.user}/users/login`, {
+      const res = await axios.post(`${API_URL.user}/users/public/login`, {
         username: userRef.current.value,
         password: passwordRef.current.value,
       });
       dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
-      navigate("/admin");
+      navigate("/");
     } catch (err) {
       dispatch({
         type: "LOGIN_FAILURE",
@@ -88,4 +88,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default LoginPublic;

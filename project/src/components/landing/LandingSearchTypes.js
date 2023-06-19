@@ -139,13 +139,13 @@ function LandingSearchTypes() {
     }
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (user) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const getDetails = (id) => {
     sessionStorage.setItem("resourceId", id);
@@ -247,9 +247,11 @@ function LandingSearchTypes() {
             </div>
 
             <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
+              {user && (
+                <div className="profile p-1" onClick={() => getProfile()}>
+                  <CgProfile />
+                </div>
+              )}
               {user ? (
                 <div
                   onClick={() => {

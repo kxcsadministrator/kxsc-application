@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../Url";
 
-function EditUser({ setEditUserModal, userDetails, editUser }) {
+function EditPublicUser({ setEditUserModal, userDetails, editUser }) {
   //   states
   const [firstName, setFirstName] = useState(userDetails.first_name);
   const [lastName, setLastName] = useState(userDetails.last_name);
@@ -35,7 +35,7 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `${API_URL.user}/users/update/${editUser.id}`,
+        `${API_URL.user}/users/public/update/${editUser.id}`,
         {
           first_name: firstName,
           last_name: lastName,
@@ -144,4 +144,4 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
   );
 }
 
-export default EditUser;
+export default EditPublicUser;

@@ -5,7 +5,7 @@ import "./sign_up.css";
 import API_URL from "../../Url";
 import { countries } from "countries-list";
 
-function SignUp() {
+function SignUpPublic() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
@@ -30,7 +30,7 @@ function SignUp() {
     e.preventDefault();
     setStates({ loading: true, error: false, success: false });
     try {
-      const res = await axios.post(`${API_URL.user}/users/new`, {
+      const res = await axios.post(`${API_URL.user}/users/new-public-user`, {
         first_name: firstName,
         last_name: lastName,
         phone: phoneNumber,
@@ -41,7 +41,7 @@ function SignUp() {
       });
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        navigate("/login");
+        navigate("/public/login");
       }, 3000);
     } catch (err) {
       console.log(err.response.data.errors);
@@ -162,4 +162,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default SignUpPublic;

@@ -53,6 +53,9 @@ import LandingSectionPage from "./components/landing/LandingSectionPage";
 import ResourceType from "./pages/admin/resource-type/ResourceType";
 import CreateType from "./pages/admin/resource-type/CreateType";
 import LandingSearchTypes from "./components/landing/LandingSearchTypes";
+import LoginPublic from "./pages/login/LoginPublic";
+import SignUpPublic from "./pages/sign_up/SignUpPublic";
+import PublicProfile from "./components/landing/PublicProfile";
 
 function App() {
   const { user } = useContext(Context);
@@ -62,8 +65,17 @@ function App() {
         <Routes>
           <Route path="/login" element={user ? <Panel /> : <Login />} />
           <Route path="/sign_up" element={<SignUp />} />
+          <Route
+            path="/public/login"
+            element={user ? <LandingPage /> : <LoginPublic />}
+          />
+          <Route path="/public/sign_up" element={<SignUpPublic />} />
           <Route path="/admin" element={user ? <Panel /> : <Login />} />
           <Route path="/admin/users" element={user ? <Users /> : <Login />} />
+          <Route
+            path="/public/profile"
+            element={user ? <PublicProfile /> : <Login />}
+          />
           <Route
             path="/admin/user_requests"
             element={user ? <UserRequests /> : <Login />}

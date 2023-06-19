@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import API_URL from "../../../Url";
 
-function EditUser({ setEditUserModal, userDetails, editUser }) {
+function EditPublicPassword({ setEditPassModal, editUser }) {
   //   states
-  const [firstName, setFirstName] = useState(userDetails.first_name);
-  const [lastName, setLastName] = useState(userDetails.last_name);
-  const [email, setEmail] = useState(userDetails.email);
-  const [phone, setPhone] = useState(userDetails.phone);
-  const [username, setUsername] = useState(userDetails.username);
+  const [oldPassword, setOldPassword] = useState();
+  const [newPassword, setNewPassword] = useState();
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -21,7 +18,7 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setEditUserModal(false);
+        setEditPassModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -29,25 +26,22 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setEditUserModal]);
+  }, [setEditPassModal]);
 
-  const submitEditUser = async () => {
+  const submitEditPass = async () => {
     setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.patch(
-        `${API_URL.user}/users/update/${editUser.id}`,
+        `${API_URL.user}/users/public/change-password`,
         {
-          first_name: firstName,
-          last_name: lastName,
-          phone: phone,
-          email: email,
-          username: username,
+          old_password: oldPassword,
+          new_password: newPassword,
         },
         { headers: { Authorization: `Bearer ${editUser.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setEditUserModal(false);
+        setEditPassModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
@@ -59,56 +53,33 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
           : err.response.data.message,
         success: false,
       });
-      console.log(err);
     }
   };
 
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
+        <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center pb-2">
+          Edit Password
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <form className="flex flex-col gap-2">
+          <form className="flex flex-col gap-4">
             <input
-              placeholder={firstName}
+              placeholder="Old Password"
+              type="password"
               className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={firstName}
+              value={oldPassword}
               onChange={(e) => {
-                setFirstName(e.target.value);
+                setOldPassword(e.target.value);
               }}
             />
             <input
-              placeholder={lastName}
+              placeholder="New Password"
+              type="password"
               className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={lastName}
+              value={newPassword}
               onChange={(e) => {
-                setLastName(e.target.value);
-              }}
-            />
-            <input
-              placeholder={email}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
-            />
-            <input
-              placeholder={phone}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={phone}
-              onChange={(e) => {
-                setPhone(e.target.value);
-              }}
-            />
-            <input
-              placeholder={username}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
+                setNewPassword(e.target.value);
               }}
             />
           </form>
@@ -130,7 +101,7 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
             )}
             <div>
               <button
-                onClick={() => submitEditUser()}
+                onClick={() => submitEditPass()}
                 className="btn_green"
                 disabled={states.loading}
               >
@@ -144,4 +115,4 @@ function EditUser({ setEditUserModal, userDetails, editUser }) {
   );
 }
 
-export default EditUser;
+export default EditPublicPassword;

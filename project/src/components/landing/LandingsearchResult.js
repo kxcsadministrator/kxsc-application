@@ -16,6 +16,7 @@ import Rating from "../Rating";
 
 import { MdFormatQuote } from "react-icons/md";
 import { BsShareFill } from "react-icons/bs";
+import { CgProfile } from "react-icons/cg";
 
 function LandingsearchResult() {
   const [show, setShow] = useState(false);
@@ -142,13 +143,13 @@ function LandingsearchResult() {
     navigate(`/resource_details?${id}`);
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (user) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -243,10 +244,15 @@ function LandingsearchResult() {
               </form>
             </div>
 
-            <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
+            <div className="sg flex items-center justify-between  p-2">
+              {user && (
+                <div
+                  className="profile p-1 text-2xl"
+                  onClick={() => getProfile()}
+                >
+                  <CgProfile />
+                </div>
+              )}
               {user ? (
                 <div
                   onClick={() => {

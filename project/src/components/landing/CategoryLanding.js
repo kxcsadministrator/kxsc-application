@@ -26,9 +26,9 @@ function CategoryLanding() {
             <div className="hamburger--menu">
               <Ham />
             </div>
-            <div className="nav-bar d-flex mt-2">
+            <div className="nav-bar d-flex mt-2 ">
               <Link to={"/"}>
-                <div className="link-image">
+                <div className="link-image ">
                   <img src={image6} alt="" />
                 </div>
               </Link>

@@ -37,6 +37,11 @@ function CreateCategory() {
       setErrMsg(err.response.data.errors);
     }
   };
+
+  const navigateCat = () => {
+    navigate("/admin/categories");
+  };
+
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="sidebar_content">
@@ -48,9 +53,16 @@ function CreateCategory() {
         </div>
         <div className="py-2 px-4">
           <form className="flex flex-col items-center gap-6 px-2 bg-white shadow-md w-full md:w-[80%] mx-auto h-fit pb-5 rounded-md">
-            <h1 className="text-[20px] text-center my-2 pb-2 border-b-2 border-b-[#e5e7eb] w-full">
-              Create Category
-            </h1>
+            <div className="flex justify-between my-3 pb-2 border-b-2 border-b-[#e5e7eb] w-[90%] mx-auto items-center">
+              <h1 className="text-[20px]  ">Create Category</h1>
+              <button
+                className="p-2 bg-[#52cb83]  md:min-w-[100px] max-w-[128px] text-white rounded-md lg:w-36 md:w-[35%] w-fit text-sm"
+                onClick={() => navigateCat()}
+              >
+                Categories
+              </button>
+            </div>
+
             <div className="flex flex-col justify-center gap-6">
               <div className="flex gap-3 items-center">
                 <p className="md:w-[30%] hidden lg:block">Categories: </p>

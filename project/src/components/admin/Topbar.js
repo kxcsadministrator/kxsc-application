@@ -91,9 +91,9 @@ function Topbar() {
               <FiUsers size="1.6rem" />
             </div>
           )}
-          <div className="hover_div">
+          <div className="hover_div ">
             <div
-              className="content_1 text-black hover:text-green_bg cursor-pointers"
+              className="content_1 text-white hover:text-green_bg cursor-pointer"
               onClick={() => logout()}
             >
               <AiOutlineLogout />

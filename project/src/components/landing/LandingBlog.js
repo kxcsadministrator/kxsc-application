@@ -84,13 +84,13 @@ function LandingBlog() {
     window.location.reload(false);
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (user) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -143,9 +143,12 @@ function LandingBlog() {
             </div>
 
             <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
+              {user && (
+                <div className="profile p-1" onClick={() => getProfile()}>
+                  <CgProfile />
+                </div>
+              )}
+
               {user ? (
                 <div
                   onClick={() => {
@@ -189,23 +192,6 @@ function LandingBlog() {
             </button>
           </form>
         </div>
-        {/* 
-        <div className="four-color bg-light">
-          <div className="dd-d d-flex gap-3 pt-3">
-            <div>
-              <h5>Research for:</h5>
-            </div>
-            <div>
-              <h5>Business</h5>
-            </div>
-            <div>
-              <h5>Higher Education</h5>
-            </div>
-            <div>
-              <h5>Government</h5>
-            </div>
-          </div>
-        </div> */}
 
         <br />
         {blogs?.length > 0 ? (

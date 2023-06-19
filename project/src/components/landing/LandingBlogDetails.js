@@ -54,13 +54,13 @@ function LandingBlogDetails() {
     window.location.reload(false);
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (user) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -113,9 +113,11 @@ function LandingBlogDetails() {
             </div>
 
             <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
+              {user && (
+                <div className="profile p-1" onClick={() => getProfile()}>
+                  <CgProfile />
+                </div>
+              )}
               {user ? (
                 <div
                   onClick={() => {
