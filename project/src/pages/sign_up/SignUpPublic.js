@@ -150,8 +150,11 @@ function SignUpPublic() {
         </form>
       </div>
       <div className="sign_container">
-        <p>Don't have an account? </p>
-        <Link to="/" className="link text-[#34c684] hover:text-black">
+        <p>Already have an account? </p>
+        <Link
+          to="/public/login"
+          className="link text-[#34c684] hover:text-black"
+        >
           Login In
         </Link>
       </div>

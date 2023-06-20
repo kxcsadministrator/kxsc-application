@@ -11,14 +11,6 @@ function LoginPublic() {
   const navigate = useNavigate();
   const location = useLocation();
   const { dispatch, isFetching, error } = useContext(Context);
-  const [fromLandingPage, setFromLandingPage] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("from") === "landing") {
-      setFromLandingPage(true);
-    }
-  }, [fromLandingPage, location.search]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -77,7 +69,10 @@ function LoginPublic() {
       </div>
       <div className="sign_container">
         <p>Don't have an account? </p>
-        <Link to="/sign_up" className="link text-[#34c684] hover:text-black">
+        <Link
+          to="/public/sign_up"
+          className="link text-[#34c684] hover:text-black"
+        >
           Sign Up
         </Link>
       </div>

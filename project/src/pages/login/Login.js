@@ -11,14 +11,6 @@ function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { dispatch, isFetching, error } = useContext(Context);
-  const [fromLandingPage, setFromLandingPage] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get("from") === "landing") {
-      setFromLandingPage(true);
-    }
-  }, [fromLandingPage, location.search]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

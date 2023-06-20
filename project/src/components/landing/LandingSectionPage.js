@@ -130,7 +130,7 @@ function LandingSectionPage() {
                 </div>
               ) : (
                 <Link
-                  to="/login?from=landing"
+                  to="/public/login"
                   className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
                 >
                   Sign In
