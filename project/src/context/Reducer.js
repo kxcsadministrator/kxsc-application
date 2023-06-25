@@ -9,18 +9,28 @@ const Reducer = (state, action) => {
     case "LOGIN_SUCCESS":
       return {
         user: action.payload,
+        userPublic: null,
+        isFetching: false,
+        error: "",
+      };
+    case "LOGIN_SUCCESS_PUBLIC":
+      return {
+        userPublic: action.payload,
+        user: null,
         isFetching: false,
         error: "",
       };
     case "LOGIN_FAILURE":
       return {
         user: null,
+        userPublic: null,
         isFetching: false,
         error: action.payload,
       };
     case "LOGOUT":
       return {
         user: null,
+        userPublic: null,
         isFetching: false,
         error: "",
       };

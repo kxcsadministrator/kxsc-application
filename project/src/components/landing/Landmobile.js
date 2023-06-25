@@ -75,6 +75,11 @@ function Landmobile() {
     sessionStorage.setItem("type", name);
     navigate(`/search_by_type?${name}`);
   };
+
+  const getCat = (name) => {
+    sessionStorage.setItem("cat", name);
+    navigate(`/search_by_category?${name}`);
+  };
   return (
     <div>
       <div className="Landmobile">
@@ -108,26 +113,55 @@ function Landmobile() {
           </form>
         </div>
         <br />
-        <hr />
         <div className="yelp">
           <div className="yepp mb-5">
             <img src={image2} alt="" />
           </div>
         </div>
         <br />
-        {/* {types?.map((type, index) => (
-          <div className="d-flex" key={index}>
-            <div
-              className="link text-gray-800 hover:text-gray-300 flex items-center gap-1 text-sm cursor-pointer w-full"
-              onClick={() => getType(type.name.toLowerCase())}
-            >
-              <p>
-                <SiBookstack />
-              </p>
-              <p>{type.name}</p>
-            </div>
+        <div className="flex flex-col gap-3 -mt-4 ">
+          <h5 className="text-center text-[20px] text-gray-600">
+            Browse by: Types
+          </h5>
+          <div className="flex gap-3 flex-wrap mx-auto justify-center">
+            {types?.map((type, index) => (
+              <div
+                className="text-[15px] text-[#198754] cursor-pointer"
+                onClick={() => getType(type)}
+                key={index}
+              >
+                <h5 className="text-[15px]">{type.name}</h5>
+              </div>
+            ))}
           </div>
-        ))} */}
+        </div>
+        <hr />
+        <br />
+        <div className="flex flex-col gap-3 -mt-4 ">
+          <h1 className="text-center text-[20px]  text-gray-600">
+            Browse by: Categories
+          </h1>
+
+          <div className="flex gap-3 flex-wrap mx-auto justify-center">
+            {allCat.map((cat, index) => (
+              <div
+                className="cursor-pointer"
+                onClick={() => getCat(cat.name)}
+                key={index}
+              >
+                <h5 className="text-[15px] text-[#198754]">{cat.name}</h5>
+                {cat &&
+                  (cat.resource > 0 ? (
+                    <p className="text-[10px] -mt-1">
+                      {cat.resource}+ Articles
+                    </p>
+                  ) : (
+                    <p className="text-[10px] -mt-1">No Articles</p>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import image6 from "../images/kxcc.png";
 import { IoIosSearch } from "react-icons/io";
@@ -23,7 +23,7 @@ function PublicProfile() {
   const [searchResource, setSearchResource] = useState("");
 
   const [allCat, setAllCat] = useState([]);
-  const { user, dispatch } = useContext(Context);
+  const { userPublic, dispatch } = useContext(Context);
   const [types, setTypes] = useState();
   const navigate = useNavigate();
   const [editUserModal, setEditUserModal] = useState(false);
@@ -45,10 +45,10 @@ function PublicProfile() {
 
       try {
         const res = await axios.get(
-          `${API_URL.user}/users/public/one/${user.id}`,
+          `${API_URL.user}/users/public/one/${userPublic.id}`,
           {
             headers: {
-              Authorization: `Bearer ${user.jwt_token}`,
+              Authorization: `Bearer ${userPublic.jwt_token}`,
             },
           }
         );
@@ -66,11 +66,12 @@ function PublicProfile() {
       }
     };
     getUserDetails();
-  }, []);
+  }, [userPublic.id, userPublic.jwt_token]);
 
   const editBtn = (user) => {
     setEditUser(user);
     setEditUserModal(true);
+    console.log(user);
   };
 
   const changeBtn = (user) => {
@@ -142,7 +143,7 @@ function PublicProfile() {
   };
 
   const getProfile = () => {
-    if (user) {
+    if (userPublic) {
       navigate("/public/profile");
     } else {
       navigate("/login");
@@ -205,7 +206,7 @@ function PublicProfile() {
             </div>
 
             <div className="sg flex items-center justify-between  p-2">
-              {user && (
+              {userPublic && (
                 <div
                   className="profile p-1 text-xl"
                   onClick={() => getProfile()}
@@ -213,12 +214,12 @@ function PublicProfile() {
                   <CgProfile />
                 </div>
               )}
-              {user ? (
+              {userPublic ? (
                 <div
                   onClick={() => {
                     logout();
                   }}
-                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white cursor-pointer"
                 >
                   Sign Out
                 </div>
@@ -262,38 +263,7 @@ function PublicProfile() {
             <div className="infotech">
               <div className="py-2 px-4">
                 <div className="flex flex-col gap-5 items-center mt-9">
-                  <div className="flex flex-col gap-4">
-                    {user?.profile_picture ? (
-                      <img
-                        src={`${API_URL.user}/${user.profile_picture.path}`}
-                        alt="profile_picture"
-                        className="w-[100px] h-[100px] md:w-[180px] md:h-[180px] rounded-full object-cover"
-                      />
-                    ) : (
-                      <img
-                        src="/default.png"
-                        className="rounded-full md:w-[180px] md:h-[180px] w-[100px] h-[100px] object-cover"
-                        alt="default"
-                      />
-                    )}
-
-                    <div className="flex items-center gap-3 mx-auto">
-                      {user?.profile_picture && (
-                        <button
-                          className="p-2 border-gray_bg bg-[#fbe2e2] text-red-500 rounded-sm -mt-2"
-                          onClick={() => deletePic()}
-                        >
-                          <RiDeleteBinLine />
-                        </button>
-                      )}
-                      <button
-                        className="p-2 border-gray_bg bg-[#eeeded] text-gray-600 rounded-sm -mt-2"
-                        onClick={() => editPic()}
-                      >
-                        <FaRegEdit />
-                      </button>
-                    </div>
-                  </div>
+                  <div className="flex flex-col gap-4"></div>
                   <div className="flex flex-col gap-2 lg:text-lg md:-mt-12 w-[90%] md:w-[60%] text-sm md:text-base">
                     <div className="flex gap-3 items-center">
                       <p className="w-[80%] mt-3">
@@ -332,13 +302,13 @@ function PublicProfile() {
                     <div className="flex justify-between items-center">
                       <button
                         className="btn_green border-2 rounded-md w-fit"
-                        onClick={() => editBtn(user)}
+                        onClick={() => editBtn(userPublic)}
                       >
                         Edit
                       </button>
                       <button
                         className="btn_green bg-[#656665]  border-2 rounded-md  w-fit"
-                        onClick={() => changeBtn(user)}
+                        onClick={() => changeBtn(userPublic)}
                       >
                         change password
                       </button>

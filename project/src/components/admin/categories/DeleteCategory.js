@@ -30,7 +30,7 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
     setErr(false);
     try {
       const res = await axios.delete(
-        `${API_URL.resource}/catgories/delete/${deleteCat._id}`,
+        `${API_URL.resource}/categories/delete/${deleteCat._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setLoading(false);
@@ -40,6 +40,7 @@ function DeleteCategory({ setDeleteCatModal, deleteCat }) {
         window.location.reload(false);
       }, 3000);
     } catch (err) {
+      console.log(err);
       setSuccess(false);
       setLoading(false);
       setErr(true);

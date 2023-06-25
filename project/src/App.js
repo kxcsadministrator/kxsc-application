@@ -58,7 +58,7 @@ import SignUpPublic from "./pages/sign_up/SignUpPublic";
 import PublicProfile from "./components/landing/PublicProfile";
 
 function App() {
-  const { user } = useContext(Context);
+  const { user, userPublic } = useContext(Context);
   return (
     <BrowserRouter>
       <div className="App">
@@ -67,14 +67,14 @@ function App() {
           <Route path="/sign_up" element={<SignUp />} />
           <Route
             path="/public/login"
-            element={user ? <LandingPage /> : <LoginPublic />}
+            element={userPublic ? <LandingPage /> : <LoginPublic />}
           />
           <Route path="/public/sign_up" element={<SignUpPublic />} />
           <Route path="/admin" element={user ? <Panel /> : <Login />} />
           <Route path="/admin/users" element={user ? <Users /> : <Login />} />
           <Route
             path="/public/profile"
-            element={user ? <PublicProfile /> : <Login />}
+            element={userPublic ? <PublicProfile /> : <Login />}
           />
           <Route
             path="/admin/user_requests"

@@ -27,7 +27,7 @@ function LandingsearchResult() {
   const [showCitation, setShowCitation] = useState(false);
   const [searchResource, setSearchResource] = useState("");
   const [allCat, setAllCat] = useState([]);
-  const { user, dispatch } = useContext(Context);
+  const { userPublic, dispatch } = useContext(Context);
   const [types, setTypes] = useState();
   const [citationValues, setCitationValues] = useState([]);
 
@@ -144,7 +144,7 @@ function LandingsearchResult() {
   };
 
   const getProfile = () => {
-    if (user) {
+    if (userPublic) {
       navigate("/public/profile");
     } else {
       navigate("/login");
@@ -245,7 +245,7 @@ function LandingsearchResult() {
             </div>
 
             <div className="sg flex items-center justify-between  p-2">
-              {user && (
+              {userPublic && (
                 <div
                   className="profile p-1 text-2xl"
                   onClick={() => getProfile()}
@@ -253,12 +253,12 @@ function LandingsearchResult() {
                   <CgProfile />
                 </div>
               )}
-              {user ? (
+              {userPublic ? (
                 <div
                   onClick={() => {
                     logout();
                   }}
-                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white cursor-pointer"
                 >
                   Sign Out
                 </div>

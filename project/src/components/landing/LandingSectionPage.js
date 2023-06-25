@@ -24,7 +24,7 @@ function LandingSectionPage() {
   });
   const section = sessionStorage.getItem("section");
   const name = sessionStorage.getItem("page");
-  const { user, dispatch } = useContext(Context);
+  const { userPublic, dispatch } = useContext(Context);
   const [searchResource, setSearchResource] = useState([]);
   useEffect(() => {
     const getPage = async () => {
@@ -57,13 +57,13 @@ function LandingSectionPage() {
     window.location.reload(false);
   };
 
-  // const getProfile = () => {
-  //   if (user) {
-  //     navigate("/admin/profile");
-  //   } else {
-  //     navigate("/login");
-  //   }
-  // };
+  const getProfile = () => {
+    if (userPublic) {
+      navigate("/public/profile");
+    } else {
+      navigate("/login");
+    }
+  };
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
@@ -116,15 +116,17 @@ function LandingSectionPage() {
             </div>
 
             <div className="sg d-flex  p-2">
-              {/* <div className="profile p-1" onClick={() => getProfile()}>
-                <CgProfile />
-              </div> */}
-              {user ? (
+              {userPublic && (
+                <div className="profile p-1" onClick={() => getProfile()}>
+                  <CgProfile />
+                </div>
+              )}
+              {userPublic ? (
                 <div
                   onClick={() => {
                     logout();
                   }}
-                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white cursor"
                 >
                   Sign Out
                 </div>

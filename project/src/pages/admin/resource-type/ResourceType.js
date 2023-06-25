@@ -58,6 +58,10 @@ function ResourceType() {
     setEditTypeModal(true);
   };
 
+  const navigateCreateType = () => {
+    navigate("/admin/create-resource-type");
+  };
+
   return (
     <div className="max-w-[1560px] mx-auto flex min-h-screen w-full bg-gray_bg">
       <div className="sidebar_content">
@@ -76,6 +80,13 @@ function ResourceType() {
             <div>{states.errMsg}</div>
           ) : (
             <div className="flex flex-col gap-8 mt-3">
+              <button
+                className="p-2 bg-[#52cb83]  text-white rounded-md w-fit md:text-base  text-sm "
+                onClick={() => navigateCreateType()}
+              >
+                Create Resource Type
+              </button>
+
               {types?.length > 0 ? (
                 <div>
                   {types.map((type, index) => (

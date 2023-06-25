@@ -33,7 +33,7 @@ function Topbar() {
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
-    navigate("/");
+    navigate("/login");
   };
 
   const handleSubmit = (e) => {

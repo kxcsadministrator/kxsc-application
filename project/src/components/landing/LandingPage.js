@@ -187,7 +187,7 @@ function LandingPage() {
                 </div>
               </div>
               <div className="landing--conttt">
-                <div className="map">
+                <div className="map my-4">
                   <img src={image2} alt="" />
                 </div>
               </div>

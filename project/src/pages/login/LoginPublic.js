@@ -20,7 +20,7 @@ function LoginPublic() {
         username: userRef.current.value,
         password: passwordRef.current.value,
       });
-      dispatch({ type: "LOGIN_SUCCESS", payload: res.data });
+      dispatch({ type: "LOGIN_SUCCESS_PUBLIC", payload: res.data });
       navigate("/");
     } catch (err) {
       dispatch({

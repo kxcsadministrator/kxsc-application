@@ -48,6 +48,7 @@
   margin: auto;
   display: grid;
   gap: 50px;
+  height: 100%;
 }
 .ict {
   text-align: center;
@@ -59,7 +60,7 @@
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  width: 50%;
+  width: 60%;
   margin: 0 auto;
   align-items: flex-start;
 }
@@ -70,7 +71,7 @@
 }
 .landing--conttt {
   margin: auto;
-  width: 50%;
+  width: 255px;
 }
 .landing---contt {
   justify-content: space-between;
@@ -1337,7 +1338,7 @@ nav {
   }
   .landing--conttt {
     margin: auto;
-    width: 40%;
+    width: 200px;
   }
 }
 
@@ -1357,7 +1358,7 @@ nav {
     display: flex;
     justify-content: space-between;
     gap: 10px;
-    width: 90%;
+    width: 100%;
     margin: 0 auto;
     align-items: flex-start;
   }
@@ -1365,9 +1366,10 @@ nav {
   .landing--contt {
     width: 45%;
     margin: auto;
+    font-size: 15px;
   }
   .landing--conttt {
     margin: auto;
-    width: 55%;
+    width: 160px;
   }
 }

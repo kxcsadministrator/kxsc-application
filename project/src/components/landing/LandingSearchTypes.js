@@ -34,7 +34,7 @@ function LandingSearchTypes() {
     error: false,
     errMsg: "",
   });
-  const { user, dispatch } = useContext(Context);
+  const { userPublic, dispatch } = useContext(Context);
 
   const [searchResource, setSearchResource] = useState([]);
   const navigate = useNavigate();
@@ -140,7 +140,7 @@ function LandingSearchTypes() {
   };
 
   const getProfile = () => {
-    if (user) {
+    if (userPublic) {
       navigate("/public/profile");
     } else {
       navigate("/login");
@@ -247,17 +247,17 @@ function LandingSearchTypes() {
             </div>
 
             <div className="sg d-flex  p-2">
-              {user && (
+              {userPublic && (
                 <div className="profile p-1" onClick={() => getProfile()}>
                   <CgProfile />
                 </div>
               )}
-              {user ? (
+              {userPublic ? (
                 <div
                   onClick={() => {
                     logout();
                   }}
-                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white cursor-pointer"
                 >
                   Sign Out
                 </div>

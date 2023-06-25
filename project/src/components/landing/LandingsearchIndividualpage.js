@@ -30,7 +30,7 @@ function LandingsearchIndividualpage() {
   const [submitMsg, setSubmitMsg] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const { user, dispatch } = useContext(Context);
+  const { userPublic, dispatch } = useContext(Context);
   const id = sessionStorage.getItem("resourceId");
   const [searchResource, setSearchResource] = useState("");
   const [resource, setResource] = useState({});
@@ -113,7 +113,7 @@ function LandingsearchIndividualpage() {
   };
 
   const getProfile = () => {
-    if (user) {
+    if (userPublic) {
       navigate("/public/profile");
     } else {
       navigate("/login");
@@ -145,7 +145,7 @@ function LandingsearchIndividualpage() {
       setSubmitMsg(true);
       return;
     }
-    if (!user) {
+    if (!userPublic) {
       setMsg("login to post a review");
     }
     try {
@@ -156,7 +156,7 @@ function LandingsearchIndividualpage() {
           review: review,
         },
         {
-          headers: { Authorization: `Bearer ${user.jwt_token}` },
+          headers: { Authorization: `Bearer ${userPublic.jwt_token}` },
         }
       );
       setMsg("success");
@@ -181,12 +181,12 @@ function LandingsearchIndividualpage() {
   };
 
   const downloadBtn = async (file) => {
-    if (user) {
+    if (userPublic) {
       try {
         const res = await axios.get(
           `${API_URL.resource}/resources/download-file/${file._id}`,
           {
-            headers: { Authorization: `Bearer ${user?.jwt_token}` },
+            headers: { Authorization: `Bearer ${userPublic?.jwt_token}` },
             responseType: "blob",
           }
         );
@@ -239,17 +239,17 @@ function LandingsearchIndividualpage() {
               </form>
             </div>
             <div className="sg d-flex  p-2">
-              {user && (
+              {userPublic && (
                 <div className="profile p-1" onClick={() => getProfile()}>
                   <CgProfile />
                 </div>
               )}
-              {user ? (
+              {userPublic ? (
                 <div
                   onClick={() => {
                     logout();
                   }}
-                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white"
+                  className=" px-2 flex items-center justify-center p-1 bg-[#52cb83] rounded-md w-fit text-sm link text-white cursor-pointer"
                 >
                   Sign Out
                 </div>
