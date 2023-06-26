@@ -1475,7 +1475,7 @@ router.patch('/public/update/:id', async (req, res) => {
         }
         const decodedToken = jwt.verify(token, SECRET_KEY);
         
-        const auth_user = await repository.get_user_by_id(decodedToken.user_id);
+        const auth_user = await repository.get_public_user_by_id(decodedToken.user_id);
 
         // const user = await repository.get_public_user_by_id(id);
         if (!auth_user){

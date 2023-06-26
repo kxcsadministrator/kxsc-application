@@ -535,14 +535,15 @@ const get_all_categories = async ()=>{
 
 const globe_categories = async () => {
     let category_data = []
-    const data = await Model.category.find();
+    const data = await Model.category.find().sort({"date": -1});
     for (let i = 0; i < data.length; i++) {
         let cat = data[i];
         let r = {
             'name': cat.name,
             'resources': await Model.resource.find({category: cat.name}).count(),
             'id': cat.id,
-            'sub_categories': cat.sub_categories
+            'sub_categories': cat.sub_categories,
+            'date': cat.date
         }
         category_data.push(r)
     }
