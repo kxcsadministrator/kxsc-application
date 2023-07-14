@@ -764,11 +764,12 @@ const delete_page = async(section_name, page_title) => {
 }
 
 //------------------------------------ Blog section -------------------------------------------
-const create_new_article = async(title, body, author) => {
+const create_new_article = async(title, body, author, file_path) => {
     const article = new Model.blog({
         title: title,
         author: author,
-        body: body
+        body: body,
+        avatar: file_path
     })
     const data = await article.save()
     return data
@@ -820,9 +821,48 @@ const update_article = async(id, update_obj, page_title, page_body) => {
     return await Model.blog.findById(id)
 }
 
+const update_blog_avatar = async (article_id, avatar_path) => {
+    let parent = await Model.blog.findByIdAndUpdate(article_id, {avatar: avatar_path});
+    return parent;
+}
+
+const remove_blog_avatar = async (article_id) => {
+    let resource = await Model.blog.findById(article_id);
+    if (!resource.avatar) return resource
+
+    fs.unlink(resource.avatar, (err) => {
+            if (err) {
+            log_request_error(`file unlink: ${err}`)
+            return
+            }
+        }
+    )
+    resource.avatar = undefined;
+    resource.save()
+    
+    let parent = await Model.blog.findById(article_id);
+    return parent;
+}
+
 const delete_article = async(id) => {
     const result = await Model.blog.findByIdAndDelete(id)
     return result
+}
+
+// ------------------------------------------ Logo Section -----------------------------------------
+const get_logo_by_id = async(id) => {
+    const result = await Model.logo.findById(id)
+    return result;
+}
+
+const get_all_logos = async() => {
+    const result = await Model.logo.find()
+    return result;
+}
+
+const delete_logo = async(id) => {
+    const result = await Model.logo.findByIdAndDelete(id);
+    return result;
 }
 
 module.exports = { 
@@ -851,5 +891,8 @@ module.exports = {
     create_new_footer_section, get_section, edit_footer_section, delete_footer_section, create_new_footer_page, get_page, update_page,
     delete_page, get_all_sections,
     // Blog
-    create_new_article, get_all_articles, get_article_by_id, get_article_by_title, update_article, delete_article
+    create_new_article, get_all_articles, get_article_by_id, get_article_by_title, update_article, delete_article, update_blog_avatar,
+    remove_blog_avatar,
+    // logo
+    delete_logo, get_logo_by_id, get_all_logos
 }

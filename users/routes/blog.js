@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require("multer");
 const validator = require('express-validator');
 const jwt = require("jsonwebtoken");
 const repository = require('../db/repository');
@@ -6,6 +7,20 @@ const helpers = require('../helpers');
 
 const router = express.Router()
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
+
+const FILE_PATH = "files/uploads/"
+const maxSize = 2000000
+const storage = multer.diskStorage({
+    destination: FILE_PATH,
+    limits: { fileSize: maxSize },
+    filename: (req, file, callback) => {
+        const date = Date.now()
+        callback(null, date.toString() + "-" + file.originalname);
+    }
+});
+const upload = multer({ 
+    storage: storage
+});
 
 /** 
  * @swagger
@@ -29,9 +44,11 @@ const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
  *      description: Bad request
 */
 router.post("/new", 
+    upload.single("avatar"),
     validator.check("title").isLength({min: 3}).withMessage("Article title must be more than 3 characters"), 
     validator.check("body").isLength({min: 3}).withMessage("Article body must be more than 3 characters"),
     async (req, res) => {
+        const file = req.file; // outside to be accessible to catch bloack
     try {
         const errors = validator.validationResult(req);
         if (!errors.isEmpty()) {
@@ -40,10 +57,12 @@ router.post("/new",
         }
         const title = req.body.title
         const body = req.body.body
+        
 
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST blog/new - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
@@ -51,20 +70,40 @@ router.post("/new",
         const decodedToken = jwt.verify(token, SECRET_KEY);
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         if (!auth_user.superadmin) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST blog/new - 401: Unauthorized access to create`)
             return res.status(401).json({message: 'Unauthorized access to create'});
         }
 
         const dup_article = await repository.get_article_by_title(title)
         if (dup_article){
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST blog/new - 409: article ${title} already exists`)
             return res.status(409).json({message: `article ${title} already exists`});
         }
 
-        const result = await repository.create_new_article(title, body, auth_user._id)
+        let avatar_path = null;
+
+        if (file){ // if a file is sent
+            if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")) {
+                helpers.log_request_error(`POST resources/new - 400: only .png, .jpg and .jpeg format allowed`)
+                helpers.delete_file(file.path)
+                return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+            }
+            if (file.size > maxSize) {
+                helpers.log_request_error(`POST resources/new - 400: File exceeded 2MB size limit`)
+                helpers.delete_file(file.path)
+                return res.status(400).json({message: "File exceeded 2MB size limit"});
+            }
+            avatar_path = `${FILE_PATH}${file.filename}`
+        }
+
+        const result = await repository.create_new_article(title, body, auth_user._id, avatar_path)
         helpers.log_request_info("POST blog/new - 200")
         res.status(201).json(result);
     } catch (error) {
+        console.log(error)
+        helpers.delete_file(file.path)
         helpers.log_request_error(`POST blog/new  - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -270,5 +309,162 @@ router.delete("/delete/:article_id",
         res.status(400).json({message: error.message});
     }
 })
+
+/** 
+ * @swagger
+ * /blog/update-avatar/{id}:
+ *  post:
+ *      summary: Changes the avatar for a given blog article
+ *      description: |
+ *          Only the superadmin or author can update
+ * 
+ *          Requires a bearer token for authentication
+ *          ## Schema
+ *          Accepts a form-data with the key "avatar"
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the resource you wish to update the avatar
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const file = req.file;
+        const article_id = req.params.id;
+
+        // Guard clauses to make this op more readable
+        if (!article_id) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No resource provided"})
+        }
+        if (!file) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No file selected"})
+        }
+
+        if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/${id} - 400: only .png, .jpg and .jpeg format allowed`)
+            return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+        }
+
+        if (file.size > 2000000) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/${id} - 400: File exceeded 2MB size limit`)
+            return res.status(400).json({message: "File exceeded 2MB size limit"});
+        }
+        
+        // if both resources and files were provided
+        const article = await repository.get_article_by_id(article_id)
+        if (!article) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+        }
+        
+        // if (user._id.toString() != resource_data.author && user.superadmin == false) {
+        //     helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '401': Unauthorized access to update`)
+        //     return res.status(401).json({message: 'Unauthorized access to upload'});
+        // }
+
+        const avatar_path = `${FILE_PATH}${file.filename}`
+        const result = await repository.update_blog_avatar(article_id, avatar_path);
+
+        helpers.log_request_info(`POST blog/update-avatar/${req.params.id} - 200`)
+        res.status(200).json(result); 
+        
+    } 
+    catch (error) {
+        helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - '400': ${error.message}`)
+        res.status(400).json({message: error.message})
+    }
+});
+
+/** 
+ * @swagger
+ * /blog/remove-avatar/{id}:
+ *  post:
+ *      summary: Removes the avatar for a given article
+ *      description: |
+ *          Only the superadmin or author can update
+ * 
+ *          Requires a bearer token for authentication
+ *          
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the resource you wish to remove the avatar
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post("/remove-avatar/:id", async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST resources/remove-avatar/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+        const user = validateUser.data;
+
+        const file = req.file;
+        const article_id = req.params.id;
+
+        // Guard clauses to make this op more readable
+        if (!article_id) {
+            helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No resource provided"})
+        }
+       
+        
+        // if both resources and files were provided
+        const article = await repository.get_article_by_id(article_id)
+        if (!article) {
+            helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+        }
+        
+        const result = await repository.remove_blog_avatar(article_id);
+        helpers.delete_file(article.avatar)
+
+        helpers.log_request_info(`POST blog/remove-avatar/${req.params.id} - 200`)
+        res.status(200).json(result); 
+    } 
+    catch (error) {
+        helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '400': ${error.message}`)
+        res.status(400).json({message: error.message})
+    }
+});
 
 module.exports = router;

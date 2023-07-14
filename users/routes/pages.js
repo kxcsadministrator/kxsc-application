@@ -1,4 +1,5 @@
 const express = require('express');
+const multer = require("multer");
 const validator = require('express-validator');
 const jwt = require("jsonwebtoken");
 
@@ -8,6 +9,21 @@ const helpers = require('../helpers');
 
 const router = express.Router()
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
+
+const FILE_PATH = "files/uploads/"
+const maxSize = 2000000
+const storage = multer.diskStorage({
+    destination: FILE_PATH,
+    limits: { fileSize: maxSize },
+    filename: (req, file, callback) => {
+        const date = Date.now()
+        callback(null, date.toString() + "-" + file.originalname);
+    }
+});
+
+const upload = multer({ 
+    storage: storage
+});
 
 /** 
  * @swagger
@@ -520,5 +536,153 @@ router.delete("/delete-page/:section/:title",
     }
 })
 
+
+/** 
+ * @swagger
+ * /pages/add-logo:
+ *  post:
+ *      summary: Adds a new logo for the footer section
+ *      description: |
+ *          ## Schema
+ *          ### Accepts a form-data with the key "avatar"
+ * responses:
+ *    '201':
+ *      description: Created
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.post("/add-logo", 
+    upload.single("avatar"),
+    async (req, res) => {
+        try {
+        const file = req.file;
+
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+        const user = validateUser.data;
+        
+        if (!file) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/ - '400': validation errors`)
+            return res.status(400).json({message: "No file selected"})
+        }
+
+        if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/ - 400: only .png, .jpg and .jpeg format allowed`)
+            return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+        }
+
+        if (file.size > 2000000) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/ - 400: File exceeded 2MB size limit`)
+            return res.status(400).json({message: "File exceeded 2MB size limit"});
+        }
+        
+        const logo = Model.logo({
+            name: file.filename,
+            original_name: file.originalname,
+            path: file.path
+        })
+        const result = await logo.save();
+        helpers.log_request_info(`POST pages/add-logo - 200`)
+        res.status(200).json(result); 
+    }
+    catch (error) {
+        helpers.log_request_error(`POST pages/add-logo/ - '400': ${error.message}`)
+        res.status(400).json({message: error.message})
+    }   
+    
+})
+
+/** 
+ * @swagger
+ * /pages/all-logos:
+ *  get:
+ *      summary: Gets all logos
+ *     
+ * responses:
+ *    '200':
+ *      description: OK
+ *    '400':
+ *      description: Bad request
+*/
+router.get("/logos", 
+    async (req, res) => {
+    try {
+        const result = await repository.get_all_logos();
+        helpers.log_request_info(`GET pages/logos - 200`)
+        res.status(200).json(result); 
+    }
+    catch (error) {
+        helpers.log_request_error(`GET pages/logos/ - '400': ${error.message}`)
+        res.status(400).json({message: error.message})
+    }   
+    
+})
+
+/** 
+ * @swagger
+ * /pages/remove-logo/{id}:
+ *  post:
+ *      summary: Removes a logo
+ *      description: |
+ *          Only the superadmin can remove
+ * 
+ *          Requires a bearer token for authentication
+ *          
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post("/remove-logo/:id", async (req, res) => {
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+        const user = validateUser.data;
+        const logo_id = req.params.id;
+
+        // Guard clauses to make this op more readable
+        if (!logo_id) {
+            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '400': validation errors`)
+            return res.status(400).json({message: "No logo ID provided"})
+        }
+        
+        // if both resources and files were provided
+        const logo = await repository.get_logo_by_id(logo_id)
+        if (!logo) {
+            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+        }
+        
+        const result = await repository.delete_logo(logo_id);
+        helpers.delete_file(logo.path)
+
+        helpers.log_request_info(`POST pages/remove-logo/${req.params.id} - 200`)
+        res.status(200).json(result); 
+    } 
+    catch (error) {
+        helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '400': ${error.message}`)
+        res.status(400).json({message: error.message})
+    }
+});
 
 module.exports = router;
