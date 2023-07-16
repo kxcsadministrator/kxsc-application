@@ -801,7 +801,8 @@ const get_all_articles = async(offset, limit) => {
             author: user,
             title: article.title,
             body: article.body,
-            date: date
+            date: date,
+            avatar: article.avatar
         }
         data.push(r)
     }
