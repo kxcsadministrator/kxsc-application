@@ -360,6 +360,10 @@ const footerPageSchema = new mongoose.Schema({
     body: {
         type: String,
         required: true
+    },
+    icon: {
+        type: String,
+        required: false
     }
 })
 

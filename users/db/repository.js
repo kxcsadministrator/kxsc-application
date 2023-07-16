@@ -726,8 +726,8 @@ const delete_footer_section = async(name) => {
     return result
 }
 
-const create_new_footer_page = async(section, title, body) => {
-    const page = {title: title, body: body}
+const create_new_footer_page = async(section, title, body, path) => {
+    const page = {title: title, body: body, icon: path}
     const result = await Model.footerSection.findOneAndUpdate({name: section}, {$addToSet: {children: page}})
     return result
 }
@@ -745,8 +745,13 @@ const update_page = async(section_name, page_title, update_obj) => {
     if (!update_obj['body']){
         const page = await Model.footerSection.findOne({name: section_name, "children.title": page_title}, {children: { $elemMatch:{ title: page_title } }})
         update_obj['body'] = page.children[0].body
-        
     }
+
+    // if (update_obj['icon']){
+    //     const page = await Model.footerSection.findOne({name: section_name, "children.title": page_title}, {children: { $elemMatch:{ title: page_title } }})
+    //     update_obj['icon'] = page.children[0].icon
+    // }
+
     const page = await Model.footerSection.findOneAndUpdate(
         {name: section_name, "children.title": page_title},
         {
@@ -762,6 +767,7 @@ const delete_page = async(section_name, page_title) => {
     const result = await Model.footerSection.findOneAndUpdate({name: section_name}, {$pull: {children: {title: page_title} }})
     return result
 }
+
 
 //------------------------------------ Blog section -------------------------------------------
 const create_new_article = async(title, body, author, file_path) => {
@@ -861,10 +867,6 @@ const get_all_logos = async() => {
     return result;
 }
 
-const delete_logo = async(id) => {
-    const result = await Model.logo.findByIdAndDelete(id);
-    return result;
-}
 
 module.exports = { 
     // Users
@@ -895,5 +897,5 @@ module.exports = {
     create_new_article, get_all_articles, get_article_by_id, get_article_by_title, update_article, delete_article, update_blog_avatar,
     remove_blog_avatar,
     // logo
-    delete_logo, get_logo_by_id, get_all_logos
+    get_logo_by_id, get_all_logos
 }

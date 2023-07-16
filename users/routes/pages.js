@@ -284,6 +284,7 @@ router.delete("/delete-section/:name",
  *          ## Schema
  *          ### title: {required: true, type: String}
  *          ### body: {required: true, type: String}
+ *          ### avatar: {required: false, type: String}
  *      parameters: 
  *          - in: path
  *            name: section_name
@@ -302,15 +303,33 @@ router.delete("/delete-section/:name",
  *      description: Bad request
 */
 router.post("/new-page/:section", 
-    validator.check("title").isLength({min: 3}).withMessage("title must be at least three characters"), 
-    validator.check("body").isLength({min: 3}).withMessage("body must be at least three characters"), 
+    // validator.check("title").isLength({min: 3}).withMessage("title must be at least three characters"), 
+    // validator.check("body").isLength({min: 3}).withMessage("body must be at least three characters"), 
+    upload.single('avatar'),
     async (req, res) => {
+    
+        const file = req.file;
+        
     try {
         const section_name = req.params.section
-        const errors = validator.validationResult(req);
-        if (!errors.isEmpty()) {
-            helpers.log_request_error(`POST pages/new-page/${section_name}- 400: validation error(s)`)
-            return res.status(400).json({ errors: errors.array() });
+        // const errors = validator.validationResult(req);
+        // if (!errors.isEmpty()) {
+        //     helpers.log_request_error(`POST pages/new-page/${section_name}- 400: validation error(s)`)
+        //     return res.status(400).json({ errors: errors.array() });
+        // }
+
+        const title = req.body.title;
+        const body = req.body.body;
+
+        if (title.length < 3){
+            console.log('foo')
+            helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
+            return res.status(401).json({message: "title must be at least three characters"});
+        }
+
+        if (body.length < 3){
+            helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
+            return res.status(401).json({message: "body must be at least three characters"});
         }
 
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
@@ -320,20 +339,34 @@ router.post("/new-page/:section",
             return res.status(401).json({message: "Token not found"});
         }
 
+        if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/ - 400: only .png, .jpg and .jpeg format allowed`)
+            return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+        }
+
+        if (file.size > 2000000) {
+            helpers.delete_file(file.path)
+            helpers.log_request_error(`POST blog/update-avatar/ - 400: File exceeded 2MB size limit`)
+            return res.status(400).json({message: "File exceeded 2MB size limit"});
+        }
+
         const decodedToken = jwt.verify(token, SECRET_KEY);
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         if (!auth_user.superadmin) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Unauthorized access to create`)
             return res.status(401).json({message: 'Unauthorized access to create'});
         }
 
         const dup_page = await repository.get_page(section_name, req.body.title)
         if (dup_page){
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 409: page ${req.body.title} already exists`)
             return res.status(409).json({message: `page ${req.body.title} already exists`});
         }
 
-        const result = await repository.create_new_footer_page(section_name, req.body.title, req.body.body)
+        const result = await repository.create_new_footer_page(section_name, req.body.title, req.body.body, file.path)
         helpers.log_request_info("POST pages/new-page/${section_name} - 200")
         res.status(201).json(result);
     } catch (error) {
@@ -418,12 +451,14 @@ router.get("/page/:section/:title",
  *      description: Bad request
 */
 router.patch("/edit-page/:section/:title", 
+    upload.single('avatar'),
     async (req, res) => {
     try {
         const page_title = req.params.title
         const section_name = req.params.section
         const body = req.body.body
         const title = req.body.title
+        const file = req.file;
 
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
@@ -462,11 +497,22 @@ router.patch("/edit-page/:section/:title",
                 return res.status(409).json({message: `page ${req.body.title} already exists`});
             }
         }
-        const result = await repository.update_page(section_name, page_title, {title: title, body: body})
+
+        let path = null;
+
+        if (file) {
+            path = file.path
+        }
+        
+        if (page.children[0].icon){
+            helpers.delete_file(page.children[0].icon)
+        }
+        const result = await repository.update_page(section_name, page_title, {title: title, body: body, icon: path})
 
         helpers.log_request_info(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 200`)
         res.status(201).json(result.children[0]);
     } catch (error) {
+        console.log(error)
         helpers.log_request_error(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -527,6 +573,9 @@ router.delete("/delete-page/:section/:title",
         }
 
         const result = await repository.delete_page(section_name, page_title)
+        if (page.icon){
+            helpers.delete_file(page.icon)
+        }
 
         helpers.log_request_info(`DELETE pages/delete-page/${req.params.section}/${req.params.title} - 200`)
         res.status(204).json(result.children[0]);
@@ -537,152 +586,139 @@ router.delete("/delete-page/:section/:title",
 })
 
 
-/** 
- * @swagger
- * /pages/add-logo:
- *  post:
- *      summary: Adds a new logo for the footer section
- *      description: |
- *          ## Schema
- *          ### Accepts a form-data with the key "avatar"
- * responses:
- *    '201':
- *      description: Created
- *    '401':
- *      description: Unauthorized
- *    '400':
- *      description: Bad request
-*/
-router.post("/add-logo", 
-    upload.single("avatar"),
-    async (req, res) => {
-        try {
-        const file = req.file;
+// /** 
+//  * @swagger
+//  * /pages/add-logo:
+//  *  post:
+//  *      summary: Adds a new logo for the footer section
+//  *      description: |
+//  *          ## Schema
+//  *          ### Accepts a form-data with the key "avatar"
+//  * responses:
+//  *    '201':
+//  *      description: Created
+//  *    '401':
+//  *      description: Unauthorized
+//  *    '400':
+//  *      description: Bad request
+// */
+// router.post("/add-logo", 
+//     upload.single("avatar"),
+//     async (req, res) => {
+//         try {
+//         const file = req.file;
 
-        const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) {
-            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
-            return res.status(validateUser.status).json({message: validateUser.message});
-        }
-        const user = validateUser.data;
+//         const validateUser = await helpers.validateUser(req.headers);
+//         if (validateUser.status !== 200) {
+//             helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+//             return res.status(validateUser.status).json({message: validateUser.message});
+//         }
+//         const user = validateUser.data;
         
-        if (!file) {
-            helpers.delete_file(file.path)
-            helpers.log_request_error(`POST blog/update-avatar/ - '400': validation errors`)
-            return res.status(400).json({message: "No file selected"})
-        }
+//         if (!file) {
+//             helpers.delete_file(file.path)
+//             helpers.log_request_error(`POST blog/update-avatar/ - '400': validation errors`)
+//             return res.status(400).json({message: "No file selected"})
+//         }
 
-        if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
-            helpers.delete_file(file.path)
-            helpers.log_request_error(`POST blog/update-avatar/ - 400: only .png, .jpg and .jpeg format allowed`)
-            return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
-        }
+//         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+//             helpers.delete_file(file.path)
+//             helpers.log_request_error(`POST blog/update-avatar/ - 400: only .png, .jpg and .jpeg format allowed`)
+//             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+//         }
 
-        if (file.size > 2000000) {
-            helpers.delete_file(file.path)
-            helpers.log_request_error(`POST blog/update-avatar/ - 400: File exceeded 2MB size limit`)
-            return res.status(400).json({message: "File exceeded 2MB size limit"});
-        }
+//         if (file.size > 2000000) {
+//             helpers.delete_file(file.path)
+//             helpers.log_request_error(`POST blog/update-avatar/ - 400: File exceeded 2MB size limit`)
+//             return res.status(400).json({message: "File exceeded 2MB size limit"});
+//         }
         
-        const logo = Model.logo({
-            name: file.filename,
-            original_name: file.originalname,
-            path: file.path
-        })
-        const result = await logo.save();
-        helpers.log_request_info(`POST pages/add-logo - 200`)
-        res.status(200).json(result); 
-    }
-    catch (error) {
-        helpers.log_request_error(`POST pages/add-logo/ - '400': ${error.message}`)
-        res.status(400).json({message: error.message})
-    }   
+//         const logo = Model.logo({
+//             name: file.filename,
+//             original_name: file.originalname,
+//             path: file.path
+//         })
+//         const result = await logo.save();
+//         helpers.log_request_info(`POST pages/add-logo - 200`)
+//         res.status(200).json(result); 
+//     }
+//     catch (error) {
+//         helpers.log_request_error(`POST pages/add-logo/ - '400': ${error.message}`)
+//         res.status(400).json({message: error.message})
+//     }   
     
-})
+// })
 
-/** 
- * @swagger
- * /pages/all-logos:
- *  get:
- *      summary: Gets all logos
- *     
- * responses:
- *    '200':
- *      description: OK
- *    '400':
- *      description: Bad request
-*/
-router.get("/logos", 
-    async (req, res) => {
-    try {
-        const result = await repository.get_all_logos();
-        helpers.log_request_info(`GET pages/logos - 200`)
-        res.status(200).json(result); 
-    }
-    catch (error) {
-        helpers.log_request_error(`GET pages/logos/ - '400': ${error.message}`)
-        res.status(400).json({message: error.message})
-    }   
+// /** 
+//  * @swagger
+//  * /pages/all-logos:
+//  *  get:
+//  *      summary: Gets all logos
+//  *     
+//  * responses:
+//  *    '200':
+//  *      description: OK
+//  *    '400':
+//  *      description: Bad request
+// */
+// router.get("/logos", 
+//     async (req, res) => {
+//     try {
+//         const result = await repository.get_all_logos();
+//         helpers.log_request_info(`GET pages/logos - 200`)
+//         res.status(200).json(result); 
+//     }
+//     catch (error) {
+//         helpers.log_request_error(`GET pages/logos/ - '400': ${error.message}`)
+//         res.status(400).json({message: error.message})
+//     }   
     
-})
+// })
 
-/** 
- * @swagger
- * /pages/remove-logo/{id}:
- *  post:
- *      summary: Removes a logo
- *      description: |
- *          Only the superadmin can remove
- * 
- *          Requires a bearer token for authentication
- *          
- * responses:
- *    '200':
- *      description: Successful
- *    '404':
- *      description: Not found
- *    '400':
- *      description: Bad request
- *    '401':
- *      description: Unauthorized
-*/
-router.post("/remove-logo/:id", async (req, res) => {
-    try {
-        if (!req.headers.authorization) {
-            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - 401: Token not found`)
-            return res.status(401).json({message: "Token not found"});
-        }
-        const validateUser = await helpers.validateUser(req.headers);
-        if (validateUser.status !== 200) {
-            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
-            return res.status(validateUser.status).json({message: validateUser.message});
-        }
-        const user = validateUser.data;
-        const logo_id = req.params.id;
+// /** 
+//  * @swagger
+//  * /pages/remove-logo/{id}:
+//  *  post:
+//  *      summary: Removes a logo
+//  *      description: |
+//  *          Only the superadmin can remove
+//  * 
+//  *          Requires a bearer token for authentication
+//  *          
+//  * responses:
+//  *    '200':
+//  *      description: Successful
+//  *    '404':
+//  *      description: Not found
+//  *    '400':
+//  *      description: Bad request
+//  *    '401':
+//  *      description: Unauthorized
+// */
+// router.post("/remove-logo/:section/:title", async (req, res) => {
+//     try {
+//         if (!req.headers.authorization) {
+//             helpers.log_request_error(`POST pages/remove-logo/${req.params.section}/${req.params.title} - 401: Token not found`)
+//             return res.status(401).json({message: "Token not found"});
+//         }
+//         const validateUser = await helpers.validateUser(req.headers);
+//         if (validateUser.status !== 200) {
+//             helpers.log_request_error(`POST pages/remove-logo/${req.params.section}/${req.params.title} - ${validateUser.status}: ${validateUser.message}`)
+//             return res.status(validateUser.status).json({message: validateUser.message});
+//         }
+//         const user = validateUser.data;
 
-        // Guard clauses to make this op more readable
-        if (!logo_id) {
-            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '400': validation errors`)
-            return res.status(400).json({message: "No logo ID provided"})
-        }
+//         const page = await repository.get_page(section_name, page_title)
+//         if (!page){
+//             helpers.log_request_error(`POST pages/remove-logo/${req.params.section}/${req.params.title} - 404: page ${req.params.title} not found`)
+//             return res.status(404).json({message: `page ${req.params.title} not found`});
+//         }
         
-        // if both resources and files were provided
-        const logo = await repository.get_logo_by_id(logo_id)
-        if (!logo) {
-            helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
-            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
-        }
-        
-        const result = await repository.delete_logo(logo_id);
-        helpers.delete_file(logo.path)
-
-        helpers.log_request_info(`POST pages/remove-logo/${req.params.id} - 200`)
-        res.status(200).json(result); 
-    } 
-    catch (error) {
-        helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '400': ${error.message}`)
-        res.status(400).json({message: error.message})
-    }
-});
+//     } 
+//     catch (error) {
+//         helpers.log_request_error(`POST pages/remove-logo/${req.params.id} - '400': ${error.message}`)
+//         res.status(400).json({message: error.message})
+//     }
+// });
 
 module.exports = router;
