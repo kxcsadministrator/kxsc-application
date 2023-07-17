@@ -783,6 +783,9 @@ const create_new_article = async(title, body, author, file_path) => {
 
 const get_article_by_id = async(id) => {
     const result = await Model.blog.findById(id)
+    if (!result){
+        return null;
+    }
     r = result.toObject()
     r['author'] = await Model.user.findById(result.author, {_id: 1, username: 1})
     let date  = new Date(result.date_created).toDateString()
@@ -836,14 +839,6 @@ const update_blog_avatar = async (article_id, avatar_path) => {
 const remove_blog_avatar = async (article_id) => {
     let resource = await Model.blog.findById(article_id);
     if (!resource.avatar) return resource
-
-    fs.unlink(resource.avatar, (err) => {
-            if (err) {
-            log_request_error(`file unlink: ${err}`)
-            return
-            }
-        }
-    )
     resource.avatar = undefined;
     resource.save()
     

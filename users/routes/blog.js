@@ -355,7 +355,6 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
             return res.status(400).json({message: "No resource provided"})
         }
         if (!file) {
-            helpers.delete_file(file.path)
             helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - '400': validation errors`)
             return res.status(400).json({message: "No file selected"})
         }
@@ -376,18 +375,13 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
         const article = await repository.get_article_by_id(article_id)
         if (!article) {
             helpers.delete_file(file.path)
-            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
-            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '404': Resource with id: ${article_id} not found`)
+            return res.status(404).json({message: `Resource with id: ${article_id} not found`})
         }
-        
-        // if (user._id.toString() != resource_data.author && user.superadmin == false) {
-        //     helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '401': Unauthorized access to update`)
-        //     return res.status(401).json({message: 'Unauthorized access to upload'});
-        // }
 
         const avatar_path = `${FILE_PATH}${file.filename}`
         const result = await repository.update_blog_avatar(article_id, avatar_path);
-
+        helpers.delete_file(article.avatar)
         helpers.log_request_info(`POST blog/update-avatar/${req.params.id} - 200`)
         res.status(200).json(result); 
         
@@ -447,12 +441,11 @@ router.post("/remove-avatar/:id", async (req, res) => {
             return res.status(400).json({message: "No resource provided"})
         }
        
-        
         // if both resources and files were provided
         const article = await repository.get_article_by_id(article_id)
         if (!article) {
-            helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
-            return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
+            helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '404': Resource with id: ${article_id} not found`)
+            return res.status(404).json({message: `Article with id: ${article_id} not found`})
         }
         
         const result = await repository.remove_blog_avatar(article_id);
@@ -462,6 +455,7 @@ router.post("/remove-avatar/:id", async (req, res) => {
         res.status(200).json(result); 
     } 
     catch (error) {
+        console.log(error)
         helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '400': ${error.message}`)
         res.status(400).json({message: error.message})
     }

@@ -322,12 +322,13 @@ router.post("/new-page/:section",
         const body = req.body.body;
 
         if (title.length < 3){
-            console.log('foo')
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "title must be at least three characters"});
         }
 
         if (body.length < 3){
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "body must be at least three characters"});
         }
@@ -335,6 +336,7 @@ router.post("/new-page/:section",
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
+            helpers.delete_file(file.path)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
@@ -573,8 +575,8 @@ router.delete("/delete-page/:section/:title",
         }
 
         const result = await repository.delete_page(section_name, page_title)
-        if (page.icon){
-            helpers.delete_file(page.icon)
+        if (page.children[0].icon){
+            helpers.delete_file(page.children[0].icon)
         }
 
         helpers.log_request_info(`DELETE pages/delete-page/${req.params.section}/${req.params.title} - 200`)
