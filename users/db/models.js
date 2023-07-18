@@ -360,6 +360,10 @@ const footerPageSchema = new mongoose.Schema({
     body: {
         type: String,
         required: true
+    },
+    icon: {
+        type: String,
+        required: false
     }
 })
 
@@ -385,10 +389,21 @@ const blogSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    avatar: {
+        type: String,
+        required: false
+    },
     date_created: {
         type: Date,
         default: Date.now,
     }
+})
+
+// -------------------------------------- Social Media Logo --------------------------------------------------
+const logoSchema = new mongoose.Schema({
+    original_name: { required: true, type: String },
+    name: { required: true, type: String },
+    path: { required: true, type: String },
 })
 
 const profilePic = mongoose.model("profilePicture", picSchema);
@@ -402,10 +417,11 @@ const task = mongoose.model("Task", taskSchema);
 const message = mongoose.model("Message", messageSchema)
 const notification = mongoose.model("Notification", notificationSchema)
 const newUserRequest = mongoose.model('NewUserRequest', newUserRequestSchema);
-const footerSection = mongoose.model('FooterSection', footerSectionSchema)
-const blog = mongoose.model('blog', blogSchema)
+const footerSection = mongoose.model('FooterSection', footerSectionSchema);
+const blog = mongoose.model('blog', blogSchema);
+const logo = mongoose.model('logo', logoSchema);
 
 module.exports = { 
     profilePic, user, token, pubRequest, resource, institute, task, message, notification, newUserRequest, footerSection, blog,
-    publicUser
+    publicUser, logo
 };

@@ -92,7 +92,11 @@ const categorySchema = new mongoose.Schema({
     sub_categories: {
         required: true,
         type: [String]
-    }
+    },
+    date: {
+        type: Date,
+        default: Date.now
+    },
 });
 
 // --------------------------------- Rating ----------------------------------------

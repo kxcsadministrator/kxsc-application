@@ -152,6 +152,7 @@ const get_log_files = () => {
 }
 
 const delete_file = (path) => {
+  if (!path) return;
   fs.unlink(path, (err) => {
       if (err) {
         log_request_error(`file unlink: ${err}`)
