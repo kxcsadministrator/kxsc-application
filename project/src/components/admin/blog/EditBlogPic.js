@@ -1,11 +1,11 @@
-import { useEffect, useRef, useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
 import API_URL from "../../../Url";
-import { useNavigate } from "react-router-dom";
 
-function RemovePage({ setRemovePageModal, edit, section }) {
+function EditBlogPic({ setEditPicModal, id, blog }) {
   const { user } = useContext(Context);
+  const [avatar, setAvatar] = useState(blog?.avatar);
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -14,13 +14,11 @@ function RemovePage({ setRemovePageModal, edit, section }) {
   });
   let menuRef = useRef();
 
-  const navigate = useNavigate();
-
   //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setRemovePageModal(false);
+        setEditPicModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -28,13 +26,17 @@ function RemovePage({ setRemovePageModal, edit, section }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setRemovePageModal]);
+  }, [setEditPicModal]);
 
-  const removePage = async () => {
+  const updatePic = async (e) => {
+    e.preventDefault();
     setStates({ loading: true, error: false, success: false });
+    const formData = new FormData();
+    formData.append("avatar", avatar);
     try {
-      const res = await axios.delete(
-        `${API_URL.user}/pages/delete-page/${section}/${edit.title}`,
+      const res = await axios.post(
+        `${API_URL.user}/blog/update-avatar/${id}`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,
@@ -43,10 +45,11 @@ function RemovePage({ setRemovePageModal, edit, section }) {
       );
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setRemovePageModal(false);
-        navigate(`/admin/sections/${section}/`);
+        setEditPicModal(false);
+        window.location.reload(false);
       }, 3000);
     } catch (err) {
+      console.log(err);
       setStates({
         loading: false,
         error: true,
@@ -62,12 +65,20 @@ function RemovePage({ setRemovePageModal, edit, section }) {
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Delete Page
+          Edit Picture
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <div>
-            <p>Are you sure you want to remove Section {edit.title}</p>
-          </div>
+          <form>
+            <input
+              className="w-[90%] custom-file-input"
+              type="file"
+              filename={avatar}
+              accept="image/*"
+              onChange={(e) => {
+                setAvatar(e.target.files[0]);
+              }}
+            />
+          </form>
           <div>
             {states.loading ? (
               <div>
@@ -84,20 +95,13 @@ function RemovePage({ setRemovePageModal, edit, section }) {
             ) : (
               <div></div>
             )}
-            <div className="flex items-center gap-5">
+            <div>
               <button
-                onClick={() => setRemovePageModal(false)}
+                onClick={(e) => updatePic(e)}
                 className="btn_green"
                 disabled={states.loading}
               >
-                Back
-              </button>
-              <button
-                onClick={() => removePage()}
-                className="btn_red"
-                disabled={states.loading}
-              >
-                Continue
+                submit
               </button>
             </div>
           </div>
@@ -107,4 +111,4 @@ function RemovePage({ setRemovePageModal, edit, section }) {
   );
 }
 
-export default RemovePage;
+export default EditBlogPic;

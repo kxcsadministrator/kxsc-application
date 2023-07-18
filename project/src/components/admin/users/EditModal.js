@@ -26,11 +26,8 @@ function EditModal({ setEditModal, editUser, setEditUser }) {
   };
   const handleSubmit = async (e) => {};
   return (
-    <div className="fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(5,2,9,0.6)]">
-      <div
-        className="flex flex-col items-center py-2 gap-3 w-[35%] mx-auto h-[40vh] bg-white rounded-md shadow-md border-gray-500 border-2"
-        ref={menuRef}
-      >
+    <div className="modal_container">
+      <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] text-red-500 border-b-2 border-b-gray w-full text-center  pb-2">
           EDIT USER
         </h1>

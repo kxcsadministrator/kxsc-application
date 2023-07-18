@@ -106,6 +106,8 @@ function PublicResources() {
     sessionStorage.setItem("resourceId", resource._id);
     navigate(`/admin/resources/${resource.topic}`);
   };
+
+  console.log(allResources);
   return (
     <div>
       <div className="base_container">

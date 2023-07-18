@@ -9,6 +9,8 @@ import { RiDeleteBinLine } from "react-icons/ri";
 import { FaRegEdit } from "react-icons/fa";
 import EditBlogModal from "../../../components/admin/blog/EditBlogModal";
 import API_URL from "../../../Url";
+import EditBlogPic from "../../../components/admin/blog/EditBlogPic";
+import RemoveBlogPic from "../../../components/admin/blog/RemoveBlogPic";
 
 function SingleBlog() {
   const { user } = useContext(Context);
@@ -21,6 +23,8 @@ function SingleBlog() {
   });
   const id = sessionStorage.getItem("blogId");
   const [editBlogModal, setEditBlogModal] = useState(false);
+  const [editPicModal, setEditPicModal] = useState(false);
+  const [removePicModal, setRemovePicModal] = useState(false);
   const [edit, setEdit] = useState();
 
   useEffect(() => {
@@ -48,6 +52,16 @@ function SingleBlog() {
     setEditBlogModal(true);
   };
 
+  const editPic = (blog) => {
+    setEdit(blog);
+    setEditPicModal(true);
+  };
+
+  const removePic = (blog) => {
+    setEdit(blog);
+    setRemovePicModal(true);
+  };
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -71,6 +85,42 @@ function SingleBlog() {
                   {blog?.title}
                 </h1>
               </div>
+              <div className="flex flex-col gap-2">
+                {blog?.avatar ? (
+                  <div className="w-full">
+                    <img
+                      src={`${API_URL.user}/${blog.avatar.substring(
+                        blog.avatar.indexOf("uploads/")
+                      )}`}
+                      alt="default"
+                      className="object-cover h-[150px] w-full rounded-md"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <img
+                      src="/default.png"
+                      alt="default"
+                      className="object-cover h-[150px] w-full rounded-md"
+                    />
+                  </div>
+                )}
+                <div className="flex justify-center gap-3">
+                  <button
+                    className="px-2 p-1 border-gray_bg bg-[#cbffdd] rounded-sm text-green-600"
+                    onClick={() => editPic(blog)}
+                  >
+                    <FaRegEdit />
+                  </button>
+                  <button
+                    className="px-2 p-1 border-gray_bg bg-[#ffcbcb] rounded-sm text-red-600"
+                    onClick={() => removePic(blog)}
+                  >
+                    <RiDeleteBinLine />
+                  </button>
+                </div>
+              </div>
+
               <div className="flex flex-col ">
                 <div className="flex items-start justify-between -mt-2">
                   <p className="text-lg font-bold text-[#6f6d6d]">
@@ -101,6 +151,20 @@ function SingleBlog() {
           {editBlogModal && (
             <EditBlogModal
               setEditBlogModal={setEditBlogModal}
+              edit={edit}
+              id={id}
+            />
+          )}
+          {editPicModal && (
+            <EditBlogPic
+              setEditPicModal={setEditPicModal}
+              edit={edit}
+              id={id}
+            />
+          )}
+          {removePicModal && (
+            <RemoveBlogPic
+              setRemovePicModal={setRemovePicModal}
               edit={edit}
               id={id}
             />

@@ -5,7 +5,7 @@ import API_URL from "../../../Url";
 
 function RemovePublicPic({ setRemovePicModal }) {
   //   states
-  const { user } = useContext(Context);
+  const { publicUser } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
     error: false,
@@ -32,8 +32,8 @@ function RemovePublicPic({ setRemovePicModal }) {
     try {
       const res = await axios({
         method: "post",
-        url: `${API_URL.user}/users/public/remove-profile-photo/${user.id}`,
-        headers: { Authorization: `Bearer ${user.jwt_token}` },
+        url: `${API_URL.user}/users/public/remove-profile-photo/${publicUser.id}`,
+        headers: { Authorization: `Bearer ${publicUser.jwt_token}` },
       });
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {

@@ -8,6 +8,7 @@ import API_URL from "../../../Url";
 function AddPageModal({ setAddPageModal, section }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [avatar, setAvatar] = useState("");
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -33,13 +34,14 @@ function AddPageModal({ setAddPageModal, section }) {
 
   const addPage = async () => {
     setStates({ loading: true, error: false, success: false });
+    const formData = new FormData();
+    formData.append("avatar", avatar);
+    formData.append("title", title);
+    formData.append("body", body);
     try {
       const res = await axios.post(
         `${API_URL.user}/pages/new-page/${section}`,
-        {
-          title: title,
-          body: body,
-        },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,
@@ -77,6 +79,16 @@ function AddPageModal({ setAddPageModal, section }) {
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
+            />
+            <input
+              className="w-full mx-auto py-2 custom-file-input"
+              placeholder="Add icon"
+              type="file"
+              id="img"
+              name="img"
+              accept="image/*"
+              filename={avatar}
+              onChange={(e) => setAvatar(e.target.files[0])}
             />
             <div className="w-[95%] relative">
               <CKEditor

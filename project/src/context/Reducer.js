@@ -3,6 +3,7 @@ const Reducer = (state, action) => {
     case "LOGIN_START":
       return {
         user: null,
+        userPublic: null,
         isFetching: true,
         error: "",
       };

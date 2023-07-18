@@ -54,9 +54,21 @@ function Footer() {
                     <li
                       key={index}
                       onClick={() => navPage(page, section)}
-                      className="cursor-pointer hover:text-gray-400"
+                      className="cursor-pointer hover:text-gray-400 flex flex-row-reverse gap-3 items-center"
                     >
-                      {page.title}
+                      <span>{page.title}</span>
+                      {page?.icon && (
+                        <span>
+                          {" "}
+                          <img
+                            src={`${API_URL.user}/${page?.icon.substring(
+                              page?.icon?.indexOf("uploads/")
+                            )}`}
+                            alt="default"
+                            className="object-cover h-[20px] w-[20px] rounded-md"
+                          />
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -92,15 +104,31 @@ function Footer() {
         </div>
       </div>
       <div className="mobile--footer">
-        <div className="f_conts">
-          <div className="f-cont d-flex pt-5">
+        <div className="f_conts flex flex-col py-2 ml-0">
+          <div className="f-cont flex flex-col">
             {sections?.map((section, index) => (
               <div className="footer-content" key={index}>
                 <h5>{section.name}</h5>
                 <ul>
                   {section.children.map((page, index) => (
-                    <li key={index} onClick={() => navPage(page, section)}>
-                      {page.title}
+                    <li
+                      key={index}
+                      onClick={() => navPage(page, section)}
+                      className="cursor-pointer hover:text-gray-400 flex flex-row-reverse gap-3 items-center"
+                    >
+                      <span>{page.title}</span>
+                      {page?.icon && (
+                        <span>
+                          {" "}
+                          <img
+                            src={`${API_URL.user}/${page?.icon.substring(
+                              page?.icon?.indexOf("uploads/")
+                            )}`}
+                            alt="default"
+                            className="object-cover h-[20px] w-[20px] rounded-md"
+                          />
+                        </span>
+                      )}
                     </li>
                   ))}
                 </ul>

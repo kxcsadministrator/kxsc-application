@@ -162,41 +162,39 @@ function LandingBlogDetails() {
           </form>
         </div>
 
-        {/* <div className="four-color bg-light">
-          <div className="dd-d d-flex gap-3 pt-3">
-            <div>
-              <h5>Research for:</h5>
-            </div>
-            <div>
-              <h5>Business</h5>
-            </div>
-            <div>
-              <h5>Higher Education</h5>
-            </div>
-            <div>
-              <h5>Government</h5>
-            </div>
-          </div>
-        </div> */}
         <br />
         <div className="flex flex-col md:gap-3 gap-2 md:w-[70%] w-[90%] mx-auto b_head">
           <h1 className="lg:text-3xl md:2xl text-xl text-center md:text-start ">
             {blog?.title}
           </h1>
           <div className="flex gap-4 items-center text-gray-400 ">
-            <p className="mb-1 border-b-[2px] uppercase capitalize">
+            <p className="mb-1 border-b-[2px] uppercase text-sm md:text-base">
               By: {blog?.author.username}
             </p>
             <p className="mt-3 h-[20px] w-[2px] bg-gray-400" />
-            <p className="mb-1">{blog?.date_created}</p>
+            <p className="mb-1 text-sm md:text-base">{blog?.date_created}</p>
           </div>
-          <div>
-            <img
-              src="/default.png"
-              alt="default"
-              className="object-cover h-[150px] w-full rounded-md"
-            />
-          </div>
+
+          {blog?.avatar ? (
+            <div className="w-full">
+              <img
+                src={`${API_URL.user}/${blog.avatar.substring(
+                  blog.avatar.indexOf("uploads/")
+                )}`}
+                alt="default"
+                className="object-cover h-[150px] w-full rounded-md"
+              />
+            </div>
+          ) : (
+            <div className="w-full">
+              <img
+                src="/default.png"
+                alt="default"
+                className="object-cover h-[150px] w-full rounded-md"
+              />
+            </div>
+          )}
+
           <p
             className="md:text-lg text-sm  m-2"
             dangerouslySetInnerHTML={{ __html: blog?.body }}

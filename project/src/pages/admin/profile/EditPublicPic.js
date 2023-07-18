@@ -3,9 +3,9 @@ import axios from "axios";
 import { Context } from "../../../context/Context";
 import API_URL from "../../../Url";
 
-function EditPublicPic({ setEditPicModal, editUser }) {
+function EditPublicPic({ setEditPicModal }) {
   //   states
-  const { user } = useContext(Context);
+  const { publicUser } = useContext(Context);
   const [file, setFile] = useState(null);
   const [states, setStates] = useState({
     loading: false,
@@ -36,11 +36,11 @@ function EditPublicPic({ setEditPicModal, editUser }) {
     formData.append("file", file);
     try {
       const res = await axios.post(
-        `${API_URL.user}/users/public/change-profile-photo/${user.id}`,
+        `${API_URL.user}/users/public/change-profile-photo/${publicUser.id}`,
         formData,
         {
           headers: {
-            Authorization: `Bearer ${user.jwt_token}`,
+            Authorization: `Bearer ${publicUser.jwt_token}`,
           },
         }
       );
@@ -61,7 +61,6 @@ function EditPublicPic({ setEditPicModal, editUser }) {
     }
   };
 
-  console.log(user);
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>

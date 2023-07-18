@@ -138,7 +138,6 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
     }
   };
 
-  console.log(avatar);
   return (
     <div className="modal_container">
       <div
@@ -164,7 +163,7 @@ function CreateResource({ setCreateResourceModal, instituteId }) {
               onChange={(e) => {
                 getSub(e);
               }}
-              className="select"
+              className="select "
             >
               <option>-select category</option>
               {allCat.map((cat, index) => {

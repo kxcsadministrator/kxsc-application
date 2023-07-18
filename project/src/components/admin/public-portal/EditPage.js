@@ -8,6 +8,7 @@ import API_URL from "../../../Url";
 function EditPage({ setEditPageModal, section, edit }) {
   const [title, setTitle] = useState(edit.title);
   const [body, setBody] = useState(edit.body);
+  const [avatar, setAvatar] = useState(edit.icon);
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -33,13 +34,14 @@ function EditPage({ setEditPageModal, section, edit }) {
 
   const editPage = async () => {
     setStates({ loading: true, error: false, success: false });
+    const formData = new FormData();
+    formData.append("avatar", avatar);
+    formData.append("title", title);
+    formData.append("body", body);
     try {
       const res = await axios.patch(
         `${API_URL.user}/pages/edit-page/${section}/${edit.title}`,
-        {
-          title: title !== edit.title ? title : null,
-          body: body !== edit.body ? body : null,
-        },
+        formData,
         {
           headers: {
             Authorization: `Bearer ${user.jwt_token}`,
@@ -62,6 +64,8 @@ function EditPage({ setEditPageModal, section, edit }) {
       });
     }
   };
+
+  console.log(edit.icon);
   return (
     <div className="modal_container">
       <div className="modal_content  md:w-[50%]" ref={menuRef}>
@@ -77,6 +81,16 @@ function EditPage({ setEditPageModal, section, edit }) {
               onChange={(e) => {
                 setTitle(e.target.value);
               }}
+            />
+            <input
+              className=" py-2 custom-file-input"
+              placeholder="Add icon"
+              type="file"
+              id="img"
+              name="img"
+              accept="image/*"
+              filename={avatar}
+              onChange={(e) => setAvatar(e.target.files[0])}
             />
             <div className="w-[95%] relative">
               <CKEditor

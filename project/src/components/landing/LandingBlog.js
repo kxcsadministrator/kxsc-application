@@ -46,6 +46,8 @@ function LandingBlog() {
     getBlogs();
   }, []);
 
+  console.log(blogs);
+
   const navBlog = (blog) => {
     sessionStorage.setItem("blogId", blog._id);
     navigate(`/blog/${blog.title}`);
@@ -202,13 +204,25 @@ function LandingBlog() {
                 key={index}
                 onClick={() => navBlog(blog)}
               >
-                <div className="w-full">
-                  <img
-                    src="/default.png"
-                    alt="default"
-                    className="object-cover w-full rounded-md"
-                  />
-                </div>
+                {blog.avatar ? (
+                  <div className="w-full">
+                    <img
+                      src={`${API_URL.user}/${blog.avatar.substring(
+                        blog.avatar.indexOf("uploads/")
+                      )}`}
+                      alt="default"
+                      className="object-cover w-full rounded-md"
+                    />
+                  </div>
+                ) : (
+                  <div className="w-full">
+                    <img
+                      src="/default.png"
+                      alt="default"
+                      className="object-cover w-full rounded-md"
+                    />
+                  </div>
+                )}
                 <div className="flex flex-col w-[90%] mx-auto">
                   <p className="text-[15px] text-gray-400">{blog.date}</p>
                   <h6 className="text-[20px] font-bold">{blog.title}</h6>

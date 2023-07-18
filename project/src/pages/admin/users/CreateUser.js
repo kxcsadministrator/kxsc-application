@@ -5,19 +5,29 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../../Url";
+import { countries } from "countries-list";
 
 function CreateUser() {
   const { user } = useContext(Context);
   const [superAdmin, setSuperAdmin] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedCountry, setSelectedCountry] = useState("");
   const [states, setStates] = useState({
     loading: false,
     error: false,
     errMsg: "",
   });
   const navigate = useNavigate();
+
+  const handleCountrySelect = (event) => {
+    const country = event.target.value;
+    setSelectedCountry(country);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,6 +37,10 @@ function CreateUser() {
         const res = await axios.post(
           `${API_URL.user}/users/new/super-admin`,
           {
+            first_name: firstName,
+            last_name: lastName,
+            phone: phoneNumber,
+            country: selectedCountry,
             username: username,
             email: email,
             password: password,
@@ -45,14 +59,23 @@ function CreateUser() {
     } else {
       setStates({ loading: true, error: false });
       try {
-        const res = await axios.post(`${API_URL.user}/users/new`, {
-          username: username,
-          email: email,
-          password: password,
-        });
+        const res = await axios.post(
+          `${API_URL.user}/users/new`,
+          {
+            first_name: firstName,
+            last_name: lastName,
+            phone: phoneNumber,
+            country: selectedCountry,
+            username: username,
+            email: email,
+            password: password,
+          },
+          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
+        );
         setStates({ loading: false, error: false });
         navigate("/admin/users");
       } catch (err) {
+        console.log(err);
         setStates({
           loading: false,
           error: false,
@@ -75,6 +98,41 @@ function CreateUser() {
           <h1 className="form_header">Create User</h1>
           <div className="user_input_container">
             <div className="user_input_row">
+              <label>First Name: </label>
+              <input
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="user_input_row">
+              <label>Last Name: </label>
+              <input
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+            <div className="user_input_row">
+              <label>Phone number: </label>
+              <input
+                placeholder="Phone Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+              />
+            </div>
+            <div className="user_input_row">
+              <label>Select Country</label>
+              <select value={selectedCountry} onChange={handleCountrySelect}>
+                <option value="">Select a country</option>
+                {Object.keys(countries).map((countryCode) => (
+                  <option key={countryCode} value={countryCode}>
+                    {countries[countryCode].name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="user_input_row">
               <label>Username: </label>
               <input
                 placeholder="Username"
@@ -94,6 +152,7 @@ function CreateUser() {
               <label>Password: </label>
               <input
                 placeholder="Password"
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />

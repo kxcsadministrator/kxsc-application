@@ -47,7 +47,7 @@ function SingleSection() {
 
   const navPage = (page) => {
     sessionStorage.setItem("page", page.title);
-    navigate(`/admin/sections/${section.name}/${page.title}`);
+    navigate(`/admin/sections/${section}/${page.title}`);
   };
 
   return (

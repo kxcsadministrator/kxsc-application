@@ -1,10 +1,9 @@
-import { useEffect, useRef, useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../context/Context";
 import API_URL from "../../../Url";
-import { useNavigate } from "react-router-dom";
 
-function RemovePage({ setRemovePageModal, edit, section }) {
+function RemoveBlogPic({ setRemovePicModal, id }) {
   const { user } = useContext(Context);
   const [states, setStates] = useState({
     loading: false,
@@ -14,13 +13,11 @@ function RemovePage({ setRemovePageModal, edit, section }) {
   });
   let menuRef = useRef();
 
-  const navigate = useNavigate();
-
   //set modal false
   useEffect(() => {
     let handler = (e) => {
       if (!menuRef.current.contains(e.target)) {
-        setRemovePageModal(false);
+        setRemovePicModal(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -28,23 +25,19 @@ function RemovePage({ setRemovePageModal, edit, section }) {
     return () => {
       document.removeEventListener("mousedown", handler);
     };
-  }, [setRemovePageModal]);
+  }, [setRemovePicModal]);
 
-  const removePage = async () => {
-    setStates({ loading: true, error: false, success: false });
+  const removePic = async () => {
     try {
-      const res = await axios.delete(
-        `${API_URL.user}/pages/delete-page/${section}/${edit.title}`,
-        {
-          headers: {
-            Authorization: `Bearer ${user.jwt_token}`,
-          },
-        }
-      );
+      const res = await axios({
+        method: "post",
+        url: `${API_URL.user}/blog/remove-avatar/${id}`,
+        headers: { Authorization: `Bearer ${user.jwt_token}` },
+      });
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
-        setRemovePageModal(false);
-        navigate(`/admin/sections/${section}/`);
+        setRemovePicModal(false);
+        window.location.reload(false);
       }, 3000);
     } catch (err) {
       setStates({
@@ -57,16 +50,15 @@ function RemovePage({ setRemovePageModal, edit, section }) {
       });
     }
   };
-
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Delete Page
+          Remove Picture
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <div>
-            <p>Are you sure you want to remove Section {edit.title}</p>
+            <p>Are you sure you want to remove Blog picture</p>
           </div>
           <div>
             {states.loading ? (
@@ -86,14 +78,14 @@ function RemovePage({ setRemovePageModal, edit, section }) {
             )}
             <div className="flex items-center gap-5">
               <button
-                onClick={() => setRemovePageModal(false)}
+                onClick={() => setRemovePicModal(false)}
                 className="btn_green"
                 disabled={states.loading}
               >
                 Back
               </button>
               <button
-                onClick={() => removePage()}
+                onClick={() => removePic()}
                 className="btn_red"
                 disabled={states.loading}
               >
@@ -107,4 +99,4 @@ function RemovePage({ setRemovePageModal, edit, section }) {
   );
 }
 
-export default RemovePage;
+export default RemoveBlogPic;

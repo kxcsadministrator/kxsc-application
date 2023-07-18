@@ -34,6 +34,9 @@
   .user_input_row input {
     @apply bg-transparent border-2 border-[#707070] rounded-md px-2 py-2 max-w-[600px] w-full  md:w-[70%];
   }
+  .user_input_row select {
+    @apply bg-transparent border-2 border-[#707070] rounded-md px-2 py-2 max-w-[600px] w-full  md:w-[70%];
+  }
   .user_delete_btn {
     @apply p-2 border-gray_bg bg-gray_bg rounded-sm text-red-600;
   }

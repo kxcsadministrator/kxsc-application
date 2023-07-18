@@ -78,9 +78,23 @@ function SinglePage() {
             <div>{states.errMsg}</div>
           ) : (
             <div className="flex flex-col gap-8">
-              <div className="all_heading">
-                <h1>{section}</h1>
+              <div className="flex justify-between items-center">
+                <div className="all_heading text-left mx-0 items-start">
+                  <h1>{section}</h1>
+                </div>
+                {page?.icon && (
+                  <div>
+                    <img
+                      src={`${API_URL.user}/${page?.icon.substring(
+                        page?.icon?.indexOf("uploads/")
+                      )}`}
+                      alt="default"
+                      className="object-cover h-[30px] w-[30px] rounded-md"
+                    />
+                  </div>
+                )}
               </div>
+
               <div>
                 <div className="flex flex-col gap-6">
                   <div className="flex flex-col ">

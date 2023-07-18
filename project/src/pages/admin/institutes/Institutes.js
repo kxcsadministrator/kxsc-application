@@ -114,6 +114,10 @@ function Institutes() {
     setDeleteInstituteModal(true);
   };
 
+  const navigateCreateInstu = () => {
+    navigate("/admin/create-institutes");
+  };
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -131,15 +135,23 @@ function Institutes() {
           ) : states.error ? (
             <div>{states.errMsg}</div>
           ) : allInstitutes.length ? (
-            <div className="container_3">
-              <div className="all_heading">
-                <h1>All Institutes</h1>
-                <div>
-                  <input
-                    placeholder="Search Institute"
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                  />
+            <div className="flex flex-col gap-8">
+              <div className="flex md:flex-row flex-col md:items-center md:justify-between w-full">
+                <h1>All Institute</h1>
+                <div className="flex gap-2 justify-between">
+                  <button
+                    className="btn_green"
+                    onClick={() => navigateCreateInstu()}
+                  >
+                    Create Institute
+                  </button>
+                  <div>
+                    <input
+                      placeholder="Search Institute"
+                      value={value}
+                      onChange={(e) => setValue(e.target.value)}
+                    />
+                  </div>
                 </div>
               </div>
               {collection.length > 0 ? (

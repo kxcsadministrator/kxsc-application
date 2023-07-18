@@ -59,6 +59,11 @@ function FooterSection() {
     sessionStorage.setItem("section", section.name);
     navigate(`/admin/sections/${section.name}`);
   };
+
+  const navigateCreateFooter = () => {
+    navigate("/admin/create-section");
+  };
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -77,9 +82,18 @@ function FooterSection() {
             <div>{states.errMsg}</div>
           ) : (
             <div className="flex flex-col gap-8">
-              <div className="all_heading">
-                <h1>All Section Headers</h1>
+              <div className="flex justify-between items-center">
+                <div className="all_heading">
+                  <h1>All Section Headers</h1>
+                </div>
+                <button
+                  className="btn_green"
+                  onClick={() => navigateCreateFooter()}
+                >
+                  Create Footer
+                </button>
               </div>
+
               {sections.length > 0 ? (
                 <div>
                   {sections?.map((section, index) => (

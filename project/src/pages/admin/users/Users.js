@@ -8,11 +8,15 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import API_URL from "../../../Url";
+import { RiDeleteBinLine } from "react-icons/ri";
+import DeleteModal from "../../../components/admin/users/DeleteModal";
 
 function Users() {
   //useStates
   const { user } = useContext(Context);
   const [allUsers, setAllUsers] = useState([]);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteUser, setDeleteUser] = useState();
   const [states, setStates] = useState({
     loading: true,
     error: false,
@@ -29,6 +33,7 @@ function Users() {
         });
         setStates({ loading: false, error: false });
         setAllUsers(res.data);
+        console.log(allUsers);
       } catch (err) {
         setStates({
           loading: false,
@@ -81,10 +86,10 @@ function Users() {
     }
   }, [value, updatePage, searchData]);
 
-  // const handleDelete = (id, username, email) => {
-  //   setDeleteUser({ id, username, email });
-  //   setDeleteModal(true);
-  // };
+  const handleDelete = (id, username) => {
+    setDeleteUser({ id, username });
+    setDeleteModal(true);
+  };
 
   return (
     <div className="base_container">
@@ -128,24 +133,22 @@ function Users() {
                         <tr key={singleUser._id}>
                           <td data-label="s/n">{index + 1}</td>
                           <td data-label="Username">{singleUser.username}</td>
-                          {/*
+
                           <td data-label="Action">
-                           <div>
+                            <div>
                               <button
                                 className="user_delete_btn"
                                 onClick={() =>
                                   handleDelete(
                                     singleUser._id,
-                                    singleUser.username,
-                                    singleUser.email
+                                    singleUser.username
                                   )
                                 }
                               >
                                 <RiDeleteBinLine size="1.2rem" />
                               </button>
-                            </div> 
+                            </div>
                           </td>
-                          */}
                         </tr>
                       ))}
                     </tbody>
@@ -166,14 +169,14 @@ function Users() {
                   <p>No user with the search input found</p>
                 </div>
               )}
-              {/* 
+
               {deleteModal && (
                 <DeleteModal
                   setDeleteModal={setDeleteModal}
                   deleteUser={deleteUser}
                   setDeleteUser={setDeleteUser}
                 />
-              )} */}
+              )}
             </div>
           ) : (
             <div>
