@@ -81,6 +81,19 @@ function Panel() {
     sessionStorage.setItem("resourceId", resource._id);
     navigate(`/admin/resources/${resource.topic}`);
   };
+
+  const navigateUser = () => {
+    navigate("/admin/users");
+  };
+
+  const navigateInstitute = () => {
+    navigate("/admin/institutes");
+  };
+
+  const navigateResources = () => {
+    navigate("/admin/resources");
+  };
+
   return (
     <div className="panel_container">
       <div className="sidebar_content">
@@ -97,7 +110,7 @@ function Panel() {
 
               <div className="box_container">
                 {/* user_box */}
-                <div className="box">
+                <div className="box" onClick={() => navigateUser()}>
                   <div className="box-col">
                     <h4>{users.length}</h4>
                     <p>Total User</p>
@@ -107,7 +120,7 @@ function Panel() {
                   </div>
                 </div>
                 {/* institute_box */}
-                <div className="box-2">
+                <div className="box-2" onClick={() => navigateInstitute()}>
                   <div className="box-col">
                     <h4>{institutes.length}</h4>
                     <p>Total Institutes</p>
@@ -117,7 +130,7 @@ function Panel() {
                   </div>
                 </div>
                 {/* resource_box */}
-                <div className="box-3">
+                <div className="box-3" onClick={() => navigateResources()}>
                   <div className="box-col">
                     <h4>{resources.length}</h4>
                     <p>Total Resources</p>

@@ -128,7 +128,7 @@ function Categories() {
             <div className="flex flex-col gap-8">
               <div className="all_heading">
                 <h1>All Category</h1>
-                <div className="flex gap-3 ">
+                <div className="flex flex-col md:flex-row gap-3 items-center">
                   <button
                     className="btn_green"
                     onClick={() => navigateCreateCat()}

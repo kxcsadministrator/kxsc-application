@@ -82,15 +82,15 @@ function FooterSection() {
             <div>{states.errMsg}</div>
           ) : (
             <div className="flex flex-col gap-8">
-              <div className="flex justify-between items-center">
+              <div className="flex md:flex-row flex-col md:justify-between items-center">
                 <div className="all_heading">
                   <h1>All Section Headers</h1>
                 </div>
                 <button
-                  className="btn_green"
+                  className="btn_green w-[60%] max-w-fit "
                   onClick={() => navigateCreateFooter()}
                 >
-                  Create Footer
+                  Create Footer Section
                 </button>
               </div>
 

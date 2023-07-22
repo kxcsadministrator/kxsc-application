@@ -61,7 +61,7 @@ function DeleteBlog({ setDeleteBlogModal, blog }) {
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <div>
-            <p>Are you sure you want to remove Section {blog.title}</p>
+            <p>Are you sure you want to remove "{blog.title}"</p>
           </div>
           <div>
             {states.loading ? (

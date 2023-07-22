@@ -29,13 +29,13 @@ function Blog() {
         const res = await axios.get(`${API_URL.user}/blog/all`, {
           headers: { Authorization: `Bearer ${user.jwt_token}` },
         });
-        setStates({ loading: false, error: false });
         setBlogs(res.data);
-      } catch (err) {
+        setStates({ loading: false, error: false });
+      } catch (error) {
         setStates({
           loading: false,
-          err: true,
-          errMsg: err.response.data.message,
+          error: true,
+          errMsg: error.response.data.message,
         });
       }
     };
@@ -50,6 +50,10 @@ function Blog() {
   const deleteBlog = (blog) => {
     setBlog(blog);
     setDeleteBlogModal(true);
+  };
+
+  const navigateCreateBlog = () => {
+    navigate("/admin/create-blog");
   };
   return (
     <div className="base_container">
@@ -69,9 +73,20 @@ function Blog() {
             <div>{states.errMsg}</div>
           ) : (
             <div className="flex flex-col gap-8">
-              <div className="all_heading">
-                <h1>Blogs</h1>
+              <div className="flex flex-col md:flex-row justify-between items-center gap-3">
+                <div className="all_heading">
+                  <h1>Blogs</h1>
+                </div>
+                <div>
+                  <button
+                    className="btn_green"
+                    onClick={() => navigateCreateBlog()}
+                  >
+                    New Post
+                  </button>
+                </div>
               </div>
+
               {blogs?.length > 0 ? (
                 <div>
                   {blogs.map((blog, index) => (

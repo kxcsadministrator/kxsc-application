@@ -279,7 +279,7 @@ table th {
     @apply font-bold text-center md:text-start mb-5 md:my-0;
   }
   .all_heading input {
-    @apply rounded-sm md:py-2 py-1 px-4 w-[60%]  md:max-w-[250px] max-w-[200px]  md:w-fit;
+    @apply rounded-sm md:py-2 py-1 px-4 w-fit  md:max-w-[250px] max-w-[200px]  md:w-fit;
   }
   .paginate {
     @apply flex justify-end my-3;
