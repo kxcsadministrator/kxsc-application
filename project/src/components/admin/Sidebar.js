@@ -77,7 +77,7 @@ function Sidebar() {
               >
                 <div className="content">
                   <RiMessage2Line />
-                  <h5>Manage Message</h5>
+                  <h5>Messages</h5>
                 </div>
                 <div className="toggleImg">
                   <CgChevronDown />
@@ -152,7 +152,7 @@ function Sidebar() {
               >
                 <div className="content">
                   <AiFillHdd />
-                  <h5>Manage Resources Types</h5>
+                  <h5>Manage Resource Types</h5>
                 </div>
                 <div className="toggleImg">
                   <CgChevronDown />
@@ -268,7 +268,7 @@ function Sidebar() {
               {/* User Menu*/}
               <div className="dropdown_menu">
                 <Link className="link" to="/admin/create-blog">
-                  <p>new Post</p>
+                  <p>New Post</p>
                 </Link>
                 <Link className="link" to="/admin/blog">
                   <p>Blogs Posts</p>
@@ -277,10 +277,10 @@ function Sidebar() {
             </div>
 
             {/* Blog Items */}
-            <Link to="/admin" className="content_1 link">
+            {/* <Link to="/admin" className="content_1 link">
               <GoSignIn />
               <h5>Manage Newsletter SignUp</h5>
-            </Link>
+            </Link> */}
             <div className="content_1 link" onClick={() => logout()}>
               <AiOutlineLogout />
               <h5>Log Out</h5>
@@ -376,7 +376,7 @@ function Sidebar() {
                   <p>{user?.main_institute?.name}</p>
                 </div>
                 <Link className="link" to="/admin/institutes">
-                  <p>View all institute</p>
+                  <p>View all institutes</p>
                 </Link>
               </div>
               <div className="dash" />
@@ -385,7 +385,7 @@ function Sidebar() {
             {/* Profile */}
             <Link to="/admin/profile" className="content_1 link">
               <FaUserAlt />
-              <h5>My profile</h5>
+              <h5>My Profile</h5>
             </Link>
 
             <div className="content_1 link" onClick={() => logout()}>
