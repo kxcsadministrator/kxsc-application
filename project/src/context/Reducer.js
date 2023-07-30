@@ -9,14 +9,20 @@ const Reducer = (state, action) => {
       };
     case "LOGIN_SUCCESS":
       return {
-        user: action.payload,
+        user: {
+          ...action.payload,
+          tokenExpiration: Date.now() + 259200000,
+        },
         userPublic: null,
         isFetching: false,
         error: "",
       };
     case "LOGIN_SUCCESS_PUBLIC":
       return {
-        userPublic: action.payload,
+        userPublic: {
+          ...action.payload,
+          tokenExpirationPublic: Date.now() + 259200000,
+        },
         user: null,
         isFetching: false,
         error: "",

@@ -128,6 +128,12 @@ function Institutes() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
+          <button
+            className="btn_green mb-4"
+            onClick={() => navigateCreateInstu()}
+          >
+            Create Institute
+          </button>
           {states.loading ? (
             <div>
               <h1>Loading</h1>
@@ -139,12 +145,6 @@ function Institutes() {
               <div className="flex md:flex-row flex-col md:items-center md:justify-between w-full">
                 <h1>All Institute</h1>
                 <div className="flex gap-2 justify-between">
-                  <button
-                    className="btn_green"
-                    onClick={() => navigateCreateInstu()}
-                  >
-                    Create Institute
-                  </button>
                   <div>
                     <input
                       placeholder="Search Institute"
