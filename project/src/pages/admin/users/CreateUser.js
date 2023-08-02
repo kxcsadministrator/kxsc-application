@@ -52,8 +52,10 @@ function CreateUser() {
       } catch (err) {
         setStates({
           loading: false,
-          error: false,
-          errMsg: err.response.data.message,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
         });
       }
     } else {
@@ -75,11 +77,12 @@ function CreateUser() {
         setStates({ loading: false, error: false });
         navigate("/admin/users");
       } catch (err) {
-        console.log(err);
         setStates({
           loading: false,
-          error: false,
-          errMsg: err.response.data.message,
+          error: true,
+          errMsg: err.response.data.errors
+            ? err.response.data.errors[0].msg
+            : err.response.data.message,
         });
       }
     }
@@ -162,13 +165,9 @@ function CreateUser() {
                 <div>
                   <p>Loading...</p>
                 </div>
-              ) : states.err ? (
+              ) : states.error ? (
                 <div>
-                  {states.errMsg.map((msg) => (
-                    <div key={msg.param}>
-                      <p>{msg.msg}</p>
-                    </div>
-                  ))}
+                  <p className="text-sm text-red-600">{states.errMsg}</p>
                 </div>
               ) : (
                 <div></div>
