@@ -47,16 +47,15 @@ function Footer() {
         <div className="foo-ter d-flex">
           <div className="ffter d-flex">
             {sections?.map((section, index) => (
-              <div className="footer-content" key={index}>
+              <div className="" key={index}>
                 {section.children[0] && <h5>{section.name}</h5>}
-                <ul>
+                <div>
                   {section.children.map((page, index) => (
-                    <li
+                    <div
                       key={index}
                       onClick={() => navPage(page, section)}
-                      className="cursor-pointer hover:text-gray-400 flex flex-row-reverse gap-3 items-center"
+                      className="cursor-pointer hover:text-gray-400 flex  gap-3 items-center"
                     >
-                      <span>{page.title}</span>
                       {page?.icon && (
                         <span>
                           {" "}
@@ -69,9 +68,10 @@ function Footer() {
                           />
                         </span>
                       )}
-                    </li>
+                      <span>{page.title}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             ))}
 
@@ -104,34 +104,33 @@ function Footer() {
         </div>
       </div>
       <div className="mobile--footer">
-        <div className="f_conts flex flex-col py-2 ml-0">
-          <div className="f-cont flex flex-col">
+        <div className="footerM">
+          <div className="">
             {sections?.map((section, index) => (
-              <div className="footer-content" key={index}>
+              <div className="flex flex-col my-4" key={index}>
                 <h5>{section.name}</h5>
-                <ul>
-                  {section.children.map((page, index) => (
-                    <li
-                      key={index}
-                      onClick={() => navPage(page, section)}
-                      className="cursor-pointer hover:text-gray-400 flex flex-row-reverse gap-3 items-center"
-                    >
-                      <span>{page.title}</span>
-                      {page?.icon && (
-                        <span>
-                          {" "}
-                          <img
-                            src={`${API_URL.user}/${page?.icon.substring(
-                              page?.icon?.indexOf("uploads/")
-                            )}`}
-                            alt="default"
-                            className="object-cover h-[20px] w-[20px] rounded-md"
-                          />
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+
+                {section.children.map((page, index) => (
+                  <div
+                    key={index}
+                    onClick={() => navPage(page, section)}
+                    className="cursor-pointer hover:text-gray-400 flex  gap-3 items-center -mt-1 mb-[10px]"
+                  >
+                    {page?.icon && (
+                      <span>
+                        {" "}
+                        <img
+                          src={`${API_URL.user}/${page?.icon.substring(
+                            page?.icon?.indexOf("uploads/")
+                          )}`}
+                          alt="default"
+                          className="object-cover h-[20px] w-[20px] rounded-md"
+                        />
+                      </span>
+                    )}
+                    <span>{page.title}</span>
+                  </div>
+                ))}
               </div>
             ))}
             {/* <div className="footer--content">

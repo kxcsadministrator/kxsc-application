@@ -148,6 +148,7 @@
   justify-content: space-between;
   padding-top: 70px;
 }
+
 .ffter {
   width: 60%;
   justify-content: space-between;
@@ -1372,4 +1373,9 @@ nav {
     margin: auto;
     width: 160px;
   }
+}
+.footerM {
+  width: 95%;
+  margin: auto;
+  padding-top: 30px;
 }

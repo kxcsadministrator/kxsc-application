@@ -471,9 +471,9 @@ function LandingSearchCategory() {
                   </div>
                 )}
               </div>
-              <div className="info--techss -mt-10">
+              <div className="info--techss -mt-10  md:max-w-[400px] max-w-full overflow-auto">
                 <div className="in4mation">
-                  <h5>Explore Categories</h5>
+                  <h5 className="my-3">Explore Categories</h5>
                 </div>
                 <div className="top-buttons d-flex gap-3">
                   {allCat?.map((cat, index) => (
@@ -487,8 +487,8 @@ function LandingSearchCategory() {
                     </div>
                   ))}
                 </div>
-                <div className="bl-line"></div>
-                <div className="browseby">
+
+                <div className="browseby my-3">
                   <h5>Browse by</h5>
                 </div>
                 <div className="brow">
