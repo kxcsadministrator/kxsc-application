@@ -345,6 +345,11 @@ const get_all_new_user_requests = async(offset, limit) => {
     return data
 }
 
+const deny_user_request = async(id) => {
+    const result = await Model.newUserRequest.findByIdAndDelete(id)
+    return result;
+}
+
 const approve_user_request = async(id) => {
     const result = await Model.newUserRequest.findById(id)
     if (!result) return null
@@ -353,6 +358,10 @@ const approve_user_request = async(id) => {
     const user = new Model.user({
         username: result.username,
         email: result.email,
+        first_name: result.first_name,
+        last_name: result.last_name,
+        phone: result.phone,
+        country: result.country,
         password: await bcrypt.hash(password, SALT_ROUNDS) 
     })
     const data = await user.save()
@@ -884,7 +893,7 @@ module.exports = {
     create_new_notification,
     get_user_notifications, delete_user_notification, get_super_admins, get_institute_admins, get_other_institutes_resources,
     //  new user request
-    create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request, 
+    create_new_user_request, find_new_user_request, get_all_new_user_requests, approve_user_request, deny_user_request,
     // Footer section
     create_new_footer_section, get_section, edit_footer_section, delete_footer_section, create_new_footer_page, get_page, update_page,
     delete_page, get_all_sections,

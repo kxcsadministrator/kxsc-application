@@ -365,6 +365,10 @@ router.post('/admin-publish-request/:institute_id/:resource_id', async (req, res
 router.post('/new-user-request/:id', 
     validator.check("username").isLength({min: 3}).withMessage("username must be at least 3 characters long"),
     validator.check("email").isLength({min: 3}).withMessage("email must be at least 3 characters long"),
+    validator.check("first_name").isLength({min: 2}).withMessage("first_name must be at least 2 characters long"),
+    validator.check("last_name").isLength({min:2}).withMessage("last_name must be at least 2 characters long"),
+    validator.check("phone").isLength({min: 8}).withMessage("phone must be at least 8 characters long"),
+    validator.check("country").isLength({min: 2}).withMessage("country must be at least 2 characters long"),
     async (req, res) => {
     try {
         const institute_id = req.params.id;
@@ -376,6 +380,10 @@ router.post('/new-user-request/:id',
 
         const username = req.body.username
         const email = req.body.email
+        const first_name = req.body.first_name
+        const last_name = req.body.last_name
+        const phone = req.body.phone
+        const country = req.body.country
         
         if (!req.headers.authorization) {
             helpers.log_request_error(`POST users/new-user-request/${req.params.id} - 401: Token not found`)
@@ -416,6 +424,10 @@ router.post('/new-user-request/:id',
         const data = new Model.newUserRequest({
             username: username,
             email: email,
+            first_name: first_name,
+            last_name: last_name,
+            phone: phone,
+            country: country,
             institute: institute_id,
             requester: user._id
         });
@@ -562,6 +574,61 @@ router.post('/approve-user-request/:id', async (req, res) => {
     }
 })
 
+/** 
+ * @swagger
+ * /users/deny-user-request/{request_id}:
+ *  post:
+ *      summary: Denies a request to create a new user
+ *      description: |
+ *          Only an institute admin can deny this request.
+ * 
+ *          Requires a bearer token for authentication
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the request to approve
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.post('/deny-user-request/:id', async (req, res) => {
+    try {
+        const request_id = req.params.id;
+        
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`POST users/deny-user-request/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`POST users/deny-user-request/${req.params.id} - ${validateUser.status}: ${ validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const user = validateUser.data
+        if (!user.superadmin) {
+            helpers.log_request_error(`GET users/deny-user-request/${req.params.id}  - 401: Unauthorized access. Only a superadmin can approve requests`)
+            return res.status(401).json({message: 'Unauthorized access. Only a superadmin can aprrove requests'});
+        }
+
+        const result = await repository.deny_user_request(request_id)
+        helpers.log_request_info(`POST users/deny-user-request/${req.params.id} - 200`);        
+        res.status(200).json({message: "User request denied and removed"});
+    } catch (error) {
+        helpers.log_request_error(
+            `POST users/deny-user-request/${req.params.id} - 400: ${error.message}`
+        )
+        res.status(400).json({error: error.message})
+    }
+})
 
 /** 
  * @swagger

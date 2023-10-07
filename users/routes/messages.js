@@ -401,7 +401,7 @@ router.get('/all', async (req, res) => {
 
 /** 
  * @swagger
- * /my-messages:
+ * /messages/my-messages:
  *  get:
  *      summary: Gets all the messages the requester is a recipient of.
  *      description: |
@@ -440,7 +440,7 @@ router.get('/my-messages', async (req, res) => {
 
 /** 
  * @swagger
- * /sent-messages:
+ * /messages/sent-messages:
  *  get:
  *      summary: Gets all the messages the requester is a sender of.
  *      description: |
@@ -479,7 +479,7 @@ router.get('/sent-messages', async (req, res) => {
 
 /** 
  * @swagger
- * /notifications/{id}:
+ * /messages/notifications/{id}:
  *  get:
  *      summary: A long-lived connection for recieving SSEs.
  *      description: |
@@ -524,7 +524,7 @@ router.get('/notifications/:id', async(req, res) => {
 
 /** 
  * @swagger
- * /notifications:
+ * /messages/notifications:
  *  delete:
  *      summary: Delete read notifications
  *      description: |
