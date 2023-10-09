@@ -97,9 +97,14 @@ function Footer() {
         <div className="border_line"></div>
         <br />
         <div className="f-list">
-          <Link to="/blog" className="f-list no-underline text-black ">
-            <p className="hover:text-gray-400">Our Blog</p>
+          <p className="mb-2 font-semibold">Links</p>
+          <Link to="/categories" className="no-underline text-black  ">
+            <p className="hover:text-gray-400">All Categories</p>
           </Link>
+          <Link to="/blog" className="no-underline text-black ">
+            <p className="hover:text-gray-400 -mt-2">Our Blog</p>
+          </Link>
+
           <h5>Copyright &copy; kxc Inc.2023</h5>
         </div>
       </div>
@@ -176,12 +181,14 @@ function Footer() {
 
         <br />
         <div className="f-list">
-          <Link
-            to="/blog"
-            className="footer-content mt-2 no-underline text-black hover:text-gray-400"
-          >
-            <p className="hover:text-gray-400">Our Blog</p>
+          <p className="mb-3 font-semibold">Links</p>
+          <Link to="/categories" className=" no-underline text-black ">
+            <p className="hover:text-gray-400">All Categories</p>
           </Link>
+          <Link to="/blog" className=" no-underline text-black ">
+            <p className="hover:text-gray-400 -mt-2">Our Blog</p>
+          </Link>
+
           <h5>Copyright &copy; kxc Inc.2023</h5>
         </div>
       </div>

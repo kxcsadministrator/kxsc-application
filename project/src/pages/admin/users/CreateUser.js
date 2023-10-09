@@ -121,6 +121,7 @@ function CreateUser() {
               <input
                 placeholder="Phone Number"
                 value={phoneNumber}
+                type="number"
                 onChange={(e) => setPhoneNumber(e.target.value)}
               />
             </div>

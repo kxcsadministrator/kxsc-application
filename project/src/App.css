@@ -143,7 +143,7 @@
   margin-top: 50px;
 }
 .foo-ter {
-  width: 95%;
+  width: 90%;
   margin: auto;
   justify-content: space-between;
   padding-top: 70px;
@@ -577,6 +577,9 @@ nav {
   border: 1px solid #e5e7eb;
   border-radius: 16px;
   padding: 5px 15px;
+}
+.tech__btn:hover {
+  border: 1px solid #b2b2b2;
 }
 .top-buttons {
   margin-bottom: 4px;

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useContext, useState } from "react";
 import axios from "axios";
 import { Context } from "../../../../context/Context";
+import { countries } from "countries-list";
 import { useNavigate } from "react-router-dom";
 import API_URL from "../../../../Url";
 
@@ -8,8 +9,12 @@ function AddMemberModal({ setMemberModal, instituteId }) {
   //states
   const [username, setUsername] = useState("");
   const [newUser, setNewUser] = useState(false);
-  const [newEmail, setNewEmail] = useState("");
+  const [newFirstName, setNewFirstName] = useState("");
+  const [newLastName, setNewLastName] = useState("");
   const [newUsername, setNewUsername] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newPhoneNumber, setNewPhoneNumber] = useState("");
+  const [newSelectedCountry, setNewSelectedCountry] = useState("");
 
   const { user } = useContext(Context);
   const [members, setMembers] = useState([]);
@@ -28,6 +33,11 @@ function AddMemberModal({ setMemberModal, instituteId }) {
   const handleClick = (index) => setActiveIndex(index);
   const checkActive = (index, className) =>
     activeIndex === index ? className : "";
+
+  const handleCountrySelect = (event) => {
+    const country = event.target.value;
+    setNewSelectedCountry(country);
+  };
 
   //function removes modal when dom is clicked
   useEffect(() => {
@@ -57,6 +67,8 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     getMembers();
   }, [instituteId, user.jwt_token, username]);
 
+  console.log(user.jwt_token);
+
   //submit member
   const submitMember = async (e) => {
     e.preventDefault();
@@ -65,6 +77,14 @@ function AddMemberModal({ setMemberModal, instituteId }) {
       try {
         const res = await axios.post(
           `${API_URL.institute}/institutes/new-user-request/${instituteId}`,
+          {
+            first_name: newFirstName,
+            last_name: newLastName,
+            phone: newPhoneNumber,
+            country: newSelectedCountry,
+            username: newUsername,
+            email: newEmail,
+          },
           {
             username: newUsername,
             email: newEmail,
@@ -155,8 +175,39 @@ function AddMemberModal({ setMemberModal, instituteId }) {
               </div>
               <div className={`panelMsg ${checkActive(2, "active")}`}>
                 <input
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
+                  placeholder="First Name"
+                  value={newFirstName}
+                  onChange={(e) => setNewFirstName(e.target.value)}
+                />
+                <input
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
+                  placeholder="First Name"
+                  value={newLastName}
+                  onChange={(e) => setNewLastName(e.target.value)}
+                />
+                <input
+                  placeholder="Phone Number"
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
+                  type="tel"
+                  value={newPhoneNumber}
+                  onChange={(e) => setNewPhoneNumber(e.target.value)}
+                />
+                <select
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
+                  value={newSelectedCountry}
+                  onChange={handleCountrySelect}
+                >
+                  <option value="">Select a country</option>
+                  {Object.keys(countries).map((countryCode) => (
+                    <option key={countryCode} value={countryCode}>
+                      {countries[countryCode].name}
+                    </option>
+                  ))}
+                </select>
+                <input
                   placeholder="Username"
-                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
                   value={newUsername}
                   onChange={(e) => {
                     setNewUsername(e.target.value);
@@ -164,7 +215,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
                 />
                 <input
                   placeholder="Email"
-                  className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+                  className="w-[100%] h-10 bg-gray_bg px-3 py-1"
                   value={newEmail}
                   onChange={(e) => {
                     setNewEmail(e.target.value);

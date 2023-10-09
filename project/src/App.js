@@ -29,9 +29,7 @@ import OtherResources from "./pages/admin/resources/OtherResources";
 import UserRequests from "./pages/admin/users/UserRequests";
 import LandingPage from "./components/landing/LandingPage";
 import LandingsearchIndividualpage from "./components/landing/LandingsearchIndividualpage";
-import Footer from "./components/landing/Footer";
 import CategoryLanding from "./components/landing/CategoryLanding";
-import CategorysinglePage from "./components/landing/CategorysinglePage";
 import ModalOne from "./components/landing/ModalOne";
 import ModalTwo from "./components/landing/ModalTwo";
 import LandingsearchResult from "./components/landing/LandingsearchResult";
@@ -56,6 +54,8 @@ import LandingSearchTypes from "./components/landing/LandingSearchTypes";
 import LoginPublic from "./pages/login/LoginPublic";
 import SignUpPublic from "./pages/sign_up/SignUpPublic";
 import PublicProfile from "./components/landing/PublicProfile";
+import KxcDoc from "./pages/documentation/KxcDoc";
+import PublicCategories from "./components/landing/PublicCategories";
 
 function App() {
   const { user, userPublic } = useContext(Context);
@@ -205,6 +205,8 @@ function App() {
           <Route path="Landmobile" element={<Landmobile />} />
           <Route path="Compo" element={<Compo />} />
           <Route path="production" element={<Production />} />
+          <Route path="/docs" element={<KxcDoc />} />
+          <Route path="/categories" element={<PublicCategories />} />
         </Routes>
       </div>
     </BrowserRouter>
