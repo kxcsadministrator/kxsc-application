@@ -19,7 +19,10 @@ function RequestModalR({ states, setRequestModal }) {
 
   return (
     <div className="modal_container">
-      <div className="modal_content min-h-[25%] p-3" ref={menuRef}>
+      <div
+        className="modal_content min-h-[25%] p-3 flex flex-col  items-center justify-center "
+        ref={menuRef}
+      >
         {states.loading ? (
           <div>
             <p className="text-gray-400 text-3xl text-center">Loading...</p>
@@ -31,7 +34,7 @@ function RequestModalR({ states, setRequestModal }) {
             </p>
           </div>
         ) : states.success ? (
-          <div className="flex h-full items-center justify-center gap-4 text-green-400 ">
+          <div className="flex  items-center justify-center gap-4 text-green-400 ">
             <p className="text-2xl font-semibold text-center">Success</p>
             <p>
               <VscPassFilled size="2rem" />

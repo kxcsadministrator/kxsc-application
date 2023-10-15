@@ -44,23 +44,36 @@ function BarChart() {
     };
     getAll();
   }, [user.jwt_token]);
+
+  console.log(resources);
+  console.log(chartData);
   return (
     <div className="h-full">
-      <Bar
-        data={chartData}
-        options={{
-          plugins: {
-            title: {
-              display: true,
-              text: "Monthly Resources",
-            },
-            legend: {
-              display: false,
-            },
-          },
-          maintainAspectRatio: false,
-        }}
-      />
+      {resources?.length > 0 ? (
+        <>
+          <Bar
+            data={chartData}
+            options={{
+              plugins: {
+                title: {
+                  display: true,
+                  text: "Monthly Resources",
+                },
+                legend: {
+                  display: false,
+                },
+              },
+              maintainAspectRatio: false,
+            }}
+          />
+        </>
+      ) : (
+        <div className="flex items-center justify-center h-full w-full">
+          <p className="text-center text-sm ">
+            No data Available for Resources Bar chart
+          </p>
+        </div>
+      )}
     </div>
   );
 }

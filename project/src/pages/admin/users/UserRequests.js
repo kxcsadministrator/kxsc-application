@@ -109,6 +109,31 @@ function UserRequests() {
     }
   };
 
+   const denyUser = async (id) => {
+     setStates({ loading: true, error: false, success: false });
+     setRequestModal(true);
+     try {
+       const res = await axios({
+         method: "post",
+         url: `${API_URL.user}/users/deny-user-request/${id}`,
+         headers: { Authorization: `Bearer ${user.jwt_token}` },
+       });
+       setStates({ loading: false, error: false, success: true });
+       setTimeout(() => {
+         setRequestModal(false);
+         window.location.reload(false);
+       }, 3000);
+     } catch (err) {
+       setStates({
+         loading: false,
+         error: true,
+         errMsg: err.response.data.errors
+           ? err.response.data.errors[0].msg
+           : err.response.data.message,
+       });
+     }
+   };
+
   return (
     <div>
       <div className="base_container">
@@ -160,12 +185,18 @@ function UserRequests() {
                             <td data-label="Institute">
                               {request.institute.name}
                             </td>
-                            <td>
+                            <td className="flex gap-2 items-center">
                               <button
-                                className="btn_green"
+                                className="btn_green max-w-[100px]"
                                 onClick={() => acceptUser(request._id)}
                               >
                                 Accept
+                              </button>
+                              <button
+                                className="btn_red max-w-[100px] "
+                                onClick={() => denyUser(request._id)}
+                              >
+                                Deny
                               </button>
                             </td>
                           </tr>

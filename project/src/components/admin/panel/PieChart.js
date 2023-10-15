@@ -36,24 +36,36 @@ function PieChart() {
     };
     getAll();
   }, [user.jwt_token]);
+
+  console.log(resource);
   return (
     <>
       <div className="max-w-[300px] w-full h-full">
-        <Pie
-          data={chartData}
-          options={{
-            plugins: {
-              title: {
-                display: true,
-                text: "Resources Stats",
-              },
-              legend: {
-                display: true,
-              },
-            },
-            maintainAspectRatio: false,
-          }}
-        />
+        {resource?.length > 0 ? (
+          <>
+            <Pie
+              data={chartData}
+              options={{
+                plugins: {
+                  title: {
+                    display: true,
+                    text: "Resources Stats",
+                  },
+                  legend: {
+                    display: true,
+                  },
+                },
+                maintainAspectRatio: false,
+              }}
+            />
+          </>
+        ) : (
+          <div className="flex items-center justify-center h-full w-full">
+            <p className="text-center text-sm ">
+              No data Available for Resource Pie chart
+            </p>
+          </div>
+        )}
       </div>
     </>
   );

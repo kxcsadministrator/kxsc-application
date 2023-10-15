@@ -21,7 +21,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
   const [states, setStates] = useState({
     loading: false,
     error: false,
-    errMsg: "",
+    errMsg: [],
     success: false,
   });
 
@@ -75,9 +75,10 @@ function AddMemberModal({ setMemberModal, instituteId }) {
     setStates({ loading: true, error: false });
     if (newUser) {
       try {
-        const res = await axios.post(
-          `${API_URL.institute}/institutes/new-user-request/${instituteId}`,
-          {
+        const res = await axios({
+          method: "post",
+          url: `${API_URL.user}/users/new-user-request/${instituteId}`,
+          data: {
             first_name: newFirstName,
             last_name: newLastName,
             phone: newPhoneNumber,
@@ -85,22 +86,21 @@ function AddMemberModal({ setMemberModal, instituteId }) {
             username: newUsername,
             email: newEmail,
           },
-          {
-            username: newUsername,
-            email: newEmail,
-          },
-          { headers: { Authorization: `Bearer ${user.jwt_token}` } }
-        );
+          headers: { Authorization: `Bearer ${user.jwt_token}` },
+        });
+
         setStates({ loading: false, error: false, success: true });
         setTimeout(() => {
           setMemberModal(false);
           window.location.reload(false);
         }, 3000);
       } catch (err) {
+        console.log(err);
         setStates({
           loading: false,
           error: true,
-          errMsg: err.response.data.message,
+          errMsg:
+            err.response.data?.message || err.response.data?.errors[0].msg,
           success: false,
         });
       }
@@ -182,7 +182,7 @@ function AddMemberModal({ setMemberModal, instituteId }) {
                 />
                 <input
                   className="w-[100%] h-10 bg-gray_bg px-3 py-1"
-                  placeholder="First Name"
+                  placeholder="Last Name"
                   value={newLastName}
                   onChange={(e) => setNewLastName(e.target.value)}
                 />
