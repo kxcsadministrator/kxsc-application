@@ -14,23 +14,22 @@ export const ContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(Reducer, INITIAL_STATE);
 
   useEffect(() => {
-    const isLoggedIn = state.user && state.user.token;
-    const tokenExpiration = state.user && state.user.tokenExpiration;
+    const isLoggedIn = state.user && state.user?.jwt_token;
+    const tokenExpiration = state.user?.tokenExpiration;
 
-    const isLoggedPublicIn = state.userPublic && state.userPublic.token;
-    const tokenExpirationPublic =
-      state.userPublic && state.userPublic.tokenExpirationPublic;
+    const isLoggedPublicIn = state.userPublic?.jwt_token;
+    const tokenExpirationPublic = state.userPublic?.tokenExpirationPublic;
 
-    if (isLoggedIn && tokenExpiration && Date.now() >= tokenExpiration) {
+    if (isLoggedIn && Date.now() >= tokenExpiration) {
       dispatch({ type: "LOGOUT" });
+      localStorage.removeItem("user");
+      localStorage.removeItem("userPublic");
     }
 
-    if (
-      isLoggedPublicIn &&
-      tokenExpirationPublic &&
-      Date.now() >= tokenExpirationPublic
-    ) {
+    if (isLoggedPublicIn && Date.now() >= tokenExpirationPublic) {
       dispatch({ type: "LOGOUT" });
+      localStorage.removeItem("user");
+      localStorage.removeItem("userPublic");
     }
 
     localStorage.setItem("user", JSON.stringify(state.user));

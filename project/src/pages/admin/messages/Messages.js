@@ -36,12 +36,14 @@ function Messages() {
         setStates({ loading: false, error: false });
         setAllMsg(res.data);
       } catch (err) {
+        console.log(err);
         setStates({
           loading: false,
-          error: false,
-          errMsg: err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : err.response.data.message,
+          error: true,
+          errMsg:
+            err.response?.data?.errors?.[0].msg ||
+            err.response?.data?.message ||
+            err.response?.message,
         });
       }
     };
@@ -54,12 +56,14 @@ function Messages() {
         setStates({ loading: false, error: false });
         setSentMsg(res.data);
       } catch (err) {
+        console.log(err);
         setStates({
           loading: false,
-          error: false,
-          errMsg: err.response.data.errors
-            ? err.response.data.errors[0].msg
-            : err.response.data.message,
+          error: true,
+          errMsg:
+            err.response?.data?.errors?.[0].msg ||
+            err.response?.data?.message ||
+            err.response?.message,
         });
       }
     };
@@ -174,7 +178,7 @@ function Messages() {
                     handleClick(1);
                   }}
                 >
-                  Sent Messages
+                  Received messages
                 </div>
 
                 <div
@@ -183,7 +187,7 @@ function Messages() {
                     handleClick(2);
                   }}
                 >
-                  Received messages
+                  Sent Messages
                 </div>
               </div>
               <div className={`panelMsg ${checkActive(1, "active")}`}>

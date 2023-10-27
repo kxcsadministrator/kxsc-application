@@ -103,7 +103,6 @@ function CreateMessage() {
     }
   };
 
-  console.log(message);
 
   return (
     <div className="base_container">
