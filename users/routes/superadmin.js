@@ -82,8 +82,12 @@ router.post('/new/super-admin', validator.checkSchema(schemas.newUserSchema), as
 
         const data = new Model.user({
             username: req.body.username,
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
             email: req.body.email,
             password: await bcrypt.hash(req.body.password, SALT_ROUNDS),
+            phone: req.body.phone,
+            country: req.body.country,
             superadmin: true
         })
         const result = await repository.create_new_user(data);
