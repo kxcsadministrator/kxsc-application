@@ -512,11 +512,12 @@ const get_message_by_id = async (id) => {
     return result;
 }
 
-const broadcast_message = async(sender_id, message) => {
+const broadcast_message = async(sender_id, subject, message) => {
     const recipient_idx = await Model.institute.find().distinct('admins');
     const data = new Model.message({
         sender: sender_id,
         recipients: recipient_idx,
+        subject: subject,
         body: message
     })
     const dataToSave = await data.save();
