@@ -14,6 +14,7 @@ function CreateMessage() {
   const [message, setMessage] = useState("");
   const [recipient, setRecipient] = useState("");
   const [subject, setSubject] = useState("");
+  const [subjectInst, setSubjectInst] = useState("");
   const [adminMsg, setAdminMsg] = useState(false);
   const [states, setStates] = useState({
     loading: false,
@@ -63,6 +64,7 @@ function CreateMessage() {
         const res = await axios.post(
           `${API_URL.user}/messages/broadcast/`,
           {
+            subject: subjectInst,
             body: message,
           },
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
@@ -70,6 +72,7 @@ function CreateMessage() {
         setStates({ loading: false, error: false });
         navigate("/admin/messages");
       } catch (err) {
+        console.log(err);
         setStates({
           loading: false,
           error: true,
@@ -102,7 +105,6 @@ function CreateMessage() {
       }
     }
   };
-
 
   return (
     <div className="base_container">
@@ -164,12 +166,6 @@ function CreateMessage() {
                   />
                 </div>
                 <div className="w-full">
-                  {/* <textarea
-                  placeholder="Message"
-                  className="message_input"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                /> */}
                   <label className="my-3">Message</label>
                   <CKEditor
                     editor={ClassicEditor}
@@ -184,12 +180,14 @@ function CreateMessage() {
 
               <div className={`panelMsg ${checkActive(2, "active")}`}>
                 <div className="w-full">
-                  {/* <textarea
-                  placeholder="Message"
-                  className="message_input"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                /> */}
+                  <input
+                    placeholder="Subject"
+                    className="message_input"
+                    value={subjectInst}
+                    onChange={(e) => setSubjectInst(e.target.value)}
+                  />
+                </div>
+                <div className="w-full">
                   <label className="my-3">Message</label>
                   <CKEditor
                     editor={ClassicEditor}
