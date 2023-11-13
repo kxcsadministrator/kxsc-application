@@ -163,6 +163,7 @@ router.post('/send-institute-notification/:id',
  *      description: Bad request
 */
 router.post('/broadcast', 
+    validator.check("subject").notEmpty().withMessage("subject must not be empty"),
     validator.check('body').notEmpty().withMessage("body must not be empty"), 
     async (req, res) => {
         try {
@@ -189,7 +190,7 @@ router.post('/broadcast',
                 return res.status(401).json({message: 'Unauthorized access. Only a superadmin can broadcast messages'});
             }
 
-            const result = await repository.broadcast_message(user._id, req.body.body);
+            const result = await repository.broadcast_message(user._id, req.body.subject, req.body.body);
 
             helpers.log_request_info(`POST messages/broadcast - 200`)
             res.status(200).json(result);

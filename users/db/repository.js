@@ -512,11 +512,12 @@ const get_message_by_id = async (id) => {
     return result;
 }
 
-const broadcast_message = async(sender_id, message) => {
+const broadcast_message = async(sender_id, subject, message) => {
     const recipient_idx = await Model.institute.find().distinct('admins');
     const data = new Model.message({
         sender: sender_id,
         recipients: recipient_idx,
+        subject: subject,
         body: message
     })
     const dataToSave = await data.save();
@@ -525,28 +526,20 @@ const broadcast_message = async(sender_id, message) => {
 
 const get_user_messages = async (user_id) => {
     const result = await Model.message.find({recipients: user_id}, {_id: 1, sender: 1, subject: 1, body: 1, date_created: 1});
-    // const result = await Model.message.aggregate([
-    //     {
-    //         $lookup: {
-    //             from: "users",
-    //             localField: "sender",
-    //             foreignField: "_id",
-    //             as: "sender_info"
-    //         }
-    //     }
-    // ])
     const messages = []
     for (let i = 0; i < result.length; i++) {
         const msg = result[i];
         let sender_info = await Model.user.findById(msg.sender)
-        let data = {
-            _id: msg._id,
-            sender: {_id: sender_info._id,username:sender_info.username},
-            subject: msg.subject,
-            body: msg.body,
-            date_created: new Date(msg.date_created).toDateString()
+        if (sender_info){
+            let data = {
+                _id: msg._id,
+                sender: {_id: sender_info._id,username:sender_info.username},
+                subject: msg.subject,
+                body: msg.body,
+                date_created: new Date(msg.date_created).toDateString()
+            }
+           messages.push(data)
         }
-       messages.push(data)
     }
     return messages;
 }
@@ -560,7 +553,9 @@ const get_user_sent_messages = async (user_id) => {
         for (let j = 0; j < msg.recipients.length; j++) {
             const r_idx = msg.recipients[j];
             let recipient_info = await Model.user.findById(r_idx)
-            recipients.push({id: recipient_info._id, username: recipient_info.username})
+            if (recipient_info){
+                recipients.push({id: recipient_info._id, username: recipient_info.username})
+            }
         }
         let data = {
             _id: msg._id,
