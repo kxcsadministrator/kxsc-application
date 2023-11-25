@@ -1066,11 +1066,15 @@ router.post('/get-user-from-token',
 
             const decodedToken = jwt.verify(token, SECRET_KEY);
 
-            const user = await repository.get_user_by_id(decodedToken.user_id);
+            let user = await repository.get_user_by_id(decodedToken.user_id);
             
             if (!user) {
-                helpers.log_request_error(`POST users/get-user-from-token - 404: user with id ${decodedToken.user_id} not found`)
-                return res.status(404).json({message: `user with id ${decodedToken.user_id} not found`});
+                // check in public user db
+                user = await repository.get_public_user_by_id(decodedToken.user_id);
+                if (!user){
+                    helpers.log_request_error(`POST users/get-user-from-token - 404: user with id ${decodedToken.user_id} not found`)
+                    return res.status(404).json({message: `user with id ${decodedToken.user_id} not found`});
+                }
             }
             
             helpers.log_request_info(`POST users/get-user-from-token - 200`)
