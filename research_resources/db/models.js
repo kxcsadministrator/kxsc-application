@@ -189,6 +189,40 @@ const userSchema = new mongoose.Schema({
     date_created: {type: Date, default: Date.now} 
 })
 
+const publicUserSchema = new mongoose.Schema({
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+    },
+    first_name: {
+        type: String,
+        required: true,
+    },
+    last_name: {
+        type: String,
+        required: true,
+    },
+    phone : {
+        type: String,
+        required: true
+    },
+    country: {
+        type: String,
+        required: true
+    },
+    email : {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true,
+    },
+    date_created: {type: Date, default: Date.now} 
+})
+
 /*------------------------------------- organizations/research institute schema ----------------------------*/
 const instituteSchema = new mongoose.Schema({
     name: {
@@ -230,6 +264,7 @@ const resourceType = mongoose.model("resourcetype", resourceTypeSchema);
 const resourceLikes = mongoose.model("resourcelikes", likeSchema);
 
 const user = mongoose.model("user", userSchema);
+const publicUser = mongoose.model("publicUser", publicUserSchema);
 const institute = mongoose.model("ResearchInstitute", instituteSchema);
 
-module.exports = { resource, category, resourceFile, rating, user, institute, resourceType, resourceLikes }
+module.exports = { resource, category, resourceFile, rating, user, publicUser, institute, resourceType, resourceLikes }

@@ -29,8 +29,19 @@ const get_resource_user_data = async(resource_id, headers='') => {
 const clean_resource = async (resource, id, headers) => {
     const resource_data = await get_resource_user_data(id, headers);
     const files = await Model.resourceFile.find({parent: id}, {_id: 1, original_name: 1});
-    const num_ratings = await Model.rating.find({resource: id})
-    let date  = new Date(resource.date).toDateString()
+    const ratings = await Model.rating.find({resource: id})
+    let date  = new Date(resource.date).toDateString();
+    let reviews = [];
+    for (let i = 0; i < ratings.length; i++) {
+        reviews.push(
+            {
+                "review": ratings[i].review,
+                "author": await Model.publicUser.findById(ratings[i].author, {_id: 1, username: 1}),
+                "date": new Date(ratings[i].date_created).toDateString()
+            }
+        )
+        
+    }
     const result = {
         "id": id,
         "author": resource_data.author,
@@ -44,7 +55,8 @@ const clean_resource = async (resource, id, headers) => {
         "resource_type": resource.resource_type,
         "citations": resource.citations,
         "rating": resource.rating,
-        "number_of_ratings": num_ratings.length,
+        "number_of_ratings": ratings.length,
+        "reviews": reviews,
         "files": files,
         "date_created": date,
         "has_rated": await validateRate(),
