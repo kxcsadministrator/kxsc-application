@@ -46,6 +46,9 @@ function LandingsearchIndividualpage() {
 
   //requestModal states
 
+  console.log("r", resource);
+  console.log("related", related);
+
   useEffect(() => {
     const getResources = async () => {
       try {
@@ -632,7 +635,7 @@ function LandingsearchIndividualpage() {
                     {reviews?.map((review, index) => (
                       <div className="flex flex-col gap-1" key={index}>
                         <div className="flex gap-3 items-center text-sm">
-                          <p>{review.author.username}</p>
+                          <p>{review.author?.username}</p>
                           <div className="-mt-3">
                             <Rating rating={review.score} />
                           </div>
