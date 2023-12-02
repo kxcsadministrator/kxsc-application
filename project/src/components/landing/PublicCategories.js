@@ -173,7 +173,7 @@ function PublicCategories() {
             <p
               key={index}
               className="border-[1px] tech__btn"
-              onClick={() => newSearch(cat.name.toLowerCase())}
+              onClick={() => newSearch(cat.name)}
             >
               {cat.name}
             </p>

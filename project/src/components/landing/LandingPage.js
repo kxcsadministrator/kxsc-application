@@ -173,7 +173,7 @@ function LandingPage() {
               <div className="ict">
                 <div
                   className="line cursor-pointer"
-                  onClick={() => getCat(allCat?.[1]?.name.toLowerCase())}
+                  onClick={() => getCat(allCat?.[1]?.name)}
                 >
                   <h5>{allCat?.[1]?.name}</h5>
                   {allCat?.[1] &&
@@ -316,7 +316,7 @@ function LandingPage() {
             <div
               className="link text-[#198754] hover:text-gray-600 flex items-center gap-2 md:text-xl text-sm cursor-pointer"
               key={index}
-              onClick={() => getType(type.name.toLowerCase())}
+              onClick={() => getType(type.name)}
             >
               <p>
                 <SiBookstack />

@@ -482,7 +482,7 @@ function LandingSearchTypes() {
                     <div key={index}>
                       <button
                         className="tech__btn"
-                        onClick={() => newSearch(cat.name.toLowerCase())}
+                        onClick={() => newSearch(cat.name)}
                       >
                         {cat.name}
                       </button>
@@ -498,7 +498,7 @@ function LandingSearchTypes() {
                     {types?.map((type, index) => (
                       <h5
                         key={index}
-                        onClick={() => newType(type.name.toLowerCase())}
+                        onClick={() => newType(type.name)}
                         className="cursor-pointer"
                       >
                         {type.name}
@@ -531,7 +531,7 @@ function LandingSearchTypes() {
                   <div key={index}>
                     <button
                       className="tech__btn"
-                      onClick={() => newSearch(cat.name.toLowerCase())}
+                      onClick={() => newSearch(cat.name)}
                     >
                       {cat.name}
                     </button>
@@ -548,7 +548,7 @@ function LandingSearchTypes() {
                   {types?.map((type, index) => (
                     <h5
                       key={index}
-                      onClick={() => newType(type.name.toLowerCase())}
+                      onClick={() => newType(type.name)}
                       className="cursor-pointer"
                     >
                       {type.name}

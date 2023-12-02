@@ -24,7 +24,6 @@ function LandingsearchIndividualpage() {
   const [showDetails, setShowDetails] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
   const [review, setReview] = useState("");
-  const [reviews, setReviews] = useState();
   const [showReviews, setShowReviews] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [submitMsg, setSubmitMsg] = useState(false);
@@ -46,9 +45,6 @@ function LandingsearchIndividualpage() {
 
   //requestModal states
 
-  console.log("r", resource);
-  console.log("related", related);
-
   useEffect(() => {
     const getResources = async () => {
       try {
@@ -69,16 +65,9 @@ function LandingsearchIndividualpage() {
       } catch (err) {}
     };
     getRelated();
-    const getReviews = async () => {
-      try {
-        const res = await axios.get(
-          `${API_URL.resource}/resources/rating/${id}`
-        );
-        setReviews(res.data);
-      } catch (err) {}
-    };
-    getReviews();
   }, [id]);
+
+  console.log(resource);
 
   // const publishRequest = async () => {
   //   try {
@@ -199,6 +188,8 @@ function LandingsearchIndividualpage() {
       alert("Sign Up or Login to download files");
     }
   };
+
+  
 
   return (
     <div>
@@ -615,9 +606,13 @@ function LandingsearchIndividualpage() {
                 ) : (
                   <p></p>
                 )}
-                {reviews?.length ? <p>{reviews.length} review</p> : <p></p>}
+                {resource.reviews?.length ? (
+                  <p>{resource.reviews.length} review</p>
+                ) : (
+                  <p></p>
+                )}
               </div>
-              {reviews ? (
+              {resource.reviews ? (
                 <div className={"show_reviews " + (showReviews && "active")}>
                   <button
                     className="btn_green w-fit bg-slate-300"
@@ -632,12 +627,12 @@ function LandingsearchIndividualpage() {
                     Hide Reviews
                   </button>
                   <div className="reviews my-2">
-                    {reviews?.map((review, index) => (
+                    {resource.reviews?.map((review, index) => (
                       <div className="flex flex-col gap-1" key={index}>
                         <div className="flex gap-3 items-center text-sm">
-                          <p>{review.author?.username}</p>
+                          <p>{review.author.username}</p>
                           <div className="-mt-3">
-                            <Rating rating={review.score} />
+                            <Rating rating={review.rating} />
                           </div>
                         </div>
                         <p>{review.review}</p>
