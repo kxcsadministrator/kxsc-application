@@ -37,7 +37,8 @@ const clean_resource = async (resource, id, headers) => {
             {
                 "review": ratings[i].review,
                 "author": await Model.publicUser.findById(ratings[i].author, {_id: 1, username: 1}),
-                "date": new Date(ratings[i].date_created).toDateString()
+                "date": new Date(ratings[i].date_created).toDateString(),
+                "rating": ratings[i].score
             }
         )
         
