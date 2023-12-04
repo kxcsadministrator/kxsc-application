@@ -105,7 +105,7 @@ function Footer() {
             <p className="hover:text-gray-400 -mt-2">Our Blog</p>
           </Link>
 
-          <h5>Copyright &copy; kxc Inc.2023</h5>
+          <h5>Powered by FMIST</h5>
         </div>
       </div>
       <div className="mobile--footer">
@@ -189,7 +189,7 @@ function Footer() {
             <p className="hover:text-gray-400 -mt-2">Our Blog</p>
           </Link>
 
-          <h5>Copyright &copy; kxc Inc.2023</h5>
+          <h5>Powered by FMIST</h5>
         </div>
       </div>
     </div>
