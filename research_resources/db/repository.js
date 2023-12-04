@@ -553,7 +553,7 @@ const globe_categories = async () => {
         let cat = data[i];
         let r = {
             'name': cat.name,
-            'resources': await Model.resource.find({category: cat.name}).count(),
+            'resources': await Model.resource.find({category: cat.name, visibility: "public"}).count(),
             'id': cat.id,
             'sub_categories': cat.sub_categories,
             'date': cat.date
