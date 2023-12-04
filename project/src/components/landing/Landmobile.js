@@ -1,8 +1,8 @@
 import React from "react";
-import image from "../images/coatOfArm.png";
+import image from "../images/logo-2.png";
 import { IoIosSearch } from "react-icons/io";
 import { Link } from "react-router-dom";
-import image2 from "../images/worldmap.png";
+import image2 from "../images/globe.png";
 
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -84,8 +84,8 @@ function Landmobile() {
     <div>
       <div className="Landmobile">
         <div className="landmb d-flex">
-          <div className="lndmb-image">
-            <img src={image} alt="" />
+          <div className="lndmb-imagew-[100px] h-[100px]">
+            <img src={image} alt="" className="w-full h-full" />
           </div>
           <div className="lndmbtext">
             <h5>Knowledge Exchange</h5>

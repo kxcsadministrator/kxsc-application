@@ -1,5 +1,5 @@
-import image from "../images/coatOfArm.png";
-import image2 from "../images/world.png";
+import image from "../images/logo-2.png";
+import image2 from "../images/globe.png";
 import { IoIosSearch } from "react-icons/io";
 import Footer from "./Footer";
 import { Link } from "react-router-dom";
@@ -88,8 +88,8 @@ function LandingPage() {
     <div>
       <div className="landing-home">
         <div className="landing--home">
-          <div className="land---image">
-            <img src={image} alt="" />
+          <div className="land---image w-[130px] h-[130px]">
+            <img src={image} alt="" className="w-full h-full" />
           </div>
           <div className="landing-text">
             <h3>Knowledge Exchange</h3>
@@ -107,9 +107,9 @@ function LandingPage() {
                 >
                   <h5 className="text-right">{allCat?.[0]?.name}</h5>
                   {allCat?.[0] &&
-                    (allCat?.[0].resource > 0 ? (
+                    (allCat?.[0].resources > 0 ? (
                       <p className="text-right text-sm">
-                        {allCat?.[0]?.resource}+ Articles
+                        {allCat?.[0]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-right text-sm">No Articles</p>
@@ -125,7 +125,7 @@ function LandingPage() {
                   {allCat?.[3] &&
                     (allCat?.[3].resource > 0 ? (
                       <p className="text-right text-sm">
-                        {allCat?.[3]?.resource}+ Articles
+                        {allCat?.[3]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-right text-sm">No Articles</p>
@@ -140,9 +140,9 @@ function LandingPage() {
                 >
                   <h5 className="text-right">{allCat?.[5]?.name}</h5>
                   {allCat?.[5] &&
-                    (allCat?.[5].resource > 0 ? (
+                    (allCat?.[5].resources > 0 ? (
                       <p className="text-right text-sm">
-                        {allCat?.[5]?.resource}+ Articles
+                        {allCat?.[5]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-right text-sm">No Articles</p>
@@ -157,9 +157,9 @@ function LandingPage() {
                 >
                   <h5 className="">{allCat?.[7]?.name}</h5>
                   {allCat?.[7] &&
-                    (allCat?.[7].resource > 0 ? (
+                    (allCat?.[7].resources > 0 ? (
                       <p className="text-right text-sm">
-                        {allCat?.[7]?.resource}+ Articles
+                        {allCat?.[7]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-right text-sm">No Articles</p>
@@ -177,9 +177,9 @@ function LandingPage() {
                 >
                   <h5>{allCat?.[1]?.name}</h5>
                   {allCat?.[1] &&
-                    (allCat?.[1].resource > 0 ? (
+                    (allCat?.[1].resources > 0 ? (
                       <p className="text-sm">
-                        {allCat?.[1]?.resource}+ Articles
+                        {allCat?.[1]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-sm">No Articles</p>
@@ -198,9 +198,9 @@ function LandingPage() {
                 >
                   <h5>{allCat?.[8]?.name}</h5>
                   {allCat?.[8] &&
-                    (allCat?.[8].resource > 0 ? (
+                    (allCat?.[8].resources > 0 ? (
                       <p className="text-sm">
-                        {allCat?.[8]?.resource}+ Articles
+                        {allCat?.[8]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-sm">No Articles</p>
@@ -218,9 +218,9 @@ function LandingPage() {
                 >
                   <h5 className="text-left">{allCat?.[2]?.name}</h5>
                   {allCat?.[2] &&
-                    (allCat?.[2].resource > 0 ? (
+                    (allCat?.[2].resources > 0 ? (
                       <p className="text-left text-sm">
-                        {allCat?.[2]?.resource}+ Articles
+                        {allCat?.[2]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-left text-sm">No Articles</p>
@@ -234,9 +234,9 @@ function LandingPage() {
                 >
                   <h5 className="text-left">{allCat?.[4]?.name}</h5>
                   {allCat?.[4] &&
-                    (allCat?.[4].resource > 0 ? (
+                    (allCat?.[4].resources > 0 ? (
                       <p className="text-left text-sm">
-                        {allCat?.[4]?.resource}+ Articles
+                        {allCat?.[4]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-left text-sm">No Articles</p>
@@ -251,9 +251,9 @@ function LandingPage() {
                 >
                   <h5 className="text-left">{allCat?.[6]?.name}</h5>
                   {allCat?.[6] &&
-                    (allCat?.[6].resource > 0 ? (
+                    (allCat?.[6].resources > 0 ? (
                       <p className="text-left text-sm">
-                        {allCat?.[6]?.resource}+ Articles
+                        {allCat?.[6]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-left text-sm">No Articles</p>
@@ -268,9 +268,9 @@ function LandingPage() {
                 >
                   <h5 className="text-left">{allCat?.[9]?.name}</h5>
                   {allCat?.[9] &&
-                    (allCat?.[9].resource > 0 ? (
+                    (allCat?.[9].resources > 0 ? (
                       <p className="text-left text-sm">
-                        {allCat?.[9]?.resource}+ Articles
+                        {allCat?.[9]?.resources}+ Articles
                       </p>
                     ) : (
                       <p className="text-left text-sm">No Articles</p>
