@@ -91,12 +91,25 @@ function LandingPage() {
           <div className="land---image w-[130px] h-[130px]">
             <img src={image} alt="" className="w-full h-full" />
           </div>
-          <div className="landing-text">
-            <h3>Knowledge Exchange</h3>
-            <p>The Data Knowledge Driven Platform</p>
-          </div>
-          <br />
         </div>
+        <form className="input mb-[50px]" onSubmit={(e) => handleSubmit(e)}>
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control"
+              aria-label="Dollar amount (with dot and two decimal places)"
+              placeholder="Search skills, publication or research"
+              value={searchResource}
+              onChange={(e) => setSearchResource(e.target.value)}
+            />
+            <span className="in-search bg-success input-group-text">
+              <button className="fasearch text-white" type="submit">
+                <IoIosSearch />
+              </button>
+            </span>
+          </div>
+          <p className="text-red-500 text-sm my-2">{errText}</p>
+        </form>
         <div className="globe">
           <div className="globe_item">
             <div className="landing--cont">
@@ -280,34 +293,13 @@ function LandingPage() {
             </div>
           </div>
         </div>
-        <br />
-        <br />
-        <br />
-        <form className="input" onSubmit={(e) => handleSubmit(e)}>
-          <div className="input-group">
-            <input
-              type="text"
-              className="form-control"
-              aria-label="Dollar amount (with dot and two decimal places)"
-              placeholder="Search skills, publication or research"
-              value={searchResource}
-              onChange={(e) => setSearchResource(e.target.value)}
-            />
-            <span className="in-search bg-success input-group-text">
-              <button className="fasearch text-white" type="submit">
-                <IoIosSearch />
-              </button>
-            </span>
-          </div>
-          <p className="text-red-500 text-sm my-2">{errText}</p>
-        </form>
       </div>
       <br />
       <br />
       <div className="border-line"></div>
       <br />
-      <div className="browse text-success">
-        <h5>Browse by:</h5>
+      <div className="browse text-success w-fit">
+        <h5>Browse Research Materials by:</h5>
       </div>
       <br />
       <div>

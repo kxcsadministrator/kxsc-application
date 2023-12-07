@@ -488,7 +488,7 @@ function LandingsearchResult() {
                   ))}
                 </div>
                 <div className="browseby my-3">
-                  <h5>Browse by</h5>
+                  <h5>Browse Research Materials by: </h5>
                 </div>
                 <div className="brow">
                   <div>
@@ -538,7 +538,7 @@ function LandingsearchResult() {
               <hr />
 
               <div className="browseby">
-                <h5>Browse by</h5>
+                <h5>Browse Research Materials by: </h5>
               </div>
               <div className="brow">
                 <div>

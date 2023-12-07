@@ -358,7 +358,7 @@ function PublicProfile() {
               </div>
               <div className="bl-line"></div>
               <div className="browseby">
-                <h5>Browse by</h5>
+                <h5>Browse Research Materials by</h5>
               </div>
               <div className="brow">
                 <div>
@@ -395,7 +395,7 @@ function PublicProfile() {
               <hr />
 
               <div className="browseby">
-                <h5>Browse by</h5>
+                <h5>Browse Research Materials by</h5>
               </div>
               <div className="brow">
                 <div>

@@ -87,10 +87,6 @@ function Landmobile() {
           <div className="lndmb-imagew-[100px] h-[100px]">
             <img src={image} alt="" className="w-full h-full" />
           </div>
-          <div className="lndmbtext">
-            <h5>Knowledge Exchange</h5>
-            <p>The Data Knowledge driven Platform</p>
-          </div>
         </div>
         <div className="w-[90%] mx-auto">
           <form className="w-full" onSubmit={(e) => handleSubmit(e)}>
@@ -121,7 +117,7 @@ function Landmobile() {
         <br />
         <div className="flex flex-col gap-3 -mt-4 ">
           <h5 className="text-center text-[20px] text-gray-600">
-            Browse by: Types
+            Browse Research Materials by: Types
           </h5>
           <div className="flex gap-3 flex-wrap mx-auto justify-center">
             {types?.map((type, index) => (
@@ -139,7 +135,7 @@ function Landmobile() {
         <br />
         <div className="flex flex-col gap-3 -mt-4 ">
           <h1 className="text-center text-[20px]  text-gray-600">
-            Browse by: Categories
+            Browse Research Materials by: Categories
           </h1>
 
           <div className="flex gap-3 flex-wrap mx-auto justify-center">

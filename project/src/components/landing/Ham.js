@@ -78,7 +78,7 @@ function Ham() {
             <hr />
             <div>
               <div className="brow-se">
-                <h5>Browse by</h5>
+                <h5>Browse Research Materials by: </h5>
                 <div className="brwse d-flex">
                   <div>
                     {types?.map((type, index) => (
