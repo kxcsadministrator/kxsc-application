@@ -110,6 +110,13 @@ router.post('/new',
                 sub_categories: unknown_cats
             })
         }
+
+        const resource_type = await repository.get_resource_type(req.body.resource_type)
+        if (!resource_type) {
+            helpers.delete_file(file)
+            helpers.log_request_error(`POST /resources/new - 404: Type: ${req.body.resource_type} not found`)
+            return res.status(404).json({message: `Type: ${req.body.resource_type} not found`});
+        }
         
         const institute_req = await axios({
             method: 'get',
@@ -1609,7 +1616,7 @@ router.delete('/delete/:id', async (req, res) => {
             headers: {'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`}
         })
         
-        const data = await repository.delete_resource_by_id(req);
+        const data = await repository.delete_resource_by_id(req.params.id);
 
         helpers.log_request_info(`DELETE /resources/delete/${req.params.id} - 204`)
         res.status(204).json({message: `Document with topic name: ${data.topic} has been deleted..`});

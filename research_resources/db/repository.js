@@ -307,9 +307,7 @@ const remove_resource_citations =  async (id, cites) => {
     return result;
 }
 
-const delete_resource_by_id = async (req) => {
-    const id = req.params.id;
-
+const delete_resource_by_id = async (id) => {
     const files = await Model.resourceFile.find({parent: id});
     if (files){
         files.map(p => {
@@ -323,6 +321,7 @@ const delete_resource_by_id = async (req) => {
         })
     }
     await Model.resourceFile.deleteMany({parent: id});
+    await remove_resource_avatar(id);
     const data = await Model.resource.findByIdAndDelete(id);
     return data;
 }
@@ -589,6 +588,12 @@ const update_category_by_id = async (id, new_name) => {
 const delete_category_by_id = async (req) => {
     const id = req.params.id;
     const data = await Model.category.findByIdAndDelete(id);
+    let resources = await Model.resource.find({category: data.name})
+    for (let i = 0; i < resources.length; i++) {
+        const resource = resources[i];
+        delete_resource_by_id(resource._id)
+    }
+    // const resource_delete = await Model.resource.deleteMany({category: data.name})
     return data;
 }
 
@@ -660,12 +665,21 @@ const get_all_resource_types = async() => {
 }
 
 const edit_resource_type = async(id, new_name) => {
-    await Model.resourceType.findByIdAndUpdate(id, {name: new_name})
-    return await Model.resourceType.findById(id)
+    const r_type = await Model.resourceType.findByIdAndUpdate(id, {name: new_name})
+    const res = await Model.resourceType.findById(id)
+    const resource_update = await Model.resource.updateMany({resource_type: r_type.name}, {resource_type: new_name})
+    return res;
 }
 
 const delete_resource_type = async(id) => {
-    await Model.resourceType.findByIdAndDelete(id);
+    const res = await Model.resourceType.findByIdAndDelete(id);
+    let resources = await Model.resource.find({resource_type: res.name})
+    for (let i = 0; i < resources.length; i++) {
+        const resource = resources[i];
+        delete_resource_by_id(resource._id)
+    }
+    // const resource_delete = await Model.resource.deleteMany({resource_type: res.name})
+    return res;
 }
 
 const similar_resource = async (keyword, id) => {

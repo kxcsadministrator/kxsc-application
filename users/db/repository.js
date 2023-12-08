@@ -251,6 +251,7 @@ const make_super_admin = async (data) => {
 }
 
 const delete_user = async (data) => {
+    // TODO: Remove all resources and remove from institute.
     const result = await data.deleteOne();
     return result;
 }
@@ -386,8 +387,10 @@ const publish = async (resource_id) => {
     const resource = await get_resource_by_id(resource_id);
     if (!resource) throw new Error(`resource ${resource_id} not found`);
 
-    await Model.resource.findByIdAndUpdate(resource_id, {visibility: "public"});
     const result = await Model.resource.findById(resource_id);
+    await Model.resource.findByIdAndUpdate(resource_id, {visibility: "public"});
+    await Model.institute.findByIdAndUpdate(result.institute._id, {$addToSet: {resources: [resource_id]}});
+    
 
     await Model.pubRequest.findOneAndDelete({resource: resource_id});
     return result;
