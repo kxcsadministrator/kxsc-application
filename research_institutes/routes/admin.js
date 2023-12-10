@@ -1,5 +1,6 @@
 const express = require('express');
 const multer = require("multer");
+const aws = require('aws-sdk');
 const validator = require('express-validator');
 
 const Model = require('../db/models');
@@ -7,7 +8,14 @@ const repository = require('../db/repository');
 const schemas = require('../schemas/institute-schema');
 const helpers = require('../helpers');
 
-const router = express.Router()
+const router = express.Router();
+
+aws.config.update({
+    secretAccessKey: process.env.AWS_SECRET,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    region: 'eu-north-1'
+});
+const s3 = new aws.S3();
 
 
 /** 
@@ -1015,7 +1023,7 @@ router.delete("/delete/:id", async (req, res) => {
             return res.status(404).json({message: `institute with id: ${id} not found`});
         }
 
-        const result = await repository.delete_institute(id);
+        const result = await repository.delete_institute(s3, id);
 
         helpers.log_request_info(`DELETE institutes/delete/${req.params.id} - 204`)
         res.status(204).json({message: `institute with id: ${id} deleted successfully`});
@@ -1113,7 +1121,7 @@ router.delete("/delete-file/:id", async (req, res) => {
         
 
         helpers.log_request_info(`DELETE institutes/delete-files/${req.params.id} - 204`)
-        const result = await repository.delete_institute_file(id);
+        const result = await repository.delete_institute_file(s3, id);
         res.status(204).json({result})
     } catch (error) {
         console.error(error)

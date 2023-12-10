@@ -162,6 +162,18 @@ const delete_file = (path) => {
   )
 }
 
+const delete_s3_file = (s3, filename) => {
+  var params = {
+      Bucket: 'kxcs-files-bucket',
+      Key: filename
+    };
+    
+    s3.deleteObject(params, function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      // else     console.log(data);           // successful response
+    });
+}
+
 const send_request_notification = async(request_type="publish-request") => {
   const recipients = await repository.get_super_admins()
   if (recipients.length < 1) {
@@ -217,5 +229,5 @@ const send_instiute_notification = async(id) => {
 module.exports = {
   sendEmail, validateUser, validatePublicResource, validateInstituteAdmin, log_request_error, log_request_info, get_all_logs,
   prepare_log_response, get_log_files, delete_file, clients, send_request_notification, send_instiute_notification,
-  getAndValidateInstituteAdmin
+  getAndValidateInstituteAdmin, delete_s3_file
 };

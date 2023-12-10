@@ -307,21 +307,22 @@ const remove_resource_citations =  async (id, cites) => {
     return result;
 }
 
-const delete_resource_by_id = async (id) => {
+const delete_resource_by_id = async (s3, id) => {
     const files = await Model.resourceFile.find({parent: id});
     if (files){
         files.map(p => {
-            fs.unlink(p.path, (err) => {
-                    if (err) {
-                        log_request_error(`file unlink: ${err}`)
-                    return
-                    }
-                }
-            )
+            // fs.unlink(p.path, (err) => {
+            //         if (err) {
+            //             log_request_error(`file unlink: ${err}`)
+            //         return
+            //         }
+            //     }
+            // )
+            delete_s3_file(s3, p.name);
         })
     }
     await Model.resourceFile.deleteMany({parent: id});
-    await remove_resource_avatar(id);
+    await remove_resource_avatar(s3, id);
     const data = await Model.resource.findByIdAndDelete(id);
     return data;
 }
@@ -341,26 +342,51 @@ const rate_resource = async (resource_id, user_id, value, review_msg) => {
     return resource;
 }
 
-const update_resource_avatar = async (resource_id, avatar_path) => {
+const update_resource_avatar = async (s3, resource, avatar_path) => {
+    const resource_id = resource._id;
+    console.log(resource_id)
     let parent = await Model.resource.findByIdAndUpdate(resource_id, {avatar: avatar_path});
     parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
+
+    if (resource.avatar){
+        let name_array = resource.avatar.split("/")
+        let fname = name_array[name_array.length - 1];
+        delete_s3_file(s3, fname.replace(/%20/g, " "))
+    }
+    
     return parent;
 }
 
-const remove_resource_avatar = async (resource_id) => {
+const delete_s3_file = (s3, filename) => {
+    var params = {
+        Bucket: 'kxcs-files-bucket',
+        Key: filename
+      };
+      
+      s3.deleteObject(params, function(err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        // else     console.log(data);           // successful response
+      });
+}
+
+const remove_resource_avatar = async (s3, resource_id) => {
     let resource = await Model.resource.findById(resource_id);
     if (!resource.avatar) return resource
 
-    fs.unlink(resource.avatar, (err) => {
-            if (err) {
-            log_request_error(`file unlink: ${err}`)
-            return
-            }
-        }
-    )
+    // fs.unlink(resource.avatar, (err) => {
+    //         if (err) {
+    //         log_request_error(`file unlink: ${err}`)
+    //         return
+    //         }
+    //     }
+    // )
+
+    let name_array = resource.avatar.split("/")
+    let fname = name_array[name_array.length - 1];
+    delete_s3_file(s3, fname.replace(/%20/g, " "));
+
     resource.avatar = undefined;
     resource.save()
-    
     let parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return parent;
 }
@@ -376,17 +402,18 @@ const add_resource_file = async (resource_id, data) => {
     return parent;
 }
 
-const delete_resource_file = async (file_id) => {
+const delete_resource_file = async (s3, file_id) => {
     const file = await Model.resourceFile.findById(file_id);
     const parent_id = file.parent._id.toString()
     const r = await Model.resource.findByIdAndUpdate(parent_id, {$pullAll: {files: [file_id]}});
-    fs.unlink(file.path, (err) => {
-        if (err) {
-        log_request_error(`file unlink: ${err}`)
-        return
-        }
-    }
-    )
+    // fs.unlink(file.path, (err) => {
+    //     if (err) {
+    //     log_request_error(`file unlink: ${err}`)
+    //     return
+    //     }
+    // }
+    // )
+    delete_s3_file(s3, file.name)
     await Model.resourceFile.findByIdAndDelete(file_id);
     const resource =  await Model.resource.findById(parent_id, {_id: 1, topic: 1})
     return resource
@@ -585,13 +612,13 @@ const update_category_by_id = async (id, new_name) => {
 }
 
 
-const delete_category_by_id = async (req) => {
+const delete_category_by_id = async (s3, req) => {
     const id = req.params.id;
     const data = await Model.category.findByIdAndDelete(id);
     let resources = await Model.resource.find({category: data.name})
     for (let i = 0; i < resources.length; i++) {
         const resource = resources[i];
-        delete_resource_by_id(resource._id)
+        delete_resource_by_id(s3, resource._id)
     }
     // const resource_delete = await Model.resource.deleteMany({category: data.name})
     return data;
@@ -671,12 +698,12 @@ const edit_resource_type = async(id, new_name) => {
     return res;
 }
 
-const delete_resource_type = async(id) => {
+const delete_resource_type = async(s3, id) => {
     const res = await Model.resourceType.findByIdAndDelete(id);
     let resources = await Model.resource.find({resource_type: res.name})
     for (let i = 0; i < resources.length; i++) {
         const resource = resources[i];
-        delete_resource_by_id(resource._id)
+        delete_resource_by_id(s3, resource._id)
     }
     // const resource_delete = await Model.resource.deleteMany({resource_type: res.name})
     return res;

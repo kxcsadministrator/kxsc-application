@@ -250,23 +250,72 @@ const make_super_admin = async (data) => {
     return result;
 }
 
+// Below two functions are only used when a user has been deleted
+const remove_institue_admins = async (id, admin_idx) => {
+    const result = await Model.institute.findByIdAndUpdate(id, {$pullAll: {admins: admin_idx}});
+    return result;
+}
+
+const remove_institute_members = async (id, members_idx) => {
+    const result = await Model.institute.findByIdAndUpdate(id, {$pullAll: {members: members_idx}});
+    return result;
+}
+
+const remove_collaborators =  async (id, collab_idx) => {
+    const result = await Model.task.findByIdAndUpdate(id, {$pullAll: {collaborators: collab_idx}});
+    return result;
+}
+
 const delete_user = async (data) => {
     // TODO: Remove all resources and remove from institute.
+    const user_id = data._id;
+    const institutes = await Model.institute.find({$or: [
+        {admins: user_id},
+        {members: user_id}
+    ]})
+    const tasks = await Model.task.find({$or: [
+            {author: user_id},
+            {collaborators: user_id}
+        ]
+    })
+    for (let i = 0; i < tasks.length; index++) {
+        const task = tasks[i];
+        await remove_collaborators(task._id, [user_id])
+        
+    }
+    for (let i = 0; i < institutes.length; i++) {
+        const institute = institutes[i];
+        await remove_institue_admins(institute._id, [user_id]);
+        await remove_institute_members(institute._id, [user_id]);
+    }
     const result = await data.deleteOne();
     return result;
 }
 
-const add_profile_photo =  async (id, data) => {
+const delete_s3_file = (s3, filename) => {
+    var params = {
+        Bucket: 'kxcs-files-bucket',
+        Key: filename
+      };
+      
+      s3.deleteObject(params, function(err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        // else     console.log(data);           // successful response
+      });
+  }
+
+const add_profile_photo =  async (s3, id, data) => {
     const photo = await Model.profilePic.findOne({user: id});
     if (photo){
-        fs.unlink(photo.path, (err) => {
-            if (err) {
-              console.error(err)
-              return
-            }
-        }
-        )
+        // fs.unlink(photo.path, (err) => {
+        //     if (err) {
+        //       console.error(err)
+        //       return
+        //     }
+        // }
+        // )
         photo.deleteOne();
+        delete_s3_file(s3, photo.name);
     } 
     
     const dataToSave = await data.save();
@@ -275,17 +324,18 @@ const add_profile_photo =  async (id, data) => {
     return result;
 }
 
-const remove_profile_photo = async (photo_id, user_id) => {
+const remove_profile_photo = async (s3, photo_id, user_id) => {
     const photo = await Model.profilePic.findById(photo_id);
     if (photo){
-        fs.unlink(photo.path, (err) => {
-            if (err) {
-              console.error(err)
-              return
-            }
-        }
-        )
+        // fs.unlink(photo.path, (err) => {
+        //     if (err) {
+        //       console.error(err)
+        //       return
+        //     }
+        // }
+        // )
         photo.deleteOne();
+        delete_s3_file(s3, photo.name);
     }
 
     await Model.user.findByIdAndUpdate(user_id, {profile_picture: null});

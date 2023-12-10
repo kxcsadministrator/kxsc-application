@@ -64,15 +64,28 @@ const log_request_info = async (message) => {
     }
 }
 
-const delete_file = (file) => {
+const delete_file = (s3, file) => {
   if (!file) return
-  fs.unlink(file.path, (err) => {
-      if (err) {
-        log_request_error(`file unlink: ${err}`)
-        return
-      }
-    }
-  )
+  // fs.unlink(file.path, (err) => {
+  //     if (err) {
+  //       log_request_error(`file unlink: ${err}`)
+  //       return
+  //     }
+  //   }
+  // )
+  delete_s3_file(s3, file.name);
 }
 
-module.exports = {validateArray, validateUser, validateTopicName, log_request_error, log_request_info, delete_file};
+const delete_s3_file = (s3, filename) => {
+  var params = {
+      Bucket: 'kxcs-files-bucket',
+      Key: filename
+    };
+    
+    s3.deleteObject(params, function(err, data) {
+      if (err) console.log(err, err.stack); // an error occurred
+      // else     console.log(data);           // successful response
+    });
+}
+
+module.exports = {validateArray, validateUser, validateTopicName, log_request_error, log_request_info, delete_file, delete_s3_file};

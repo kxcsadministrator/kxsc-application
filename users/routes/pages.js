@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require("multer");
 const validator = require('express-validator');
 const jwt = require("jsonwebtoken");
+const aws = require('aws-sdk');
+const multerS3 = require('multer-s3');
 
 const Model = require('../db/models');
 const repository = require('../db/repository');
@@ -12,17 +14,36 @@ const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
 
 const FILE_PATH = "files/uploads/"
 const maxSize = 2000000
-const storage = multer.diskStorage({
-    destination: FILE_PATH,
-    limits: { fileSize: maxSize },
-    filename: (req, file, callback) => {
-        const date = Date.now()
-        callback(null, date.toString() + "-" + file.originalname);
-    }
+// const storage = multer.diskStorage({
+//     destination: FILE_PATH,
+//     limits: { fileSize: maxSize },
+//     filename: (req, file, callback) => {
+//         const date = Date.now()
+//         callback(null, date.toString() + "-" + file.originalname);
+//     }
+// });
+aws.config.update({
+    secretAccessKey: process.env.AWS_SECRET,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    region: 'eu-north-1'
 });
 
+const s3 = new aws.S3();
+
+const aws_storage = multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: 'kxcs-files-bucket',
+    key: function (req, file, cb) {
+        // console.log(file);
+        const date = Date.now()
+        cb(null, date.toString() + "-" + file.originalname);
+        // cb(null, file.originalname); //use Date.now() for unique file keys
+    }
+})
+
 const upload = multer({ 
-    storage: storage
+    storage: aws_storage
 });
 
 /** 
@@ -322,13 +343,13 @@ router.post("/new-page/:section",
         const body = req.body.body;
 
         if (title.length < 3){
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "title must be at least three characters"});
         }
 
         if (body.length < 3){
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "body must be at least three characters"});
         }
@@ -336,19 +357,19 @@ router.post("/new-page/:section",
         if (!req.headers.authorization) return res.status(401).json({message: "Token not found"});
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
 
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST blog/update-avatar/ - 400: only .png, .jpg and .jpeg format allowed`)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
 
-        if (file.size > 2000000) {
-            helpers.delete_file(file.path)
+        if (file.size > maxSize) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST blog/update-avatar/ - 400: File exceeded 2MB size limit`)
             return res.status(400).json({message: "File exceeded 2MB size limit"});
         }
@@ -356,22 +377,23 @@ router.post("/new-page/:section",
         const decodedToken = jwt.verify(token, SECRET_KEY);
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         if (!auth_user.superadmin) {
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 401: Unauthorized access to create`)
             return res.status(401).json({message: 'Unauthorized access to create'});
         }
 
         const dup_page = await repository.get_page(section_name, req.body.title)
         if (dup_page){
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST pages/new-page/${section_name} - 409: page ${req.body.title} already exists`)
             return res.status(409).json({message: `page ${req.body.title} already exists`});
         }
 
-        const result = await repository.create_new_footer_page(section_name, req.body.title, req.body.body, file.path)
+        const result = await repository.create_new_footer_page(section_name, req.body.title, req.body.body, file.location)
         helpers.log_request_info("POST pages/new-page/${section_name} - 200")
         res.status(201).json(result);
     } catch (error) {
+        helpers.delete_s3_file(s3, file.key)
         helpers.log_request_error(`POST pages/new-page/${req.params.section}  -400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -503,11 +525,24 @@ router.patch("/edit-page/:section/:title",
         let path = null;
 
         if (file) {
-            path = file.path
+            path = file.location
+            if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+                helpers.delete_s3_file(s3, file.key)
+                helpers.log_request_error(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 400: only .png, .jpg and .jpeg format allowed`)
+                return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+            }
+    
+            if (file.size > maxSize) {
+                helpers.delete_s3_file(s3, file.key)
+                helpers.log_request_error(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 400: File exceeded 2MB size limit`)
+                return res.status(400).json({message: "File exceeded 2MB size limit"});
+            }
         }
         
         if (page.children[0].icon){
-            helpers.delete_file(page.children[0].icon)
+            let name_array = page.children[0].icon.split("/")
+            let fname = name_array[name_array.length - 1];
+            helpers.delete_s3_file(s3, fname.replace(/%20/g, " "))
         }
         const result = await repository.update_page(section_name, page_title, {title: title, body: body, icon: path})
 
@@ -574,10 +609,13 @@ router.delete("/delete-page/:section/:title",
             return res.status(404).json({message: `page ${req.params.title} not found`});
         }
 
-        const result = await repository.delete_page(section_name, page_title)
         if (page.children[0].icon){
-            helpers.delete_file(page.children[0].icon)
+            let name_array = page.children[0].icon.split("/")
+            let fname = name_array[name_array.length - 1];
+            helpers.delete_s3_file(s3, fname.replace(/%20/g, " "))
+            // helpers.delete_file(page.children[0].icon)
         }
+        const result = await repository.delete_page(section_name, page_title)
 
         helpers.log_request_info(`DELETE pages/delete-page/${req.params.section}/${req.params.title} - 200`)
         res.status(204).json(result.children[0]);

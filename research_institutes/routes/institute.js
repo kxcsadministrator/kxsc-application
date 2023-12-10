@@ -1,5 +1,7 @@
 const express = require('express');
 const multer = require("multer");
+const aws = require('aws-sdk');
+const multerS3 = require('multer-s3');
 const validator = require('express-validator');
 
 const Model = require('../db/models');
@@ -10,14 +12,34 @@ const helpers = require('../helpers');
 const router = express.Router()
 
 const FILE_PATH = "uploads/"
-const storage = multer.diskStorage({
-    destination: FILE_PATH,
-    filename: (req, file, callback) => {
+aws.config.update({
+    secretAccessKey: process.env.AWS_SECRET,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    region: 'eu-north-1'
+});
+
+const s3 = new aws.S3();
+
+const aws_storage = multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: 'kxcs-files-bucket',
+    key: function (req, file, cb) {
+        // console.log(file);
         const date = Date.now()
-        callback(null, date.toString() + "-" + file.originalname);
+        cb(null, date.toString() + "-" + file.originalname);
+        // cb(null, file.originalname); //use Date.now() for unique file keys
     }
-  });
-const upload = multer({ storage: storage });
+})
+
+// const storage = multer.diskStorage({
+//     destination: FILE_PATH,
+//     filename: (req, file, callback) => {
+//         const date = Date.now()
+//         callback(null, date.toString() + "-" + file.originalname);
+//     }
+//   });
+const upload = multer({ storage: aws_storage });
 
 
 /** 
@@ -382,9 +404,9 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
         
         files.map(p =>
             data.push({
-                name: p.filename,
+                name: p.key,
                 original_name: p.originalname,
-                path: `${FILE_PATH}${p.filename}`,
+                path: p.location,
                 parent: id
             })
         )
@@ -448,7 +470,9 @@ router.get("/download-file/:id", async (req, res) => {
         }
     
         helpers.log_request_info(`GET institutes/download-files/${req.params.id} - 200`)
-        res.download(file.path, file.original_name);
+        // const outFile = await helpers.download_s3_file(s3, file.name)
+        // res.download(file.path, file.original_name);
+        res.status(200).json({'url': file.path})
     } catch (error) {
         // console.error(error)
         helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 400: ${error.message}`)

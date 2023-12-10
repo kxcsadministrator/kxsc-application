@@ -157,6 +157,7 @@ const get_user_institutes = async(offset, limit, user_id) => {
 }
 
 const add_institute_admins =  async (id, admin_idx) => {
+    await Model.institute.findByIdAndUpdate(id, {$pullAll: {members: admin_idx}});
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {admins: admin_idx}});
     const result = await Model.institute.findById(id,  {_id: 1, name: 1});
     return result;
@@ -169,6 +170,7 @@ const remove_institue_admins = async (id, admin_idx) => {
 }
 
 const add_institute_members =  async (id, members_idx) => {
+    await Model.institute.findByIdAndUpdate(id, {$pullAll: {admins: members_idx}});
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {members: members_idx}});
     const result = await Model.institute.findById(id, {_id: 1, name: 1});
     return result;
@@ -196,20 +198,29 @@ const get_institute_file_by_id = async(file_id) => {
     return res;
 }
 
-const delete_institute_file = async(file_id) => {
+const delete_institute_file = async(s3, file_id) => {
     const file = await Model.instituteFile.findById(file_id)
     const parent_id = file.parent.toString();
 
     let institute = await Model.institute.findByIdAndUpdate(parent_id, {$pullAll: {files: [file_id]}});
 
-    fs.unlink(file.path, (err) => {
-            if (err) {
-            log_request_error(`file unlink: ${err}`)
-            return
-            }
-        }
-    )
-    Model.instituteFile.findByIdAndDelete(file_id)
+    // fs.unlink(file.path, (err) => {
+    //         if (err) {
+    //         log_request_error(`file unlink: ${err}`)
+    //         return
+    //         }
+    //     }
+    // )
+    var params = {
+        Bucket: 'kxcs-files-bucket',
+        Key: file.name
+      };
+      
+      s3.deleteObject(params, function(err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        // else     console.log(data);           // successful response
+      });
+    await Model.instituteFile.findByIdAndDelete(file_id)
     institute = await Model.institute.findById(parent_id, {_id: 1, name: 1})
     return institute;
 }
@@ -254,17 +265,18 @@ const update_institute = async(id, updateObj) => {
     return res
 }
 
-const delete_resource_by_id = async (id) => {
+const delete_resource_by_id = async (s3, id) => {
     const files = await Model.resourceFile.find({parent: id});
     if (files){
         files.map(p => {
-            fs.unlink(p.path, (err) => {
-                    if (err) {
-                        log_request_error(`file unlink: ${err}`)
-                    return
-                    }
-                }
-            )
+            // fs.unlink(p.path, (err) => {
+            //         if (err) {
+            //             log_request_error(`file unlink: ${err}`)
+            //         return
+            //         }
+            //     }
+            // )
+            delete_s3_file(s3, p.name);
         })
     }
     await Model.resourceFile.deleteMany({parent: id});
@@ -272,17 +284,11 @@ const delete_resource_by_id = async (id) => {
     return data;
 }
 
-const delete_institute = async (id) => {
+const delete_institute = async (s3, id) => {
     let files = await Model.instituteFile.find({parent: id});
     if (files){
         files.map(p => {
-            fs.unlink(p.path, (err) => {
-                if (err) {
-                  console.error(err)
-                  return
-                }
-            }
-            )
+            delete_s3_file(s3, p.name);
         })
     }
     const institute = await Model.institute.findById(id);
@@ -296,7 +302,7 @@ const delete_institute = async (id) => {
     let resources = await Model.resource.find({institute: id})
     for (let i = 0; i < resources.length; i++) {
         const resource = resources[i];
-        delete_resource_by_id(resource._id)
+        delete_resource_by_id(s3, resource._id)
     }
     const result = await Model.institute.findByIdAndDelete(id);
     return result
@@ -452,17 +458,23 @@ const update_task = async(id, updateObj) => {
     return result
 }
 
-const delete_task = async (id) => {
+const delete_s3_file = (s3, filename) => {
+    var params = {
+        Bucket: 'kxcs-files-bucket',
+        Key: filename
+      };
+      
+      s3.deleteObject(params, function(err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        // else     console.log(data);           // successful response
+      });
+}
+
+const delete_task = async (s3, id) => {
     const files = await Model.taskFile.find({parent: id});
     if (files){
         files.map(p => {
-            fs.unlink(p.path, (err) => {
-                if (err) {
-                  console.error(err)
-                  return
-                }
-            }
-            )
+            delete_s3_file(s3, p.name);
         })
     }
     

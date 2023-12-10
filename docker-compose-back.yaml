@@ -6,8 +6,11 @@ services:
       - "uploads:/node/files"
       - /node/node_modules
     environment:
-      - BASE_URL=https://main.d6a2usqsag8oq.amplifyapp.com
-      - LOGIN_URL=https://main.d6a2usqsag8oq.amplifyapp.com/login
+      - BASE_URL=https://www.nstikxc.gov.ng/admin
+      - LOGIN_URL=https://www.nstikxc.gov.ng/admin
+      - PUBLIC_LOGIN_URL=https://www.nstikxc.gov.ng/public/login
+      - AWS_SECRET=shwWmbMTq+DiPXYBOYx3tHmtFHtuNI1t7XtixINg
+      - AWS_ACCESS_KEY=AKIAUUV3CZNCPLMDASHL
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
       - SECRET_KEY=9mODTPQzQz-zlXxU9RPwfg
@@ -25,6 +28,8 @@ services:
       - /node/node_modules
     environment:
       - SERVER_PORT=3000
+      - AWS_SECRET=shwWmbMTq+DiPXYBOYx3tHmtFHtuNI1t7XtixINg
+      - AWS_ACCESS_KEY=AKIAUUV3CZNCPLMDASHL
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
       - USERS_SERVICE=https://sedaltd.com:3000/users
       - LOG_URL=https://sedaltd.com:3000/logs
@@ -38,6 +43,8 @@ services:
       - "uploads:/node/uploads"
       - /node/node_modules
     environment:
+      - AWS_SECRET=shwWmbMTq+DiPXYBOYx3tHmtFHtuNI1t7XtixINg
+      - AWS_ACCESS_KEY=AKIAUUV3CZNCPLMDASHL
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
       - USERS_SERVICE=https://sedaltd.com:3000/users
       - INSTITUTE_SERVICE=https://sedaltd.com:3001/institutes

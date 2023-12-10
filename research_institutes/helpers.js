@@ -149,8 +149,16 @@ const notify_institute = async (institute_id, headers) => {
     return {status: 200, data: res.data};
 }
 
+const download_s3_file =  async (s3, filename) => {
+    const { Body } = await s3.getObject({
+      Key: filename,
+      Bucket: 'kxcs-files-bucket'
+    }).promise()
+    return Body
+  }
+
 module.exports = {
     validateUser, validateInstituteAdmin, validateInstituteMembers, validateUserResource, validateUserdata, admin_publish_request,
     validateTaskMembers, validateCollabs, log_request_error, log_request_info, notify_institute,
-    admin_new_user_request
+    admin_new_user_request, download_s3_file
 };

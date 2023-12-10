@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require("multer");
 const validator = require("express-validator");
 const axios = require('axios');
+const aws = require('aws-sdk');
+const multerS3 = require('multer-s3');
 
 const Model = require('../db/models');
 const repository = require('../db/repository');
@@ -12,22 +14,41 @@ const router = express.Router()
 
 const FILE_PATH = "uploads/"
 const maxSize = 2000000
-const storage = multer.diskStorage({
-    destination: FILE_PATH,
-    limits: { fileSize: maxSize },
-    filename: (req, file, callback) => {
+// const storage = multer.diskStorage({
+//     destination: FILE_PATH,
+//     limits: { fileSize: maxSize },
+//     filename: (req, file, callback) => {
+//         const date = Date.now()
+//         callback(null, date.toString() + "-" + file.originalname);
+//     },
+//     fileFilter: function (req, file, cb) {
+//         if (file.mimetype !== 'image/png') {
+//          req.fileValidationError = 'goes wrong on the mimetype';
+//          return cb(null, false, new Error('goes wrong on the mimetype'));
+//         }
+//         cb(null, true);
+//        }
+//   });
+aws.config.update({
+    secretAccessKey: process.env.AWS_SECRET,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    region: 'eu-north-1'
+});
+
+const s3 = new aws.S3();
+
+const aws_storage = multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: 'kxcs-files-bucket',
+    key: function (req, file, cb) {
+        // console.log(file);
         const date = Date.now()
-        callback(null, date.toString() + "-" + file.originalname);
-    },
-    fileFilter: function (req, file, cb) {
-        if (file.mimetype !== 'image/png') {
-         req.fileValidationError = 'goes wrong on the mimetype';
-         return cb(null, false, new Error('goes wrong on the mimetype'));
-        }
-        cb(null, true);
-       }
-  });
-const upload = multer({ storage: storage });
+        cb(null, date.toString() + "-" + file.originalname);
+        // cb(null, file.originalname); //use Date.now() for unique file keys
+    }
+})
+const upload = multer({ storage: aws_storage });
 
 const INSTITUTE_BASE_URL = process.env.INSTITUTE_SERVICE
 
@@ -81,13 +102,13 @@ router.post('/new',
 
         // Authorization
         if (!req.headers.authorization) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error('POST /resources/new - 401: Token not found')
             return res.status(401).json({message: "Token not found"});
         }
         const validateUser = await helpers.validateUser(req.headers);
         if (validateUser.status !== 200) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error(`POST /resources/new - ${validateUser.status}: ${validateUser.message}`)
             return res.status(validateUser.status).json({message: validateUser.message});
         }
@@ -95,14 +116,14 @@ router.post('/new',
 
         const category = await repository.get_category_by_name(req.body.category);
         if (!category) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error(`POST /resources/new - 404: Category: ${req.body.category} not found`)
             return res.status(404).json({message: `Category: ${req.body.category} not found`});
         }
         let unknown_cats = await helpers.validateArray(category.sub_categories, req.body.sub_categories);
 
         if (unknown_cats.length !== 0) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error(`POST /resources/new - 404: Unkown sub-categories`)
 
             return res.status(404).json({
@@ -113,7 +134,7 @@ router.post('/new',
 
         const resource_type = await repository.get_resource_type(req.body.resource_type)
         if (!resource_type) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error(`POST /resources/new - 404: Type: ${req.body.resource_type} not found`)
             return res.status(404).json({message: `Type: ${req.body.resource_type} not found`});
         }
@@ -127,7 +148,7 @@ router.post('/new',
 
         const validateTopic = await helpers.validateTopicName(req.body.topic, req.body.institute,  user._id.toString());
         if (!validateTopic) {
-            helpers.delete_file(file)
+            helpers.delete_file(s3, file)
             helpers.log_request_error(`POST /resources/new - 409: Duplicate resouce`)
 
             return res.status(409).json(
@@ -150,7 +171,7 @@ router.post('/new',
         if (file){ // if a file is sent
             if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")) {
                 helpers.log_request_error(`POST resources/new - 400: only .png, .jpg and .jpeg format allowed`)
-                helpers.delete_file(file)
+                helpers.delete_file(s3, file)
                 return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
             }
             if (file.size > maxSize) {
@@ -158,7 +179,7 @@ router.post('/new',
                 helpers.delete_file(file)
                 return res.status(400).json({message: "File exceeded 2MB size limit"});
             }
-            avatar_path = `${FILE_PATH}${file.filename}`
+            avatar_path = file.location;
         }
 
         const data = new Model.resource({
@@ -180,7 +201,7 @@ router.post('/new',
         res.status(201).json(dataToSave);
     } catch (error) {
         console.error(error)
-        helpers.delete_file(file)
+        helpers.delete_file(s3, file)
         helpers.log_request_error(`POST /resources/new - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -1616,7 +1637,7 @@ router.delete('/delete/:id', async (req, res) => {
             headers: {'Authorization': `Bearer ${req.headers.authorization.split(' ')[1]}`}
         })
         
-        const data = await repository.delete_resource_by_id(req.params.id);
+        const data = await repository.delete_resource_by_id(s3, req.params.id);
 
         helpers.log_request_info(`DELETE /resources/delete/${req.params.id} - 204`)
         res.status(204).json({message: `Document with topic name: ${data.topic} has been deleted..`});

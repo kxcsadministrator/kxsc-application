@@ -1,11 +1,13 @@
 const express = require('express');
 const validator = require('express-validator');
+const aws = require('aws-sdk');
 
 const Model = require('../db/models');
 const repository = require('../db/repository');
 const helpers = require('../helpers')
 
 const USERS_BASE_URL = process.env.USERS_SERVICE
+const s3 = new aws.S3();
 
 const router = express.Router()
 /** 
@@ -576,7 +578,7 @@ router.delete('/delete/:id', async (req, res) => {
             return res.status(404).json({message: "Category not found"});
         }
 
-        const data = await repository.delete_category_by_id(req);
+        const data = await repository.delete_category_by_id(s3, req);
 
         helpers.log_request_info(`DELETE categories/delete/${req.params.id} - 204`)
         res.status(204).json({message: `Category with name: ${data.name} has been deleted..`}) 

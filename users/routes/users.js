@@ -4,6 +4,8 @@ const validator = require('express-validator');
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const aws = require('aws-sdk');
+const multerS3 = require('multer-s3');
 
 const Model = require('../db/models');
 const repository = require('../db/repository');
@@ -14,21 +16,43 @@ const router = express.Router()
 
 const SALT_ROUNDS = 10
 const BASE_URL = process.env.BASE_URL;
+const ADMIN_LOGIN_URL = process.env.LOGIN_URL;
+const PUBLIC_LOGIN_URL = process.env.PUBLIC_LOGIN_URL;
 const TEMPLATE_PATH = "./template/requestResetPassword.handlebars"
+const USER_WELCOME_TEMPLATE_PATH = "./template/userWelcome.handlebars"
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
 
 const FILE_PATH = "files/uploads/"
 const maxSize = 2000000
-const storage = multer.diskStorage({
-    destination: FILE_PATH,
-    limits: { fileSize: maxSize },
-    filename: (req, file, callback) => {
+// const storage = multer.diskStorage({
+//     destination: FILE_PATH,
+//     limits: { fileSize: maxSize },
+//     filename: (req, file, callback) => {
+//         const date = Date.now()
+//         callback(null, date.toString() + "-" + file.originalname);
+//     }
+//   });
+aws.config.update({
+    secretAccessKey: process.env.AWS_SECRET,
+    accessKeyId: process.env.AWS_ACCESS_KEY,
+    region: 'eu-north-1'
+});
+
+const s3 = new aws.S3();
+
+const aws_storage = multerS3({
+    s3: s3,
+    acl: 'public-read',
+    bucket: 'kxcs-files-bucket',
+    key: function (req, file, cb) {
+        // console.log(file);
         const date = Date.now()
-        callback(null, date.toString() + "-" + file.originalname);
+        cb(null, date.toString() + "-" + file.originalname);
+        // cb(null, file.originalname); //use Date.now() for unique file keys
     }
-  });
+})
 const upload = multer({ 
-    storage: storage
+    storage: aws_storage
 });
 
 /* --------------------------------------- Routes ----------------------------------- */
@@ -91,6 +115,12 @@ router.post("/new",
         })
 
         const result = await repository.create_new_user(data);
+        const email_result = await helpers.sendEmail(
+            result.email,
+            "Account created successfully",
+            {first_name: result.username, link: ADMIN_LOGIN_URL, type: "admin"}, 
+            USER_WELCOME_TEMPLATE_PATH
+        );
         helpers.log_request_info("POST /users/new - 200")
         res.status(201).json(result);
     } catch (error) {
@@ -920,23 +950,25 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: only .png, .jpg and .jpeg format allowed`)
-            helpers.delete_file(file.path)
+            helpers.delete_s3_file(s3, file.key)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
 
-        if (file.size > 2000000) {
-            helpers.delete_file(file.path)
+        if (file.size > maxSize) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: File exceeded 2MB size limit`)
             return res.status(400).json({message: "File exceeded 2MB size limit"});
         }
 
 
         if (!req.headers.authorization) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
         const token = req.headers.authorization.split(' ')[1];
         if (!token) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Token not found`)
             return res.status(401).json({message: "Token not found"});
         }
@@ -946,28 +978,30 @@ router.post('/change-profile-photo/:id', upload.single("file"), async (req, res)
         const auth_user = await repository.get_user_by_id(decodedToken.user_id);
         const user = await repository.get_user_by_id(id);
         if (!user) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 404: user with id ${id} not found`)
             return res.status(404).json({message: `user with id ${id} not found`});
         }
 
         if (auth_user._id.toString() != id && auth_user.superadmin == false) {
+            helpers.delete_s3_file(s3, file.key)
             helpers.log_request_error(`POST users/change-profile-photo/${id} - 401: Unauthorized access`)
             return res.status(401).json({message: 'Unauthorized access'});
         }
 
         const photo = new Model.profilePic({
-            name: file.filename,
+            name: file.key,
             original_name: file.originalname,
-            path: `${FILE_PATH}${file.filename}`,
+            path: file.location,
             user: id
         })
         
-        const result = await repository.add_profile_photo(id, photo);
+        const result = await repository.add_profile_photo(s3, id, photo);
 
         helpers.log_request_info(`POST users/change-profile-photo/${id} - 200`)
         res.status(201).json(result);        
     } catch (error) {
-        helpers.delete_file(file.path)
+        helpers.delete_s3_file(s3, file.key)
         helpers.log_request_error(`POST users/change-profile-photo/${id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
@@ -1032,7 +1066,7 @@ router.post('/remove-profile-photo/:id', async (req, res) => {
             return res.status(404).json({message: "No profile picture attached"});
         }
 
-        const result = await repository.remove_profile_photo(user.profile_picture, id);
+        const result = await repository.remove_profile_photo(s3, user.profile_picture, id);
         helpers.log_request_info(`POST users/remove-profile-photo/${id} - 200`)
         res.status(200).json(result);        
     } catch (error) {
@@ -1347,8 +1381,13 @@ router.post("/new-public-user",
             phone: req.body.phone,
             country: req.body.country
         })
-
         const result = await repository.create_new_user(data);
+        const email_result = await helpers.sendEmail(
+            result.email,
+            "Account created successfully",
+            {first_name: result.username, link: PUBLIC_LOGIN_URL, type: ""}, 
+            USER_WELCOME_TEMPLATE_PATH
+        );
         helpers.log_request_info("POST /users/new-public-user - 200")
         res.status(201).json(result);
     } catch (error) {
