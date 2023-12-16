@@ -6,7 +6,7 @@ services:
       - "uploads:/node/files"
       - /node/node_modules
     environment:
-      - BASE_URL=https://www.nstikxc.gov.ng/admin
+      - BASE_URL=https://www.nstikxc.gov.ng
       - LOGIN_URL=https://www.nstikxc.gov.ng/admin
       - PUBLIC_LOGIN_URL=https://www.nstikxc.gov.ng/public/login
       - AWS_SECRET=shwWmbMTq+DiPXYBOYx3tHmtFHtuNI1t7XtixINg
