@@ -25,7 +25,7 @@ const swaggerDefinition = {
         Copyright (C) Knowledge Exchange System - All Rights Reserved
         Unauthorized copying of this file, via any medium is strictly prohibited
         Proprietary and confidential
-        Written by Eze Isaac <ezeud084@gmail.com> and Timothy Akoji <timothyakoji@gmail.com>, Febuary 2023`,
+        Written by Eze Isaac <ezeud084@gmail.com> 2023`,
       },
       contact: {
         name: 'Eze Isaac',

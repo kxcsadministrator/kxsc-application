@@ -14,7 +14,10 @@ const router = express.Router()
 
 const SALT_ROUNDS = 10
 const BASE_URL = process.env.BASE_URL;
+const ADMIN_LOGIN_URL = process.env.LOGIN_URL;
+const PUBLIC_LOGIN_URL = process.env.PUBLIC_LOGIN_URL;
 const TEMPLATE_PATH = "./template/requestResetPassword.handlebars"
+const USER_WELCOME_TEMPLATE_PATH = "./template/userWelcome.handlebars"
 const SECRET_KEY = process.env.SECRET_KEY || 'this-is-just for tests'
 
 const FILE_PATH = "files/uploads/"
@@ -91,6 +94,12 @@ router.post("/new",
         })
 
         const result = await repository.create_new_user(data);
+        const email_result = await helpers.sendEmail(
+            result.email,
+            "Account created successfully",
+            {first_name: result.username, link: ADMIN_LOGIN_URL, type: "admin"}, 
+            USER_WELCOME_TEMPLATE_PATH
+        );
         helpers.log_request_info("POST /users/new - 200")
         res.status(201).json(result);
     } catch (error) {
@@ -1349,6 +1358,12 @@ router.post("/new-public-user",
         })
 
         const result = await repository.create_new_user(data);
+        const email_result = await helpers.sendEmail(
+            result.email,
+            "Account created successfully",
+            {first_name: result.username, link: PUBLIC_LOGIN_URL, type: ""}, 
+            USER_WELCOME_TEMPLATE_PATH
+        );
         helpers.log_request_info("POST /users/new-public-user - 200")
         res.status(201).json(result);
     } catch (error) {

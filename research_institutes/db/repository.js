@@ -157,6 +157,7 @@ const get_user_institutes = async(offset, limit, user_id) => {
 }
 
 const add_institute_admins =  async (id, admin_idx) => {
+    await Model.institute.findByIdAndUpdate(id, {$pullAll: {members: admin_idx}});
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {admins: admin_idx}});
     const result = await Model.institute.findById(id,  {_id: 1, name: 1});
     return result;
@@ -169,6 +170,7 @@ const remove_institue_admins = async (id, admin_idx) => {
 }
 
 const add_institute_members =  async (id, members_idx) => {
+    await Model.institute.findByIdAndUpdate(id, {$pullAll: {admins: members_idx}});
     await Model.institute.findByIdAndUpdate(id, {$addToSet: {members: members_idx}});
     const result = await Model.institute.findById(id, {_id: 1, name: 1});
     return result;

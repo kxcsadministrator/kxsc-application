@@ -300,6 +300,9 @@ router.delete("/delete/:article_id",
             helpers.log_request_error(`DELETE blog/delete/${req.params.article_id} - 404: Article ${article_id} not found`)
             return res.status(401).json({message: `Article ${article_id} not found`});
         }
+        if (is_article.avatar){
+            helpers.delete_file(is_article.avatar);
+        }
 
         const result = await repository.delete_article(article_id)
         helpers.log_request_info(`DELETE blog/delete/${req.params.article_id} - 200`)
@@ -378,6 +381,10 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
             helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '404': Resource with id: ${article_id} not found`)
             return res.status(404).json({message: `Resource with id: ${article_id} not found`})
         }
+        if (article.avatar){
+            helpers.delete_file(is_article.avatar);
+        }
+
 
         const avatar_path = `${FILE_PATH}${file.filename}`
         const result = await repository.update_blog_avatar(article_id, avatar_path);
@@ -432,7 +439,7 @@ router.post("/remove-avatar/:id", async (req, res) => {
         }
         const user = validateUser.data;
 
-        const file = req.file;
+        // const file = req.file;
         const article_id = req.params.id;
 
         // Guard clauses to make this op more readable
@@ -446,6 +453,9 @@ router.post("/remove-avatar/:id", async (req, res) => {
         if (!article) {
             helpers.log_request_error(`POST blog/remove-avatar/${req.params.id} - '404': Resource with id: ${article_id} not found`)
             return res.status(404).json({message: `Article with id: ${article_id} not found`})
+        }
+        if (article.avatar){
+            helpers.delete_file(is_article.avatar);
         }
         
         const result = await repository.remove_blog_avatar(article_id);

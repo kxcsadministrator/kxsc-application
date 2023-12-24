@@ -343,6 +343,15 @@ const rate_resource = async (resource_id, user_id, value, review_msg) => {
 
 const update_resource_avatar = async (resource_id, avatar_path) => {
     let parent = await Model.resource.findByIdAndUpdate(resource_id, {avatar: avatar_path});
+    if (parent.avatar){
+        fs.unlink(resource.avatar, (err) => {
+            if (err) {
+            log_request_error(`file unlink: ${err}`)
+            return
+            }
+        }
+        )   
+    }
     parent = await Model.resource.findById(resource_id, {_id: 1, topic: 1});
     return parent;
 }

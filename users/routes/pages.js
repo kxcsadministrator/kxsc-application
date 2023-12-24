@@ -503,7 +503,18 @@ router.patch("/edit-page/:section/:title",
         let path = null;
 
         if (file) {
-            path = file.path
+            path = file.path;
+            if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+                helpers.delete_file(path);
+                helpers.log_request_error(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 400: only .png, .jpg and .jpeg format allowed`)
+                return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+            }
+
+            if (file.size > maxSize) {
+                helpers.delete_file(path)
+                helpers.log_request_error(`PATCH pages/edit-page/${req.params.section}/${req.params.title} - 400: File exceeded 2MB size limit`)
+                return res.status(400).json({message: "File exceeded 2MB size limit"});
+            }
         }
         
         if (page.children[0].icon){
