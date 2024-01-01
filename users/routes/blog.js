@@ -382,7 +382,7 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
             return res.status(404).json({message: `Resource with id: ${article_id} not found`})
         }
         if (article.avatar){
-            helpers.delete_file(is_article.avatar);
+            helpers.delete_file(article.avatar);
         }
 
 
@@ -455,7 +455,7 @@ router.post("/remove-avatar/:id", async (req, res) => {
             return res.status(404).json({message: `Article with id: ${article_id} not found`})
         }
         if (article.avatar){
-            helpers.delete_file(is_article.avatar);
+            helpers.delete_file(article.avatar);
         }
         
         const result = await repository.remove_blog_avatar(article_id);
