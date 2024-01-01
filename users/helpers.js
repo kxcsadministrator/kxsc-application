@@ -174,7 +174,7 @@ const send_request_notification = async(request_type="publish-request") => {
   }
 
 for (let i = 0; i < recipient_idx.length; i++) {
-  const owner = recipient_idx;
+  const owner = recipient_idx[i];
   const notification = new Model.notification({
       type: request_type,
       owner: owner
