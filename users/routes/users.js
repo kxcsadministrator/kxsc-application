@@ -1258,9 +1258,15 @@ router.get('/resource-data/:id', async (req, res) => {
         // const decodedToken = jwt.verify(token, SECRET_KEY);
 
         // const auth_user = await repository.get_user_by_id(decodedToken.user_id);
-        const [author, institute] = await repository.get_resource_data(id);
+        let [author, institute] = await repository.get_resource_data(id);
 
         helpers.log_request_info(`GET users/resource-data/${id} - 200`)
+        if (!author){
+            author = {
+                "username": "Deleted User",
+                "id": 0
+            }
+        }
         res.status(200).json({"author": author, "institute": institute});
     } catch (error) {
         console.error(error)
