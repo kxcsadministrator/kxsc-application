@@ -55,7 +55,7 @@ function CreateType() {
             <div className="institute_input_row">
               <label> Name: </label>
               <input
-                placeholder="resource Type Name"
+                placeholder="Resource Type Name"
                 value={typeName}
                 onChange={(e) => setTypeName(e.target.value)}
               />

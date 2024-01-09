@@ -1,5 +1,6 @@
 import { useState, useContext, useCallback, useEffect } from "react";
 import { RiDeleteBinLine } from "react-icons/ri";
+import { IoCheckmarkSharp } from "react-icons/io5";
 import { FaEye } from "react-icons/fa";
 import AddTaskModal from "./AddTaskModal";
 import DeleteTaskModal from "./DeleteTaskModal";
@@ -8,10 +9,20 @@ import cloneDeep from "lodash/cloneDeep";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import { useNavigate } from "react-router-dom";
+import RequestModal from "../requests.js/RequestModal";
+import API_URL from "../../../../Url";
+import axios from "axios";
 
 function Tasks({ tasks, instituteId, admin }) {
   //states
   const [taskModal, setTaskModal] = useState(false);
+  const [states, setStates] = useState({
+    loading: false,
+    error: false,
+    errMsg: "",
+    success: false,
+  });
+  const [requestModal, setRequestModal] = useState(false);
   const [deleteTaskModal, setDeleteTaskModal] = useState(false);
   const [task, setTask] = useState([]);
   const { user } = useContext(Context);
@@ -70,7 +81,33 @@ function Tasks({ tasks, instituteId, admin }) {
     sessionStorage.setItem("taskId", task._id);
     navigate(`/admin/tasks/${task.name}`);
   };
-  console.log(tasks);
+
+  const markTask = async (taskId) => {
+    setStates({ loading: true, error: false });
+    setRequestModal(true);
+   
+    try {
+       const res = await axios({
+         method: "patch",
+         url: `${API_URL.institute}/tasks/mark-complete/${taskId}`,
+         headers: { Authorization: `Bearer ${user.jwt_token}` },
+       });
+
+      setStates({ loading: false, error: false, success: true });
+      setTimeout(() => {
+        setRequestModal(false);
+        window.location.reload(false);
+      }, 3000);
+    } catch (err) {
+      setStates({
+        loading: false,
+        error: true,
+        errMsg: err.response?.data?.message,
+        success: false,
+      });
+    }
+  };
+
   return (
     <div>
       <div className="all_heading my-3">
@@ -123,6 +160,14 @@ function Tasks({ tasks, instituteId, admin }) {
                           <RiDeleteBinLine size="1.2rem" />
                         </button>
                       )}
+                      {task.status === "pending" && (
+                        <button
+                          className="hover:text-green_bg p-2 border-gray_bg bg-gray_bg rounded-sm"
+                          onClick={() => markTask(task._id)}
+                        >
+                          <IoCheckmarkSharp size="1.2rem" />
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -157,6 +202,9 @@ function Tasks({ tasks, instituteId, admin }) {
           />
         )}
       </div>
+      {requestModal && (
+        <RequestModal setRequestModal={setRequestModal} states={states} />
+      )}
     </div>
   );
 }

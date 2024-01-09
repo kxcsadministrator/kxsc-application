@@ -29,9 +29,7 @@ function RequestModalR({ states, setRequestModal }) {
           </div>
         ) : states.error ? (
           <div>
-            <p className="text-red-400 text-3xl text-center">
-              User already published
-            </p>
+            <p className="text-red-400 text-3xl text-center">{states.errMsg}</p>
           </div>
         ) : states.success ? (
           <div className="flex  items-center justify-center gap-4 text-green-400 ">

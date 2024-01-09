@@ -111,8 +111,8 @@ function EditResource({ setEditResourceModal, resource }) {
     formData.append("citations[]", citation);
 
     try {
-      const res = await axios.post(
-        `${API_URL.resource}/resources/new`,
+      const res = await axios.patch(
+        `${API_URL.resource}/resources/update/${resource.id}`,
         formData,
         {
           headers: {
@@ -148,11 +148,11 @@ function EditResource({ setEditResourceModal, resource }) {
   return (
     <div className="modal_container">
       <div
-        className="relative md:w-[60%] w-[90%] rounded-md mx-auto bg-white"
+        className="relative md:w-[60%] w-[90%] rounded-md mx-auto bg-white overflow-y-auto"
         ref={menuRef}
       >
         <div className="resource_heading">
-          <h1 className="text_h1_heading">Create Resource</h1>
+          <h1 className="text_h1_heading">Edit Resource</h1>
         </div>
         <form className="create_form">
           <div className="input_content">
@@ -184,16 +184,16 @@ function EditResource({ setEditResourceModal, resource }) {
           </div>
           <div className="input_content">
             <label>Sub_categories:</label>
-            <div className="flex gap-3  flex-wrap">
+            <div className="flex gap-2 items-center flex-wrap">
               {selectedCat.map((sub, index) => (
-                <div className="flex  gap-1" key={index}>
+                <div className="flex items-center flex-nowrap" key={index}>
                   <input
                     type="checkbox"
                     value={sub}
                     onChange={handleCheckboxChange}
                     checked={subCat.includes(sub)}
                   />
-                  <p className="text-sm mt-[10px]">{sub}</p>
+                  <span className="text-[11px] ml-2 w-fit">{sub}</span>
                 </div>
               ))}
             </div>

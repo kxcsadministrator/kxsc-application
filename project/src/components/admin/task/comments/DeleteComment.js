@@ -36,9 +36,6 @@ function DeleteComment({ setDeleteComModal, comment }) {
     try {
       const res = await axios.delete(
         `${API_URL.institute}/tasks/comments/delete/${comment._id}`,
-        {
-          body: comment.body,
-        },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
@@ -59,11 +56,11 @@ function DeleteComment({ setDeleteComModal, comment }) {
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Delete collaborator
+          Delete Comment
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <p>
-            Are you sure you want to delete{" "}
+            Are you sure you want to delete{""}
             <span className="font-bold">{comment.body}</span>
           </p>
           <div>

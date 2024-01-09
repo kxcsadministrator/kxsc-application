@@ -7,11 +7,14 @@ import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import AddFiles from "./AddFiles";
 import API_URL from "../../../../Url";
+import DeleteFile from "./DeleteFile";
 
 function Files({ files, admin }) {
   //states
   const { user } = useContext(Context);
   const [addFileModal, setAddFileModal] = useState(false);
+  // const [taskFile, setTaskFile] = useState("");
+  // const [deleteFileModal, setDeleteFileModal] = useState(false);
   const [value, setValue] = useState("");
   const id = sessionStorage.getItem("taskId");
 
@@ -74,7 +77,11 @@ function Files({ files, admin }) {
     } catch (err) {}
   };
 
-  console.log(files);
+  // const deleteTaskFile = (file) => {
+
+  //   setTaskFile(file);
+  //   setDeleteFileModal(true);
+  // };
 
   return (
     <div>
@@ -121,9 +128,14 @@ function Files({ files, admin }) {
                       >
                         Download
                       </button>
-                      {(user.superadmin || admin) && (
-                        <button className="btn_red">Delete</button>
-                      )}
+                      {/* {(user.superadmin || admin) && (
+                        <button
+                          className="btn_red"
+                          onClick={() => deleteTaskFile(file)}
+                        >
+                          Delete
+                        </button>
+                      )} */}
                     </div>
                   </td>
                 </tr>
@@ -146,6 +158,9 @@ function Files({ files, admin }) {
       )}
       <div>
         {addFileModal && <AddFiles setAddFileModal={setAddFileModal} />}
+        {/* {deleteFileModal && (
+          <DeleteFile setDeleteFileModal={setDeleteFileModal} file={taskFile} />
+        )} */}
       </div>
     </div>
   );

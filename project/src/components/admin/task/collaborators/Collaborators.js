@@ -67,10 +67,10 @@ function Collaborators({ collaborators, admin, instituteId, task }) {
       <div className="all_heading my-3">
         {(user.superadmin || admin) && (
           <button
-            className="btn_green my-2"
+            className="btn_green my-2 max-w-none"
             onClick={() => setAddCollaboratorsModal(true)}
           >
-            Add member
+            Add Collaborators
           </button>
         )}
         {collection?.length > 0 && (

@@ -118,6 +118,7 @@ function Institutes() {
     navigate("/admin/create-institutes");
   };
 
+
   return (
     <div className="base_container">
       <div className="sidebar_content">
@@ -128,12 +129,15 @@ function Institutes() {
           <Topbar />
         </div>
         <div className="py-2 px-5">
-          <button
-            className="btn_green mb-4"
-            onClick={() => navigateCreateInstu()}
-          >
-            Create Institute
-          </button>
+          {user.superadmin && (
+            <button
+              className="btn_green mb-4"
+              onClick={() => navigateCreateInstu()}
+            >
+              Create Institute
+            </button>
+          )}
+
           {states.loading ? (
             <div>
               <h1>Loading</h1>

@@ -56,7 +56,7 @@ function CreateBlog() {
         <form className="institute_form px-3">
           <h1 className="form_header">Create Blog</h1>
           <input
-            placeholder="title"
+            placeholder="Title"
             className="w-full h-10 mx-auto border-2 border-gray-200 px-3 py-1"
             value={title}
             onChange={(e) => {

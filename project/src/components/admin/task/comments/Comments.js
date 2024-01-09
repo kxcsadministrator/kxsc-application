@@ -38,16 +38,18 @@ function Comments({ comments }) {
         },
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
+
       setStates({ loading: false, error: false, success: true });
       setTimeout(() => {
         setRequestModal(false);
         window.location.reload(false);
       }, 3000);
     } catch (err) {
+      console.log(err);
       setStates({
         loading: false,
         error: true,
-        errMsg: err.response.data.message,
+        errMsg: err.response?.data?.message,
         success: false,
       });
     }
@@ -62,7 +64,6 @@ function Comments({ comments }) {
     setEditComModal(true);
   };
 
-  console.log(comments);
   return (
     <div className="flex flex-col gap-5 px-5">
       <form className="flex justify-between items-center">

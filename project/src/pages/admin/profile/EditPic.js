@@ -61,12 +61,11 @@ function EditPic({ setEditPicModal, editUser }) {
     }
   };
 
-  console.log(user);
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit Users
+          Edit Profile Image
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
           <form>

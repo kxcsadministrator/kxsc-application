@@ -17,9 +17,11 @@ function RequestModal({ setRequestModal, states }) {
     };
   }, [setRequestModal]);
 
+ 
+
   return (
     <div className="modal_container">
-      <div className="modal_content min-h-[25%]" ref={menuRef}>
+      <div className="modal_content min-h-[25%] justify-center" ref={menuRef}>
         {states.loading ? (
           <div>
             <p className="text-gray-400 text-3xl text-center">Loading...</p>

@@ -241,7 +241,7 @@ table th {
     @apply fixed top-0 left-0 w-full h-full flex justify-center items-center bg-[rgba(5,2,9,0.6)];
   }
   .modal_content {
-    @apply flex flex-col  py-2 gap-5 md:w-[65%] w-[80%] lg:w-[35%] h-fit pb-5 bg-white rounded-md shadow-md px-4;
+    @apply flex flex-col gap-5 md:w-[65%] w-[80%] lg:w-[35%] h-fit pb-5 bg-white rounded-md shadow-md px-4;
   }
 
   .modal_heading {

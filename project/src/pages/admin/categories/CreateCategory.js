@@ -34,7 +34,7 @@ function CreateCategory() {
     } catch (err) {
       setLoading(false);
       setErr(true);
-      setErrMsg(err.response.data.errors);
+      setErrMsg(err.response?.data?.errors?.[0] || err.response?.data?.message);
     }
   };
 
@@ -93,12 +93,8 @@ function CreateCategory() {
                     <p>Loading...</p>
                   </div>
                 ) : err ? (
-                  <div>
-                    {errMsg.map((msg) => (
-                      <div key={msg.param}>
-                        <p>{msg.msg}</p>
-                      </div>
-                    ))}
+                  <div className="text-red-500">
+                    <p>{errMsg}</p>
                   </div>
                 ) : (
                   <div></div>

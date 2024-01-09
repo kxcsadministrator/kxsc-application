@@ -34,10 +34,7 @@ function DeleteFile({ setDeleteFileModal, file }) {
     setStates({ loading: true, error: false });
     try {
       const res = await axios.patch(
-        `${API_URL.institute}/tasks/remove-collabs/${id}`,
-        {
-          collaborators: [file],
-        },
+        `${API_URL.institute}/tasks/remove-collabs/${file._id}`,
         { headers: { Authorization: `Bearer ${user.jwt_token}` } }
       );
       setStates({ loading: false, error: false, success: true });
@@ -49,7 +46,7 @@ function DeleteFile({ setDeleteFileModal, file }) {
       setStates({
         loading: false,
         error: true,
-        errMsg: err.response.data.message,
+        errMsg: err.response?.data?.message,
         success: false,
       });
     }
@@ -61,7 +58,7 @@ function DeleteFile({ setDeleteFileModal, file }) {
           Delete collaborator
         </h1>
         <div className="flex flex-col items-center w-full gap-3">
-          <p className="font-bold">Are you sure you want to delete {file}</p>
+          <p className="font-bold">Are you sure you want to delete {file.original_name}</p>
           <div>
             {states.loading ? (
               <div>

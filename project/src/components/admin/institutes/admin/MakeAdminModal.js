@@ -39,7 +39,7 @@ function MakeAdminModal({ setAdminModal, instituteId }) {
     const getMembers = async () => {
       try {
         const res = await axios.get(
-          `${API_URL.institute}/institutes/${instituteId}/search-member?name=${username}`,
+          `${API_URL.user}/users/search-user?name=${username}`,
           { headers: { Authorization: `Bearer ${user.jwt_token}` } }
         );
         setMembers(res.data);

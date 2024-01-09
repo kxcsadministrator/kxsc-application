@@ -70,7 +70,15 @@ function Profile() {
   const deletePic = (user) => {
     setRemovePicModal(true);
   };
-  console.log(user);
+
+  const fileLink = () => {
+    if (userDetails?.profile_picture) {
+      const filePath = userDetails.profile_picture?.path;
+      return filePath.replace("files/", "");
+    }
+  };
+
+
 
   return (
     <div className="base_container">
@@ -84,9 +92,9 @@ function Profile() {
         <div className="py-2 px-4">
           <div className="flex flex-col gap-5 items-center mt-9">
             <div className="flex flex-col gap-4">
-              {user?.profile_picture ? (
+              {userDetails?.profile_picture ? (
                 <img
-                  src={`${API_URL.user}/${user.profile_picture.path}`}
+                  src={`${API_URL.user}/${fileLink()}`}
                   alt="profile_picture"
                   className="w-[100px] h-[100px] md:w-[180px] md:h-[180px] rounded-full object-cover"
                 />
@@ -99,7 +107,7 @@ function Profile() {
               )}
 
               <div className="flex items-center gap-3 mx-auto">
-                {user?.profile_picture && (
+                {userDetails?.profile_picture && (
                   <button
                     className="p-2 border-gray_bg bg-[#fbe2e2] text-red-500 rounded-sm -mt-2"
                     onClick={() => deletePic()}

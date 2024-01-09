@@ -25,8 +25,8 @@ function Login() {
     } catch (err) {
       dispatch({
         type: "LOGIN_FAILURE",
-        payload: err.response.data.errors
-          ? err.response.data.errors[0].msg
+        payload: err?.response?.data?.errors
+          ? err.response.data.errors[0]?.msg
           : err.response.data.message,
       });
     }

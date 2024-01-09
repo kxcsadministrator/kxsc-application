@@ -91,9 +91,7 @@ function EditPublicUser({ setEditUserModal, userDetails, editUser }) {
               placeholder={email}
               className="w-[90%] h-10 bg-gray_bg px-3 py-1"
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-              }}
+              disabled
             />
             <input
               placeholder={phone}

@@ -48,7 +48,7 @@ function DeleteResourceFiles({ setDeleteFileModal, file, resource }) {
   return (
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
-        <h1 className="modal_heading">Add Member</h1>
+        <h1 className="modal_heading">Delete File</h1>
         <div className="flex flex-col items-center w-full gap-3">
           <div>
             <p>

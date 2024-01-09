@@ -64,11 +64,11 @@ function EditComment({ setEditComModal, comment }) {
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
           Edit collaborator
         </h1>
-        <div className="flex flex-col items-center w-full gap-3">
+        <div className="flex flex-col  w-full gap-3">
           <form>
-            <input
+            <textarea
               placeholder={comment}
-              className="w-[90%] h-10 bg-gray_bg px-3 py-1"
+              className="w-full h-20 bg-gray_bg px-3 py-1"
               value={editComment}
               onChange={(e) => {
                 setEditComment(e.target.value);

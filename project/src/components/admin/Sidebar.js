@@ -40,7 +40,7 @@ function Sidebar() {
 
   const logout = () => {
     dispatch({ type: "LOGOUT" });
-    navigate("/");
+    navigate("/admin");
   };
   const viewInstitute = (institute) => {
     sessionStorage.setItem("id", institute._id);
