@@ -19,7 +19,7 @@ function CreateType() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStates({ loading: true, error: false });
+    setStates({ loading: true, error: false, success: false });
     try {
       const res = await axios.post(
         `${API_URL.resource}/resources/new-resource-type`,
@@ -33,9 +33,11 @@ function CreateType() {
         navigate("/admin/resource-types");
       }, 2000);
     } catch (err) {
+      console.log(err);
       setStates({
         loading: false,
-        error: false,
+        success: false,
+        error: true,
         errMsg: err.response.data.message,
       });
     }
@@ -65,9 +67,9 @@ function CreateType() {
                 <div>
                   <p>Loading...</p>
                 </div>
-              ) : states.err ? (
+              ) : states.error ? (
                 <div>
-                  <p>{states.errMsg}</p>
+                  <p className="text-red-500">{states.errMsg}</p>
                 </div>
               ) : states.success ? (
                 <div>

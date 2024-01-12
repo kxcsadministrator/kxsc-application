@@ -62,7 +62,7 @@ function EditComment({ setEditComModal, comment }) {
     <div className="modal_container">
       <div className="modal_content" ref={menuRef}>
         <h1 className="font-bold text-[20px] border-b-2 border-b-gray w-full text-center  pb-2">
-          Edit collaborator
+          Edit Comment
         </h1>
         <div className="flex flex-col  w-full gap-3">
           <form>
