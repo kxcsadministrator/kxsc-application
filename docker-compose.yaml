@@ -6,13 +6,14 @@ services:
       - "uploads:/node/files"
       - /node/node_modules
     environment:
-      - BASE_URL=http://13.39.47.227:3003
-      - LOGIN_URL=http://13.39.47.227:3003
+      - BASE_URL=https://www.nstikxc.gov.ng
+      - LOGIN_URL=https://www.nstikxc.gov.ng/admin
+      - PUBLIC_LOGIN_URL=https://www.nstikxc.gov.ng/public/login
       - SERVER_PORT=3000
       - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
       - SECRET_KEY=9mODTPQzQz-zlXxU9RPwfg
-      - EMAIL_PASSWORD=rchmlzwnhrgpmnpb
-      - EMAIL_USERNAME=timsnoreplyautomatedbot@gmail.com
+      - EMAIL_PASSWORD=olcybqohcmvbcykx
+      - EMAIL_USERNAME=kxcsadmnistrator@gmail.com
       - EMAIL_HOST=smtp.gmail.com
       - FROM_EMAIL=Knowledge Exchange System
     ports:
@@ -25,10 +26,10 @@ services:
       - /node/node_modules
     environment:
       - SERVER_PORT=3000
-      - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
-      - USERS_SERVICE=http://users:3000/users
-      - LOG_URL=http://users:3000/logs
-      - MESSAGE_URL=http://users:3000/messages
+      - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
+      - USERS_SERVICE=https://moniat60.com.ng:3000/users
+      - LOG_URL=https://moniat60.com.ng:3000/logs
+      - MESSAGE_URL=https://moniat60.com.ng:3000/messages
     ports:
       - "3001:3000"
   resources:
@@ -38,22 +39,11 @@ services:
       - "uploads:/node/uploads"
       - /node/node_modules
     environment:
-      - DATABASE_URL=mongodb+srv://timosky:vFlB0wxQ3zwhx5Yz@cluster0.sxdyp28.mongodb.net/test
-      - USERS_SERVICE=http://users:3000/users
-      - INSTITUTE_SERVICE=http://institutes:3000/institutes
-      - LOG_URL=http://users:3000/logs
+      - DATABASE_URL=mongodb+srv://kxcsadmnistrator:AbFvgEA6pjIxVuIl@application-cluster.xtdk5y0.mongodb.net/kxcscollection
+      - USERS_SERVICE=https://moniat60.com.ng:3000/users
+      - INSTITUTE_SERVICE=https://moniat60.com.ng:3001/institutes
+      - LOG_URL=https://moniat60.com.ng:3000/logs
     ports:
       - "3002:3000"
-  frontend:
-    build: ./project
-    volumes:
-      - ./project:/app
-      - /app/node_modules
-    environment:
-      - USERS_SERVICE=http://users:3000
-      - INSTITUTE_SERVICE=http://institutes:3000
-      - RESOURCES_SERVICE=http://resources:3000
-    ports:
-      - "80:3000"
 volumes:
   uploads:
