@@ -553,7 +553,8 @@ router.get("/download-file/:file_id", async (req, res) => {
         
         helpers.log_request_info(`GET resources/download-files/${req.params.id} - 200`)
 
-        return res.download(file.path, file.original_name);
+        // return res.download(file.path, file.original_name);
+        res.status(200).json({"file":file.path, "name":file.original_name});
     } catch (error) {
         helpers.log_request_error(`GET resources/download-files/${req.params.id} - 404: ${error.message}`)
         res.status(400).json({message: error.message});
