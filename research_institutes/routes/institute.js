@@ -448,8 +448,8 @@ router.get("/download-file/:id", async (req, res) => {
         }
     
         helpers.log_request_info(`GET institutes/download-files/${req.params.id} - 200`)
-        res.download(file.path, file.original_name);
-        // res.status(200).json({"file":file.path, "name":file.original_name});
+        // res.download(file.path, file.original_name);
+        res.status(200).json({"file":file.path, "name":file.original_name});
     } catch (error) {
         // console.error(error)
         helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 400: ${error.message}`)
