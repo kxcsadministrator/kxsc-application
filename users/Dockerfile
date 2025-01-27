@@ -16,6 +16,7 @@ COPY . .
 
 # Run the node server with server.js file
 # CMD ["npm", "run", "dev"]
+#docker build --pull --rm -f 'users/Dockerfile' -t 'kxscapplication:latest' 'users'
 
 CMD ["npm", "run", "start"]
 
