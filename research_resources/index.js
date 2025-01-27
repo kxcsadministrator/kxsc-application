@@ -31,7 +31,7 @@ database.once('connected', () => {
 // });
 
 app.listen(port, () => {
-    console.log(`Server Started..., listening on port: ${port}`);
+    console.log(`Server Started..., listening on port: http://localhost:${port}`);
 })
 
 module.exports = app;

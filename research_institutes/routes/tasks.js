@@ -803,14 +803,83 @@ router.get("/:task_id/download-file/:file_id", async (req, res) => {
         }
         
         helpers.log_request_info(`GET tasks/download-file/${file_id} - 200`)
-        res.download(file.path, file.original_name);
-        // res.status(200).json({"file":file.path, "name":file.original_name});
+        res.download(file.path, file.original_name); 
     } catch (error) {
         helpers.log_request_error(`GET tasks/download-file/${file_id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
 
+
+/** 
+ * @swagger
+ * /tasks/{task_id}/preview-file/{file_id}:
+ *  get:
+ *      summary: preview a file from the server.
+ *      description: |
+ *        Only admins and collaborators can preview files.
+ *        
+ *        Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: task_id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the task to preview a file from
+ *          - in: path
+ *            name: file_id
+ *            schema:
+ *              type: UUID/Object ID
+ *            required: true
+ *            description: id of the file to preview
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '401':
+ *      description: Unauthorized
+ *    '400':
+ *      description: Bad request
+*/
+router.get("/:task_id/preview-file/:file_id", async (req, res) => {
+    
+    try {
+        const file_id = req.params.file_id;
+        const task_id = req.params.task_id;
+
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET tasks/preview-file/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+
+        const file = await repository.get_one_task_file(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET tasks/preview-file/${req.params.file_id} - 404: File not found`)
+            return res.status(404).json({message: `file ${file_id} not found`});
+        }
+
+        const task = await repository.get_task_by_id(task_id);
+        if (!task) {
+            helpers.log_request_error(`GET tasks/preview-file/${req.params.file_id} - 404: Task not found`)
+            return res.status(400).json({message: `task with id: ${task_id} not found`});
+        }
+
+        const isMember = await helpers.validateTaskMembers(req.headers, task_id);
+        if (!isMember) {
+            helpers.log_request_error(`GET tasks/preview-file/${req.params.file_id} - 401: User not a collaborator`)
+            return res.status(401).json({message: `Unauthorized access. User not a collaborator`})
+        }
+        
+        helpers.log_request_info(`GET tasks/preview-file/${file_id} - 200`)
+         
+        res.status(200).json({"file":file.path, "name":file.original_name});
+    } catch (error) {
+        helpers.log_request_error(`GET tasks/preview-file/${file_id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+});
 /** 
  * @swagger
  * /{id}/comments/new:

@@ -449,10 +449,70 @@ router.get("/download-file/:id", async (req, res) => {
     
         helpers.log_request_info(`GET institutes/download-files/${req.params.id} - 200`)
         res.download(file.path, file.original_name);
-        // res.status(200).json({"file":file.path, "name":file.original_name});
     } catch (error) {
         // console.error(error)
         helpers.log_request_error(`GET institutes/download-files/${req.params.id} - 400: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+});
+
+
+
+/** 
+ * @swagger
+ * /institutes/preview-file/{id}:
+ *  get:
+ *      summary: preview a file from the server.
+ *      description: |
+ *        Requires a bearer token for authentication.
+ *      parameters: 
+ *          - in: path
+ *            name: id
+ *            schema:
+ *              type: UUID
+ *            required: true
+ *            description: id of the file to be preview
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+*/
+router.get("/preview-file/:id", async (req, res) => {
+    
+    try {
+        const file_id = req.params.id;
+
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET institutes/preview-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET institutes/preview-files/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+
+        const file = await repository.get_one_institute_file(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET institutes/preview-files/${req.params.id} - 404: file not found`)
+            return res.status(404).json({message: "file not found"});
+        }
+
+        const isMember = await helpers.validateInstituteMembers(req.headers, file.parent._id.toString())
+        if (!isMember) {
+            helpers.log_request_error(`GET institutes/preview-files/${req.params.id} - 401: Only institute members can preview files`)
+            return res.status(401).json({message: "Only institute members can preview files"})
+        }
+    
+        helpers.log_request_info(`GET institutes/preview-files/${req.params.id} - 200`)
+         
+        res.status(200).json({"file":file.path, "name":file.original_name});
+    } catch (error) {
+        // console.error(error)
+        helpers.log_request_error(`GET institutes/preview-files/${req.params.id} - 400: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });

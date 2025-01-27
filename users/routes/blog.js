@@ -364,13 +364,13 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
 
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
             helpers.delete_file(file.path)
-            helpers.log_request_error(`POST blog/update-avatar/${id} - 400: only .png, .jpg and .jpeg format allowed`)
+            helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - 400: only .png, .jpg and .jpeg format allowed`)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
 
         if (file.size > 2000000) {
             helpers.delete_file(file.path)
-            helpers.log_request_error(`POST blog/update-avatar/${id} - 400: File exceeded 2MB size limit`)
+            helpers.log_request_error(`POST blog/update-avatar/${req.params.id} - 400: File exceeded 2MB size limit`)
             return res.status(400).json({message: "File exceeded 2MB size limit"});
         }
         

@@ -266,29 +266,36 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
 
         const file = req.file;
         const resource_id = req.params.id;
+        
+        
 
         // Guard clauses to make this op more readable
         if (!resource_id) {
             helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '400': validation errors`)
             return res.status(400).json({message: "No resource provided"})
         }
+        
         if (!file) {
             helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '400': validation errors`)
             return res.status(400).json({message: "No file selected"})
         }
 
         if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
-            helpers.log_request_error(`POST resources/update-avatar/${id} - 400: only .png, .jpg and .jpeg format allowed`)
+            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - 400: only .png, .jpg and .jpeg format allowed`)
             return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
         }
+        
 
         if (file.size > 2000000) {
-            helpers.log_request_error(`POST resources/update-avatar/${id} - 400: File exceeded 2MB size limit`)
+            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - 400: File exceeded 2MB size limit`)
             return res.status(400).json({message: "File exceeded 2MB size limit"});
         }
         
+        
         // if both resources and files were provided
         const resource_data = await repository.get_resource_by_id(resource_id)
+        
+       
         if (!resource_data) {
             helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '404': Resource with id: ${resource_id} not found`)
             return res.status(404).json({message: `Resource with id: ${resource_id} not found`})
@@ -298,9 +305,11 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
             helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - '401': Unauthorized access to update`)
             return res.status(401).json({message: 'Unauthorized access to upload'});
         }
+        
 
         const avatar_path = `${FILE_PATH}${file.filename}`
         const result = await repository.update_resource_avatar(resource_id, avatar_path);
+        
 
         helpers.log_request_info(`POST resources/update-avatar/${req.params.id} - 200`)
         res.status(200).json(result); 
@@ -516,6 +525,8 @@ router.post("/upload-files/:id", upload.array("files"), async (req, res) => {
 router.get("/download-file/:file_id", async (req, res) => {
     const resource_id = req.params.resource_id
     const file_id = req.params.file_id;
+    console.log("enter here");
+    
     
     try {
         if (!req.headers.authorization) {
@@ -553,10 +564,94 @@ router.get("/download-file/:file_id", async (req, res) => {
         
         helpers.log_request_info(`GET resources/download-files/${req.params.id} - 200`)
 
-        return res.download(file.path, file.original_name);
-        // res.status(200).json({"file":file.path, "name":file.original_name});
+        return res.download(file.path, file.original_name); 
     } catch (error) {
         helpers.log_request_error(`GET resources/download-files/${req.params.id} - 404: ${error.message}`)
+        res.status(400).json({message: error.message});
+    }
+});
+
+
+/** 
+ * @swagger
+ * /resources/{resource_id}preview-file/{file_id}:
+ *  get:
+ *      summary: Return file json data file from the server.
+ *      description: |
+ *        The request should have a query parameter 'name'.
+ *        This param should match the 'name' of a file object and not original_filename
+ * 
+ *        You have to be logged in to download files
+ * 
+ *        Requires a bearer token for authentication  
+ *      parameters: 
+ *          - in: path
+ *            name: resource_id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the resource you wish to download the file from
+ *          - in: path
+ *            name: file_id
+ *            schema:
+ *              type: Object ID
+ *            required: true
+ *            description: The id of the file you wish to download
+ * responses:
+ *    '200':
+ *      description: Successful
+ *    '404':
+ *      description: Not found
+ *    '400':
+ *      description: Bad request
+ *    '401':
+ *      description: Unauthorized
+*/
+router.get("/preview-file/:file_id", async (req, res) => {
+    const resource_id = req.params.resource_id
+    const file_id = req.params.file_id;
+    
+    
+    
+    try {
+        if (!req.headers.authorization) {
+            helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 401: Token not found`)
+            return res.status(401).json({message: "Token not found"});
+        }
+        const validateUser = await helpers.validateUser(req.headers);
+        if (validateUser.status !== 200) {
+            helpers.log_request_error(`GET resources/preview-files/${req.params.id} - ${validateUser.status}: ${validateUser.message}`)
+            return res.status(validateUser.status).json({message: validateUser.message});
+        }
+        const user = validateUser.data;
+        // const resource = await repository.get_resource_by_id(resource_id);
+        // if (!resource) {
+        //     helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 404: Resource with id: ${resource_id} not found`)
+        //     return res.status(404).json({message: `Resource with id: ${resource_id} not found`});
+        // }
+
+        const file = await repository.get_resource_file_by_id(file_id);
+        if (!file) {
+            helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 404: File not found`)
+            return res.status(404).json({message: "File not found"});
+        }
+
+        const resource = await repository.get_resource_by_id(file.parent._id)
+        if (!file) {
+            helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 404: file not found`)
+            return res.status(404).json({message: "file not found"});
+        }
+
+        if (resource.visibility != "public" && user._id.toString() != resource.author && user.superadmin == false) {
+            helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 401: Only public resources files can be preview`)
+            return res.status(401).json({message: "Only public resources can be preview"});
+        }
+        
+        helpers.log_request_info(`GET resources/preview-files/${req.params.id} - 200`)
+
+        res.status(200).json({"file":file.path, "name":file.original_name});
+    } catch (error) {
+        helpers.log_request_error(`GET resources/preview-files/${req.params.id} - 404: ${error.message}`)
         res.status(400).json({message: error.message});
     }
 });
