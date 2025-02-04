@@ -280,10 +280,10 @@ router.post("/update-avatar/:id", upload.single("avatar"), async (req, res) => {
             return res.status(400).json({message: "No file selected"})
         }
 
-        if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
-            helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - 400: only .png, .jpg and .jpeg format allowed`)
-            return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
-        }
+        // if (!(file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg")){
+        //     helpers.log_request_error(`POST resources/update-avatar/${req.params.id} - 400: only .png, .jpg and .jpeg format allowed`)
+        //     return res.status(400).json({message: "only .png, .jpg and .jpeg format allowed"});
+        // }
         
 
         if (file.size > 2000000) {
