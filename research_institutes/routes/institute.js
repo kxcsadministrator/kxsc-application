@@ -120,7 +120,10 @@ router.get('/one/:id', async (req, res) => {
  *      description: Bad request
 */
 router.get('/my-institutes', async (req, res) => {
+    console.log("enter here");
+    
     try {
+        
         const page = req.query.page || 1
         const limit = req.query.limit || 20
 
@@ -134,6 +137,8 @@ router.get('/my-institutes', async (req, res) => {
             return res.status(validateUser.status).json({message: validateUser.message});
         }
         const user = validateUser.data;
+        
+        
 
         if (user.superadmin) {
             helpers.log_request_error(`GET institutes/my-institutes - 200`)
